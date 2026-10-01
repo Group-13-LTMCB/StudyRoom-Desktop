@@ -480,3 +480,16 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# SQLite Local database & Session cache
+*.db
+*.db-journal
+*.dat
+session.dat
+
+# Application Logs
+logs/
+
+# Publish artifacts & Inno Setup outputs
+Output/
+/src/StudyRoom.UI/bin/Publish/ 
