@@ -481,15 +481,20 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-# SQLite Local database & Session cache
-*.db
-*.db-journal
-*.dat
+# --- StudyRoom specific ---
+# Local runtime data (must never be committed: tokens, cache, logs)
 session.dat
-
-# Application Logs
+studyroom_local.db
+*.db-shm
+*.db-wal
 logs/
 
-# Publish artifacts & Inno Setup outputs
+# Published output & installer
+publish/
 Output/
-/src/StudyRoom.UI/bin/Publish/ 
+*.exe
+
+# Secrets / local config
+appsettings.Local.json
+*.pfx
+.env
