@@ -480,3 +480,21 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# --- StudyRoom specific ---
+# Local runtime data (must never be committed: tokens, cache, logs)
+session.dat
+studyroom_local.db
+*.db-shm
+*.db-wal
+logs/
+
+# Published output & installer
+publish/
+Output/
+*.exe
+
+# Secrets / local config
+appsettings.Local.json
+*.pfx
+.env
