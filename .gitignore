@@ -483,8 +483,8 @@ $RECYCLE.BIN/
 
 # --- StudyRoom specific ---
 # Local runtime data (must never be committed: tokens, cache, logs)
-*.db
-*.dat
+session.dat
+studyroom_local.db
 *.db-shm
 *.db-wal
 logs/
