@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/StudyRoom.Application/StudyRoom.Application.csproj" />
+    <Project Path="src/StudyRoom.Core/StudyRoom.Core.csproj" />
+    <Project Path="src/StudyRoom.Infrastructure/StudyRoom.Infrastructure.csproj" />
+    <Project Path="src/StudyRoom.UI/StudyRoom.UI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/StudyRoom.Application.Tests/StudyRoom.Application.Tests.csproj" />
+    <Project Path="tests/StudyRoom.UI.Tests/StudyRoom.UI.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Properties inherited from Directory.Build.props -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\StudyRoom.Core\StudyRoom.Core.csproj" />
+  </ItemGroup>
+
+</Project>

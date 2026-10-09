@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StudyRoom.Core\StudyRoom.Core.csproj" />
+    <ProjectReference Include="..\StudyRoom.Application\StudyRoom.Application.csproj" />
+    <ProjectReference Include="..\StudyRoom.Infrastructure\StudyRoom.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
