@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -18,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\StudyRoom.Core\StudyRoom.Core.csproj" />
     <ProjectReference Include="..\..\src\StudyRoom.Application\StudyRoom.Application.csproj" />
+    <ProjectReference Include="..\..\src\StudyRoom.UI\StudyRoom.UI.csproj" />
   </ItemGroup>
 
 </Project>
