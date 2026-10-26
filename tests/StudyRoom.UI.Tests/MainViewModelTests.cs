@@ -77,4 +77,36 @@ public class MainViewModelTests
         Assert.Contains("Nghỉ ngắn", viewModel.PhaseText);
         Assert.Equal("05:00", viewModel.FormattedTime);
     }
+
+    [Fact]
+    public void TimingProperties_ShouldExposeAccurateValuesForWidgetBinding()
+    {
+        var session = new PomodoroSession
+        {
+            FocusDurationSeconds = 1200
+        };
+        using var service = new LocalPomodoroTimerService(session);
+        var viewModel = new MainViewModel(service);
+
+        Assert.Equal(1200, viewModel.TotalSeconds);
+        Assert.Equal("Focus", viewModel.RawPhase);
+
+        viewModel.StartCommand.Execute(null);
+        Assert.Equal(1200, viewModel.RemainingSeconds);
+    }
+
+    [Fact]
+    public void PhaseCompletedCelebration_ShouldTriggerOnServiceEvent()
+    {
+        var session = new PomodoroSession();
+        using var service = new LocalPomodoroTimerService(session);
+        var viewModel = new MainViewModel(service);
+
+        bool celebrationTriggered = false;
+        viewModel.PhaseCompletedCelebration += () => celebrationTriggered = true;
+
+        viewModel.SkipCommand.Execute(null);
+        Assert.Equal("ShortBreak", viewModel.RawPhase);
+        Assert.False(celebrationTriggered);
+    }
 }

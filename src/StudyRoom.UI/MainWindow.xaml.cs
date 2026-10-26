@@ -5,7 +5,7 @@ namespace StudyRoom.UI;
 
 public partial class MainWindow : FluentWindow
 {
-    public MainWindow(MainViewModel viewModel)
+    public MainWindow(DashboardViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;

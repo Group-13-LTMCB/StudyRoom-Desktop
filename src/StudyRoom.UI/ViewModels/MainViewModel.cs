@@ -26,6 +26,17 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _isPaused;
 
+    [ObservableProperty]
+    private int _remainingSeconds = 1500;
+
+    [ObservableProperty]
+    private int _totalSeconds = 1500;
+
+    [ObservableProperty]
+    private string _rawPhase = "Focus";
+
+    public event Action? PhaseCompletedCelebration;
+
     public bool IsStopped => !IsRunning && !IsPaused;
 
     public MainViewModel(IPomodoroTimerService timerService)
@@ -73,16 +84,39 @@ public partial class MainViewModel : ObservableObject
 
     private void OnTimerTick(PomodoroSession session)
     {
-        System.Windows.Application.Current?.Dispatcher.Invoke(() => UpdateStateFromSession(session));
+        if (System.Windows.Application.Current?.Dispatcher is { } dispatcher)
+        {
+            dispatcher.Invoke(() => UpdateStateFromSession(session));
+        }
+        else
+        {
+            UpdateStateFromSession(session);
+        }
     }
 
     private void OnPhaseCompleted(PomodoroSession session)
     {
-        System.Windows.Application.Current?.Dispatcher.Invoke(() => UpdateStateFromSession(session));
+        if (System.Windows.Application.Current?.Dispatcher is { } dispatcher)
+        {
+            dispatcher.Invoke(() =>
+            {
+                UpdateStateFromSession(session);
+                PhaseCompletedCelebration?.Invoke();
+            });
+        }
+        else
+        {
+            UpdateStateFromSession(session);
+            PhaseCompletedCelebration?.Invoke();
+        }
     }
 
     private void UpdateStateFromSession(PomodoroSession session)
     {
+        RemainingSeconds = session.RemainingSeconds;
+        TotalSeconds = session.CurrentPhaseDurationSeconds;
+        RawPhase = session.Phase.ToString();
+
         int minutes = session.RemainingSeconds / 60;
         int seconds = session.RemainingSeconds % 60;
         FormattedTime = $"{minutes:D2}:{seconds:D2}";
