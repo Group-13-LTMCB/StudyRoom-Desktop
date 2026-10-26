@@ -25,12 +25,16 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IFractionalIndexingHelper, FractionalIndexingHelper>();
         services.AddSingleton<IRateLimiter>(_ => new TokenBucketRateLimiter(5, 1));
 
+        // Dashboard Services
+        services.AddSingleton<IDashboardService, MockDashboardService>();
+
         // Infrastructure Services
         services.AddSingleton<ISecureStorageService, DpapiSecureStorageService>();
         services.AddSingleton<SqliteLocalCacheRepository>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();
+        services.AddTransient<DashboardViewModel>();
 
         // Views
         services.AddTransient<MainWindow>();

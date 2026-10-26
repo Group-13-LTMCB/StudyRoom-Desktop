@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:vm="clr-namespace:StudyRoom.UI.ViewModels"
+        xmlns:views="clr-namespace:StudyRoom.UI.Views"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance vm:MainViewModel}"
-        Title="StudyRoom - Phòng Học Tập Nhóm"
-        Height="580" Width="820"
-        MinHeight="500" MinWidth="700"
+        d:DataContext="{d:DesignInstance vm:DashboardViewModel}"
+        Title="StudyRoom - Không gian Học Tập &amp; Làm Việc Nhóm"
+        Height="840" Width="1300"
+        MinHeight="720" MinWidth="1050"
         WindowStartupLocation="CenterScreen">
 
     <Grid>
@@ -21,87 +22,7 @@
         <!-- TitleBar -->
         <ui:TitleBar Grid.Row="0" Title="StudyRoom Desktop" />
 
-        <!-- Main Content Area -->
-        <Grid Grid.Row="1" Margin="24">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-
-            <!-- Header -->
-            <StackPanel Grid.Row="0" Margin="0,0,0,24" HorizontalAlignment="Center">
-                <TextBlock Text="StudyRoom 💻📚" FontSize="26" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                <TextBlock Text="Phòng học tập nhóm từ xa &amp; Đồng hồ Pomodoro" FontSize="14" Opacity="0.7" Margin="0,4,0,0" HorizontalAlignment="Center" />
-            </StackPanel>
-
-            <!-- Pomodoro Card -->
-            <ui:Card Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="480" Padding="32">
-                <StackPanel HorizontalAlignment="Center">
-                    <!-- Current Phase Indicator -->
-                    <Border Background="#1F808080" CornerRadius="8" Padding="12,6" HorizontalAlignment="Center">
-                        <TextBlock Text="{Binding PhaseText}" FontSize="16" FontWeight="Medium" HorizontalAlignment="Center" />
-                    </Border>
-
-                    <!-- Digital Timer Display -->
-                    <TextBlock Text="{Binding FormattedTime}" 
-                               FontSize="72" 
-                               FontWeight="Bold" 
-                               HorizontalAlignment="Center" 
-                               Margin="0,16" />
-
-                    <!-- Cycle Information -->
-                    <TextBlock Text="{Binding CycleText}" 
-                               FontSize="14" 
-                               Opacity="0.8" 
-                               HorizontalAlignment="Center" 
-                               Margin="0,0,0,24" />
-
-                    <!-- Action Controls -->
-                    <WrapPanel HorizontalAlignment="Center">
-                        <ui:Button Content="Bắt đầu" 
-                                   Appearance="Primary" 
-                                   Command="{Binding StartCommand}" 
-                                   IsEnabled="{Binding IsStopped}" 
-                                   Margin="6" 
-                                   Padding="16,8" />
-
-                        <ui:Button Content="Tạm dừng" 
-                                   Appearance="Secondary" 
-                                   Command="{Binding PauseCommand}" 
-                                   IsEnabled="{Binding IsRunning}" 
-                                   Margin="6" 
-                                   Padding="16,8" />
-
-                        <ui:Button Content="Tiếp tục" 
-                                   Appearance="Primary" 
-                                   Command="{Binding ResumeCommand}" 
-                                   IsEnabled="{Binding IsPaused}" 
-                                   Margin="6" 
-                                   Padding="16,8" />
-
-                        <ui:Button Content="Đặt lại" 
-                                   Appearance="Secondary" 
-                                   Command="{Binding ResetCommand}" 
-                                   Margin="6" 
-                                   Padding="16,8" />
-
-                        <ui:Button Content="Bỏ qua" 
-                                   Appearance="Secondary" 
-                                   Command="{Binding SkipCommand}" 
-                                   Margin="6" 
-                                   Padding="16,8" />
-                    </WrapPanel>
-                </StackPanel>
-            </ui:Card>
-
-            <!-- Footer Status -->
-            <TextBlock Grid.Row="2" 
-                       Text="Chế độ hiện tại: Local MVP (Sẵn sàng mở rộng đồng bộ WebSocket qua AWS)" 
-                       FontSize="12" 
-                       Opacity="0.5" 
-                       HorizontalAlignment="Center" 
-                       Margin="0,16,0,0" />
-        </Grid>
+        <!-- Main Content Area: DashboardView -->
+        <views:DashboardView Grid.Row="1" />
     </Grid>
 </ui:FluentWindow>

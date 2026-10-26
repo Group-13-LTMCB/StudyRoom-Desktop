@@ -498,3 +498,10 @@ Output/
 appsettings.Local.json
 *.pfx
 .env
+# Private Specifications, References & Design assets (Confidential)
+specs/
+[Rr]eferences/
+PROJECT.md
+
+# AI Agent Workspaces & Logs
+.agents/
