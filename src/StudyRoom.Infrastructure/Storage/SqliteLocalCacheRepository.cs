@@ -1,10 +1,11 @@
 using Microsoft.Data.Sqlite;
+using StudyRoom.Application.Interfaces;
 using StudyRoom.Core.Entities;
 using StudyRoom.Core.Enums;
 
 namespace StudyRoom.Infrastructure.Storage;
 
-public class SqliteLocalCacheRepository
+public class SqliteLocalCacheRepository : ILocalCacheRepository
 {
     private readonly string _connectionString;
 

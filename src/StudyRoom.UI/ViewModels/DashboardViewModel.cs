@@ -14,10 +14,13 @@ public partial class DashboardViewModel : ObservableObject
     private readonly IDashboardService _dashboardService;
 
     [ObservableProperty]
-    private int _selectedNavIndex = 0; // 0 = Overview, 1 = Pomodoro
+    private int _selectedNavIndex = 0; // 0 = Overview, 1 = Pomodoro, 2 = Kanban
 
     [ObservableProperty]
     private PomodoroRoomViewModel _pomodoroRoomVm;
+
+    [ObservableProperty]
+    private KanbanBoardViewModel _kanbanVm;
 
     [ObservableProperty]
     private string _greeting = "Chào mừng trở lại, Sally!";
@@ -127,17 +130,32 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty]
     private string _themeIcon = "🌙";
 
-    public DashboardViewModel(IDashboardService dashboardService, IPomodoroEngine? pomodoroEngine = null)
+    public DashboardViewModel(
+        IDashboardService dashboardService,
+        IPomodoroEngine? pomodoroEngine = null,
+        KanbanBoardViewModel? kanbanVm = null,
+        IKanbanService? kanbanService = null,
+        IFractionalIndexingHelper? indexingHelper = null)
     {
         _dashboardService = dashboardService;
         _pomodoroRoomVm = new PomodoroRoomViewModel(pomodoroEngine);
         _pomodoroRoomVm.RequestBackToDashboard += () => SelectedNavIndex = 0;
+
+        _kanbanVm = kanbanVm ?? new KanbanBoardViewModel(kanbanService, indexingHelper);
+        _kanbanVm.RequestBackToDashboard += () => SelectedNavIndex = 0;
     }
 
     [RelayCommand]
-    public void NavigateTo(int index)
+    public void NavigateTo(object? indexParam)
     {
-        SelectedNavIndex = index;
+        if (indexParam is int intVal)
+        {
+            SelectedNavIndex = intVal;
+        }
+        else if (indexParam is string str && int.TryParse(str, out var parsed))
+        {
+            SelectedNavIndex = parsed;
+        }
     }
 
     [RelayCommand]

@@ -120,12 +120,28 @@
                         </StackPanel>
                     </ui:Button>
 
-                    <Border Background="Transparent" CornerRadius="10" Padding="12,10" Margin="0,0,0,6">
+                    <ui:Button Command="{Binding NavigateToCommand}" CommandParameter="2"
+                               HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                               Padding="12,10" Margin="0,0,0,6" CornerRadius="10" BorderThickness="0">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <Setter Property="FontWeight" Value="Normal" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedNavIndex}" Value="2">
+                                        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📋" FontSize="15" Margin="0,0,12,0" Opacity="0.75" />
-                            <TextBlock Text="Nhiệm vụ &amp; Kanban" Opacity="0.75" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                            <TextBlock Text="📋" FontSize="15" Margin="0,0,12,0" />
+                            <TextBlock Text="Nhiệm vụ &amp; Kanban" />
                         </StackPanel>
-                    </Border>
+                    </ui:Button>
 
                     <Border Background="Transparent" CornerRadius="10" Padding="12,10" Margin="0,0,0,6">
                         <StackPanel Orientation="Horizontal">
@@ -821,19 +837,35 @@
         </Border>
             </Grid>
 
-            <!-- VIEW 1: POMODORO ROOM VIEW -->
-            <views:PomodoroRoomView DataContext="{Binding PomodoroRoomVm}">
-                <views:PomodoroRoomView.Style>
-                    <Style TargetType="views:PomodoroRoomView">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedNavIndex}" Value="1">
-                                <Setter Property="Visibility" Value="Visible" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </views:PomodoroRoomView.Style>
-            </views:PomodoroRoomView>
+            <!-- VIEW 1: POMODORO ROOM VIEW -->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedNavIndex}" Value="1">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <views:PomodoroRoomView DataContext="{Binding PomodoroRoomVm}" />
+            </Grid>
+
+            <!-- VIEW 2: KANBAN BOARD VIEW -->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedNavIndex}" Value="2">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <views:KanbanBoardView DataContext="{Binding KanbanVm}" />
+            </Grid>
         </Grid>
 
     </Grid>

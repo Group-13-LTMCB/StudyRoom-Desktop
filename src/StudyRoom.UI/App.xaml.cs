@@ -31,9 +31,12 @@ public partial class App : System.Windows.Application
         // Infrastructure Services
         services.AddSingleton<ISecureStorageService, DpapiSecureStorageService>();
         services.AddSingleton<SqliteLocalCacheRepository>();
+        services.AddSingleton<ILocalCacheRepository>(sp => sp.GetRequiredService<SqliteLocalCacheRepository>());
+        services.AddSingleton<IKanbanService, KanbanService>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();
+        services.AddTransient<KanbanBoardViewModel>();
         services.AddTransient<DashboardViewModel>();
 
         // Views

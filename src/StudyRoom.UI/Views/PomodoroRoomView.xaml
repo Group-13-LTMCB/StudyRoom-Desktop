@@ -284,7 +284,7 @@
                         <TextBlock Grid.Column="0" Text="Thành viên trong phòng" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Center" />
                         <Border Grid.Column="1" Background="#203222" CornerRadius="6" Padding="6,2">
                             <TextBlock FontSize="11" FontWeight="SemiBold" Foreground="#4ADE80">
-                                <Run Text="{Binding Members.Count}" /><Run Text=" bạn đang học" />
+                                <Run Text="{Binding Members.Count, Mode=OneWay}" /><Run Text=" bạn đang học" />
                             </TextBlock>
                         </Border>
                     </Grid>
