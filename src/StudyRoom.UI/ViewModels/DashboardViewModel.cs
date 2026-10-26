@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StudyRoom.Application.Interfaces;
 using StudyRoom.Core.Enums;
+using StudyRoom.Core.Interfaces;
 using StudyRoom.Core.Models;
 using Wpf.Ui.Appearance;
 
@@ -11,6 +12,12 @@ namespace StudyRoom.UI.ViewModels;
 public partial class DashboardViewModel : ObservableObject
 {
     private readonly IDashboardService _dashboardService;
+
+    [ObservableProperty]
+    private int _selectedNavIndex = 0; // 0 = Overview, 1 = Pomodoro
+
+    [ObservableProperty]
+    private PomodoroRoomViewModel _pomodoroRoomVm;
 
     [ObservableProperty]
     private string _greeting = "Chào mừng trở lại, Sally!";
@@ -120,9 +127,17 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty]
     private string _themeIcon = "🌙";
 
-    public DashboardViewModel(IDashboardService dashboardService)
+    public DashboardViewModel(IDashboardService dashboardService, IPomodoroEngine? pomodoroEngine = null)
     {
         _dashboardService = dashboardService;
+        _pomodoroRoomVm = new PomodoroRoomViewModel(pomodoroEngine);
+        _pomodoroRoomVm.RequestBackToDashboard += () => SelectedNavIndex = 0;
+    }
+
+    [RelayCommand]
+    public void NavigateTo(int index)
+    {
+        SelectedNavIndex = index;
     }
 
     [RelayCommand]
@@ -244,6 +259,8 @@ public partial class DashboardViewModel : ObservableObject
                     ActiveRooms[index] = room;
                 }
                 SelectedRoom = room;
+                PomodoroRoomVm.SetRoom(room);
+                SelectedNavIndex = 1;
             }
         }
         finally
@@ -303,6 +320,8 @@ public partial class DashboardViewModel : ObservableObject
 
                 ActiveRooms.Insert(0, newRoom);
                 SelectedRoom = newRoom;
+                PomodoroRoomVm.SetRoom(newRoom);
+                SelectedNavIndex = 1;
                 SelectedHubTabIndex = 0;
             }
         }

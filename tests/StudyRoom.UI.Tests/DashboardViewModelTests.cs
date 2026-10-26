@@ -358,6 +358,33 @@ public class DashboardViewModelTests
         Assert.False(vm.HasError);
         Assert.NotNull(vm.SuccessMessage);
         Assert.Equal("102938", vm.SelectedRoom?.RoomId);
+        Assert.Equal(1, vm.SelectedNavIndex);
+        Assert.Equal("102938", vm.PomodoroRoomVm.RoomId);
+    }
+
+    [Fact]
+    public void DashboardViewModel_NavigateTo_ChangesSelectedNavIndex()
+    {
+        var vm = CreateViewModel();
+
+        Assert.Equal(0, vm.SelectedNavIndex);
+
+        vm.NavigateTo(1);
+        Assert.Equal(1, vm.SelectedNavIndex);
+
+        vm.NavigateTo(0);
+        Assert.Equal(0, vm.SelectedNavIndex);
+    }
+
+    [Fact]
+    public void DashboardViewModel_PomodoroRoomVm_RequestBack_RestoresOverview()
+    {
+        var vm = CreateViewModel();
+        vm.NavigateTo(1);
+        Assert.Equal(1, vm.SelectedNavIndex);
+
+        vm.PomodoroRoomVm.BackToDashboard();
+        Assert.Equal(0, vm.SelectedNavIndex);
     }
 
     [Fact]
