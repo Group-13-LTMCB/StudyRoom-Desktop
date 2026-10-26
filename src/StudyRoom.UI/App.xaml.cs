@@ -1,7 +1,12 @@
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using StudyRoom.Application.Engines;
+using StudyRoom.Application.Helpers;
 using StudyRoom.Application.Interfaces;
 using StudyRoom.Application.Services;
+using StudyRoom.Core.Interfaces;
+using StudyRoom.Infrastructure.Security;
+using StudyRoom.Infrastructure.Storage;
 using StudyRoom.UI.ViewModels;
 
 namespace StudyRoom.UI;
@@ -14,8 +19,15 @@ public partial class App : System.Windows.Application
     {
         var services = new ServiceCollection();
 
-        // Application Services
+        // Core & Application Engines
         services.AddSingleton<IPomodoroTimerService, LocalPomodoroTimerService>();
+        services.AddSingleton<IPomodoroEngine, PomodoroEngine>();
+        services.AddSingleton<IFractionalIndexingHelper, FractionalIndexingHelper>();
+        services.AddSingleton<IRateLimiter>(_ => new TokenBucketRateLimiter(5, 1));
+
+        // Infrastructure Services
+        services.AddSingleton<ISecureStorageService, DpapiSecureStorageService>();
+        services.AddSingleton<SqliteLocalCacheRepository>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();

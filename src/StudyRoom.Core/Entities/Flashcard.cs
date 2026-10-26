@@ -8,4 +8,5 @@ public class Flashcard
     public string Answer { get; set; } = string.Empty;
     public Guid CreatedByUserId { get; set; }
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? LastReviewedAt { get; set; }
 }
