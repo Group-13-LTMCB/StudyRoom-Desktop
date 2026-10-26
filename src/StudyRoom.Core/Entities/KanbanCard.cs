@@ -10,6 +10,7 @@ public class KanbanCard
     public string? Description { get; set; }
     public KanbanColumnType Column { get; set; } = KanbanColumnType.Todo;
     public Guid? AssignedUserId { get; set; }
+    public double Rank { get; set; } = 1.0;
     public int OrderIndex { get; set; }
     public long Version { get; set; } = 1;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
