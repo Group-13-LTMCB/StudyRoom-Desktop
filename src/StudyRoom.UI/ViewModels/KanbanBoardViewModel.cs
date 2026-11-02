@@ -1,8 +1,10 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using StudyRoom.Application.Helpers;
 using StudyRoom.Application.Interfaces;
+using StudyRoom.Application.Messages;
 using StudyRoom.Application.Services;
 using StudyRoom.Core.Entities;
 using StudyRoom.Core.Enums;
@@ -10,10 +12,11 @@ using StudyRoom.Core.Interfaces;
 
 namespace StudyRoom.UI.ViewModels;
 
-public partial class KanbanBoardViewModel : ObservableObject
+public partial class KanbanBoardViewModel : ObservableObject, IDisposable
 {
     private readonly IKanbanService _kanbanService;
     private readonly IFractionalIndexingHelper _indexingHelper;
+    private readonly IMessenger _messenger;
     private readonly List<KanbanCardItemViewModel> _allCards = [];
 
     public const string DefaultGroupId = "00000000-0000-0000-0000-000000000001";
@@ -102,10 +105,14 @@ public partial class KanbanBoardViewModel : ObservableObject
 
     public KanbanBoardViewModel(
         IKanbanService? kanbanService = null,
-        IFractionalIndexingHelper? indexingHelper = null)
+        IFractionalIndexingHelper? indexingHelper = null,
+        IMessenger? messenger = null)
     {
         _indexingHelper = indexingHelper ?? new FractionalIndexingHelper();
         _kanbanService = kanbanService ?? new KanbanService(_indexingHelper);
+        _messenger = messenger ?? WeakReferenceMessenger.Default;
+
+        _messenger.Register<CardMovedMessage>(this, (r, m) => ((KanbanBoardViewModel)r).HandleCardMoved(m));
 
         LoadingTask = LoadCardsAsync();
     }
@@ -228,6 +235,8 @@ public partial class KanbanBoardViewModel : ObservableObject
             }
 
             ApplyFilter();
+
+            _messenger.Send(new CardMovedMessage(card.Id.ToString(), targetColumn, card.Rank));
         }
         catch (Exception ex)
         {
@@ -378,5 +387,34 @@ public partial class KanbanBoardViewModel : ObservableObject
             onMoveLeft: MoveCardLeftAsync,
             onMoveRight: MoveCardRightAsync,
             onDelete: DeleteCardAsync);
+    }
+
+    public void HandleCardMoved(CardMovedMessage message)
+    {
+        void ApplyRemoteMove()
+        {
+            var target = _allCards.FirstOrDefault(c => c.Id.ToString() == message.CardId);
+            if (target != null && (target.Column != message.NewColumn || Math.Abs(target.Rank - message.NewRank) > 1e-9))
+            {
+                target.Column = message.NewColumn;
+                target.Rank = message.NewRank;
+                ApplyFilter();
+            }
+        }
+
+        if (System.Windows.Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            dispatcher.Invoke(ApplyRemoteMove);
+        }
+        else
+        {
+            ApplyRemoteMove();
+        }
+    }
+
+    public void Dispose()
+    {
+        _messenger.UnregisterAll(this);
+        GC.SuppressFinalize(this);
     }
 }

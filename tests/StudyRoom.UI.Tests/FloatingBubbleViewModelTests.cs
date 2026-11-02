@@ -333,6 +333,8 @@ public class FloatingBubbleViewModelTests
 
                 vm.CloseCommand.Execute(null);
                 Assert.False(vm.IsVisible);
+
+                vm.Dispose();
             }
             catch (Exception ex)
             {
@@ -368,6 +370,8 @@ public class FloatingBubbleViewModelTests
                 Assert.True(bubbleVm.IsVisible);
 
                 bubbleView.ForceClose();
+                bubbleVm.Dispose();
+                dashboardVm.Dispose();
             }
             catch (Exception ex)
             {

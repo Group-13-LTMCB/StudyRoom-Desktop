@@ -83,6 +83,11 @@ public partial class MainWindow : FluentWindow
 
         _floatingBubbleView?.ForceClose();
 
+        if (DataContext is IDisposable disposableVm)
+        {
+            disposableVm.Dispose();
+        }
+
         base.OnClosed(e);
     }
 }

@@ -2,7 +2,9 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using StudyRoom.Application.Engines;
+using StudyRoom.Application.Messages;
 using StudyRoom.Core.Entities;
 using StudyRoom.Core.Enums;
 using StudyRoom.Core.Interfaces;
@@ -10,9 +12,11 @@ using StudyRoom.Core.Models;
 
 namespace StudyRoom.UI.ViewModels;
 
-public partial class PomodoroRoomViewModel : ObservableObject
+public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
 {
     private readonly IPomodoroEngine _engine;
+    private readonly IMessenger _messenger;
+    private PomodoroPhase _lastBroadcastPhase = (PomodoroPhase)(-1);
 
     [ObservableProperty]
     private string _roomId = "948210";
@@ -63,13 +67,18 @@ public partial class PomodoroRoomViewModel : ObservableObject
 
     public event Action? RequestBackToDashboard;
 
-    public PomodoroRoomViewModel(IPomodoroEngine? engine = null)
+    public PomodoroRoomViewModel(IPomodoroEngine? engine = null, IMessenger? messenger = null)
     {
         _engine = engine ?? new PomodoroEngine();
+        _messenger = messenger ?? WeakReferenceMessenger.Default;
         _engine.Tick += OnEngineTick;
         _engine.PhaseCompleted += OnEnginePhaseCompleted;
 
+        _messenger.Register<BatonPassedMessage>(this, (r, m) => ((PomodoroRoomViewModel)r).HandleBatonPassed(m));
+        _messenger.Register<PresenceChangedMessage>(this, (r, m) => ((PomodoroRoomViewModel)r).HandlePresenceChanged(m));
+
         InitializeDefaultMembers();
+        _lastBroadcastPhase = _engine.CurrentSession.Phase;
         SyncWithEngineSession(_engine.CurrentSession);
     }
 
@@ -181,6 +190,8 @@ public partial class PomodoroRoomViewModel : ObservableObject
         {
             member.HasBaton = member.UserId == targetUserId;
         }
+
+        _messenger.Send(new BatonPassedMessage(targetUserId));
     }
 
     private void OnEngineTick(PomodoroSession session)
@@ -240,5 +251,80 @@ public partial class PomodoroRoomViewModel : ObservableObject
 
         int cycleNumber = (session.CompletedFocusCycles % session.CyclesBeforeLongBreak) + 1;
         CycleText = $"Chu kỳ: {cycleNumber} / {session.CyclesBeforeLongBreak}";
+
+        if (session.Phase != _lastBroadcastPhase)
+        {
+            _lastBroadcastPhase = session.Phase;
+            _messenger.Send(new PhaseChangedMessage(session.Phase, session.CurrentPhaseDurationSeconds));
+        }
+    }
+
+    public void HandleBatonPassed(BatonPassedMessage message)
+    {
+        void UpdateMembers()
+        {
+            foreach (var member in Members)
+            {
+                member.HasBaton = member.UserId == message.NewHostUserId;
+            }
+
+            var me = Members.FirstOrDefault(m => m.Name.Contains("Bạn") || m.UserId == "user-1");
+            if (me != null)
+            {
+                CanControl = me.HasBaton || ControlModeText.Contains("Equal");
+            }
+        }
+
+        if (System.Windows.Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            dispatcher.Invoke(UpdateMembers);
+        }
+        else
+        {
+            UpdateMembers();
+        }
+    }
+
+    public void HandlePresenceChanged(PresenceChangedMessage message)
+    {
+        void UpdatePresence()
+        {
+            var existing = Members.FirstOrDefault(m => m.UserId == message.UserId);
+            if (existing != null)
+            {
+                existing.IsFocusing = message.IsOnline;
+                existing.StatusText = message.IsOnline ? "Đang tập trung 🔥" : "Đã rời phòng 💤";
+            }
+            else if (message.IsOnline)
+            {
+                Members.Add(new RoomMemberModel
+                {
+                    UserId = message.UserId,
+                    Name = message.DisplayName,
+                    AvatarEmoji = "🧑‍🎓",
+                    IsHost = false,
+                    HasBaton = false,
+                    StatusText = "Đang tập trung 🔥",
+                    IsFocusing = true
+                });
+            }
+        }
+
+        if (System.Windows.Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            dispatcher.Invoke(UpdatePresence);
+        }
+        else
+        {
+            UpdatePresence();
+        }
+    }
+
+    public void Dispose()
+    {
+        _messenger.UnregisterAll(this);
+        _engine.Tick -= OnEngineTick;
+        _engine.PhaseCompleted -= OnEnginePhaseCompleted;
+        GC.SuppressFinalize(this);
     }
 }

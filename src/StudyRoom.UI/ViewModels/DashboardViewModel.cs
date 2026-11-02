@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using StudyRoom.Application.Interfaces;
+using StudyRoom.Application.Messages;
 using StudyRoom.Core.Enums;
 using StudyRoom.Core.Interfaces;
 using StudyRoom.Core.Models;
@@ -9,9 +11,10 @@ using Wpf.Ui.Appearance;
 
 namespace StudyRoom.UI.ViewModels;
 
-public partial class DashboardViewModel : ObservableObject
+public partial class DashboardViewModel : ObservableObject, IDisposable
 {
     private readonly IDashboardService _dashboardService;
+    private readonly IMessenger _messenger;
 
     [ObservableProperty]
     private int _selectedNavIndex = 0; // 0 = Overview, 1 = Pomodoro, 2 = Kanban
@@ -135,14 +138,20 @@ public partial class DashboardViewModel : ObservableObject
         IPomodoroEngine? pomodoroEngine = null,
         KanbanBoardViewModel? kanbanVm = null,
         IKanbanService? kanbanService = null,
-        IFractionalIndexingHelper? indexingHelper = null)
+        IFractionalIndexingHelper? indexingHelper = null,
+        IMessenger? messenger = null)
     {
         _dashboardService = dashboardService;
-        _pomodoroRoomVm = new PomodoroRoomViewModel(pomodoroEngine);
+        _messenger = messenger ?? WeakReferenceMessenger.Default;
+
+        _pomodoroRoomVm = new PomodoroRoomViewModel(pomodoroEngine, _messenger);
         _pomodoroRoomVm.RequestBackToDashboard += () => SelectedNavIndex = 0;
 
-        _kanbanVm = kanbanVm ?? new KanbanBoardViewModel(kanbanService, indexingHelper);
+        _kanbanVm = kanbanVm ?? new KanbanBoardViewModel(kanbanService, indexingHelper, _messenger);
         _kanbanVm.RequestBackToDashboard += () => SelectedNavIndex = 0;
+
+        _messenger.Register<CardMovedMessage>(this, (r, m) => ((DashboardViewModel)r).HandleCardMoved(m));
+        _messenger.Register<PhaseChangedMessage>(this, (r, m) => ((DashboardViewModel)r).HandlePhaseChanged(m));
     }
 
     [RelayCommand]
@@ -374,5 +383,63 @@ public partial class DashboardViewModel : ObservableObject
     public void SelectCreateTab()
     {
         SelectedHubTabIndex = 1;
+    }
+
+    public void HandleCardMoved(CardMovedMessage message)
+    {
+        void UpdateTaskMetrics()
+        {
+            if (message.NewColumn == KanbanColumnType.Done)
+            {
+                if (!string.IsNullOrEmpty(CompletedTasks) && CompletedTasks.Contains('/'))
+                {
+                    var parts = CompletedTasks.Split('/');
+                    if (parts.Length == 2 && int.TryParse(parts[0], out int done) && int.TryParse(parts[1], out int total))
+                    {
+                        done++;
+                        if (done > total) total = done;
+                        CompletedTasks = $"{done}/{total}";
+                        CompletedTasksTrend = "Nhiệm vụ vừa hoàn thành 🎉";
+                    }
+                }
+            }
+        }
+
+        if (System.Windows.Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            dispatcher.Invoke(UpdateTaskMetrics);
+        }
+        else
+        {
+            UpdateTaskMetrics();
+        }
+    }
+
+    public void HandlePhaseChanged(PhaseChangedMessage message)
+    {
+        void UpdatePomodoroMetrics()
+        {
+            if (message.NewPhase == PomodoroPhase.ShortBreak || message.NewPhase == PomodoroPhase.LongBreak)
+            {
+                FocusTimeTrend = "Phiên tập trung vừa hoàn tất! 🔥";
+            }
+        }
+
+        if (System.Windows.Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            dispatcher.Invoke(UpdatePomodoroMetrics);
+        }
+        else
+        {
+            UpdatePomodoroMetrics();
+        }
+    }
+
+    public void Dispose()
+    {
+        _messenger.UnregisterAll(this);
+        PomodoroRoomVm.Dispose();
+        KanbanVm.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

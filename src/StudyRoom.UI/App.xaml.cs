@@ -1,4 +1,5 @@
 using System.Windows;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using StudyRoom.Application.Engines;
 using StudyRoom.Application.Helpers;
@@ -22,6 +23,7 @@ public partial class App : System.Windows.Application
         var services = new ServiceCollection();
 
         // Core & Application Engines
+        services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<IPomodoroTimerService, LocalPomodoroTimerService>();
         services.AddSingleton<IPomodoroEngine, PomodoroEngine>();
         services.AddSingleton<IFractionalIndexingHelper, FractionalIndexingHelper>();
