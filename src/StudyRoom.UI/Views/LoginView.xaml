@@ -1,0 +1,259 @@
+<UserControl x:Class="StudyRoom.UI.Views.LoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:StudyRoom.UI.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:LoginViewModel}"
+             d:DesignHeight="700" d:DesignWidth="900">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource ApplicationBackgroundBrush}">
+        <!-- Centered Login Card Container -->
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                Width="440"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="16"
+                Padding="36,32">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" Direction="270" ShadowDepth="6" Opacity="0.25" />
+            </Border.Effect>
+
+            <StackPanel>
+                <!-- App Logo & Branding Header -->
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,24">
+                    <TextBlock Text="📚 StudyRoom"
+                               FontSize="28"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                    <TextBlock Text="Không gian Học Tập &amp; Làm Việc Nhóm"
+                               FontSize="13"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Margin="0,6,0,0" />
+                </StackPanel>
+
+                <!-- Mode Switch Tabs -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <ui:Button Grid.Column="0"
+                               Content="Đăng nhập"
+                               Command="{Binding ShowLoginCommand}"
+                               HorizontalAlignment="Stretch"
+                               Margin="0,0,4,0"
+                               CornerRadius="8">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button">
+                                <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRegisterMode}" Value="False">
+                                        <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                                        <Setter Property="Foreground" Value="White" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
+                    </ui:Button>
+
+                    <ui:Button Grid.Column="1"
+                               Content="Đăng ký"
+                               Command="{Binding ShowRegisterCommand}"
+                               HorizontalAlignment="Stretch"
+                               Margin="4,0,0,0"
+                               CornerRadius="8">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button">
+                                <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRegisterMode}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                                        <Setter Property="Foreground" Value="White" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
+                    </ui:Button>
+                </Grid>
+
+                <!-- Error Alert Box -->
+                <Border Background="#33EF4444"
+                        BorderBrush="#EF4444"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12,10"
+                        Margin="0,0,0,16"
+                        Visibility="{Binding HasError, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚠️" Margin="0,0,8,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   Foreground="#FCA5A5"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Success Alert Box -->
+                <Border Background="#3310B981"
+                        BorderBrush="#10B981"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12,10"
+                        Margin="0,0,0,16"
+                        Visibility="{Binding HasSuccess, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✅" Margin="0,0,8,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding SuccessMessage}"
+                                   Foreground="#6EE7B7"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Display Name Field (Register Mode Only) -->
+                <StackPanel Margin="0,0,0,14" Visibility="{Binding IsRegisterMode, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Text="Họ và tên"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Margin="0,0,0,6" />
+                    <ui:TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="Nguyễn Văn A"
+                                ClearButtonEnabled="True" />
+                </StackPanel>
+
+                <!-- Email Field -->
+                <StackPanel Margin="0,0,0,14">
+                    <TextBlock Text="Địa chỉ Email"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Margin="0,0,0,6" />
+                    <ui:TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="student@university.edu.vn"
+                                ClearButtonEnabled="True" />
+                </StackPanel>
+
+                <!-- Password Field -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="Mật khẩu"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Margin="0,0,0,6" />
+                    <ui:PasswordBox x:Name="PasswordInput"
+                                    PlaceholderText="••••••••"
+                                    PasswordChanged="PasswordInput_PasswordChanged" />
+                </StackPanel>
+
+                <!-- Remember Me CheckBox (Login Mode Only) -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRegisterMode}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                    <CheckBox Content="Ghi nhớ phiên đăng nhập (DPAPI)"
+                              IsChecked="{Binding RememberMe}"
+                              FontSize="12" />
+                </Grid>
+
+                <!-- Primary Action Button: Login -->
+                <ui:Button Command="{Binding LoginCommand}"
+                           HorizontalAlignment="Stretch"
+                           Height="42"
+                           CornerRadius="8"
+                           Appearance="Primary">
+                    <ui:Button.Style>
+                        <Style TargetType="ui:Button">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRegisterMode}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:Button.Style>
+                    <Grid>
+                        <TextBlock Text="Đăng nhập ngay 🚀"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <ui:ProgressRing IsIndeterminate="True"
+                                         Width="22" Height="22"
+                                         Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
+                    </Grid>
+                </ui:Button>
+
+                <!-- Primary Action Button: Register -->
+                <ui:Button Command="{Binding RegisterCommand}"
+                           HorizontalAlignment="Stretch"
+                           Height="42"
+                           CornerRadius="8"
+                           Appearance="Primary">
+                    <ui:Button.Style>
+                        <Style TargetType="ui:Button">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRegisterMode}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:Button.Style>
+                    <Grid>
+                        <TextBlock Text="Tạo tài khoản mới ✨"
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <ui:ProgressRing IsIndeterminate="True"
+                                         Width="22" Height="22"
+                                         Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
+                    </Grid>
+                </ui:Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

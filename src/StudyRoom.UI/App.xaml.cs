@@ -6,6 +6,8 @@ using StudyRoom.Application.Helpers;
 using StudyRoom.Application.Interfaces;
 using StudyRoom.Application.Services;
 using StudyRoom.Core.Interfaces;
+using StudyRoom.Infrastructure.Auth;
+using StudyRoom.Infrastructure.Network;
 using StudyRoom.Infrastructure.OS;
 using StudyRoom.Infrastructure.Security;
 using StudyRoom.Infrastructure.Storage;
@@ -34,6 +36,8 @@ public partial class App : System.Windows.Application
 
         // Infrastructure Services
         services.AddSingleton<ISecureStorageService, DpapiSecureStorageService>();
+        services.AddSingleton<IAuthService, CognitoAuthService>();
+        services.AddSingleton<IWebSocketClient, WebSocketClient>();
         services.AddSingleton<SqliteLocalCacheRepository>();
         services.AddSingleton<ILocalCacheRepository>(sp => sp.GetRequiredService<SqliteLocalCacheRepository>());
         services.AddSingleton<IKanbanService, KanbanService>();
@@ -43,10 +47,14 @@ public partial class App : System.Windows.Application
         services.AddTransient<MainViewModel>();
         services.AddTransient<KanbanBoardViewModel>();
         services.AddTransient<DashboardViewModel>();
+        services.AddTransient<LoginViewModel>();
+        services.AddTransient<FlashcardViewModel>();
         services.AddSingleton<FloatingBubbleViewModel>();
 
         // Views
         services.AddTransient<MainWindow>();
+        services.AddTransient<LoginView>();
+        services.AddTransient<FlashcardDialog>();
         services.AddSingleton<FloatingBubbleView>();
 
         _serviceProvider = services.BuildServiceProvider();
