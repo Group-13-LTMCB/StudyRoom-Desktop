@@ -5,9 +5,11 @@ using StudyRoom.Application.Helpers;
 using StudyRoom.Application.Interfaces;
 using StudyRoom.Application.Services;
 using StudyRoom.Core.Interfaces;
+using StudyRoom.Infrastructure.OS;
 using StudyRoom.Infrastructure.Security;
 using StudyRoom.Infrastructure.Storage;
 using StudyRoom.UI.ViewModels;
+using StudyRoom.UI.Views;
 
 namespace StudyRoom.UI;
 
@@ -33,14 +35,17 @@ public partial class App : System.Windows.Application
         services.AddSingleton<SqliteLocalCacheRepository>();
         services.AddSingleton<ILocalCacheRepository>(sp => sp.GetRequiredService<SqliteLocalCacheRepository>());
         services.AddSingleton<IKanbanService, KanbanService>();
+        services.AddSingleton<IHotKeyService, Win32HotKeyService>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();
         services.AddTransient<KanbanBoardViewModel>();
         services.AddTransient<DashboardViewModel>();
+        services.AddSingleton<FloatingBubbleViewModel>();
 
         // Views
         services.AddTransient<MainWindow>();
+        services.AddSingleton<FloatingBubbleView>();
 
         _serviceProvider = services.BuildServiceProvider();
     }
