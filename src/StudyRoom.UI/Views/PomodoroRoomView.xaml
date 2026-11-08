@@ -222,6 +222,33 @@
                             </ui:Button>
 
                         </StackPanel>
+
+                        <!-- Flashcard Break Challenge Button (Only visible during break phase) -->
+                        <ui:Button Command="{Binding TriggerFlashcardCommand}"
+                                   Background="#6366F1"
+                                   Foreground="White"
+                                   FontWeight="Bold"
+                                   FontSize="14"
+                                   Padding="22,10"
+                                   CornerRadius="12"
+                                   BorderThickness="0"
+                                   Margin="0,16,0,0"
+                                   HorizontalAlignment="Center">
+                            <ui:Button.Style>
+                                <Style TargetType="ui:Button">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsBreakPhase}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ui:Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🎯" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Thử thách Flashcard" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </ui:Button>
                     </StackPanel>
                 </Border>
 

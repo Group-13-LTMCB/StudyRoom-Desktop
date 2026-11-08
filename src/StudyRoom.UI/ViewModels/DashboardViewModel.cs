@@ -15,6 +15,9 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
 {
     private readonly IDashboardService _dashboardService;
     private readonly IMessenger _messenger;
+    private readonly ISecureStorageService? _secureStorageService;
+
+    public event Action? RequestLogout;
 
     [ObservableProperty]
     private int _selectedNavIndex = 0; // 0 = Overview, 1 = Pomodoro, 2 = Kanban
@@ -139,10 +142,12 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         KanbanBoardViewModel? kanbanVm = null,
         IKanbanService? kanbanService = null,
         IFractionalIndexingHelper? indexingHelper = null,
-        IMessenger? messenger = null)
+        IMessenger? messenger = null,
+        ISecureStorageService? secureStorageService = null)
     {
         _dashboardService = dashboardService;
         _messenger = messenger ?? WeakReferenceMessenger.Default;
+        _secureStorageService = secureStorageService;
 
         _pomodoroRoomVm = new PomodoroRoomViewModel(pomodoroEngine, _messenger);
         _pomodoroRoomVm.RequestBackToDashboard += () => SelectedNavIndex = 0;
@@ -152,6 +157,26 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
 
         _messenger.Register<CardMovedMessage>(this, (r, m) => ((DashboardViewModel)r).HandleCardMoved(m));
         _messenger.Register<PhaseChangedMessage>(this, (r, m) => ((DashboardViewModel)r).HandlePhaseChanged(m));
+    }
+
+    public void SetUserSession(AuthSession session)
+    {
+        UserName = !string.IsNullOrWhiteSpace(session.DisplayName) ? session.DisplayName : session.Email.Split('@')[0];
+        Greeting = $"Chào mừng trở lại, {UserName}!";
+    }
+
+    [RelayCommand]
+    public async Task LogoutAsync()
+    {
+        if (_secureStorageService != null)
+        {
+            await _secureStorageService.ClearSessionAsync();
+        }
+
+        UserName = string.Empty;
+        Greeting = string.Empty;
+
+        RequestLogout?.Invoke();
     }
 
     [RelayCommand]

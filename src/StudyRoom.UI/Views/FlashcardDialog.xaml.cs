@@ -113,6 +113,7 @@ public partial class FlashcardDialog : Window
             _viewModel.RequestResetCard -= OnRequestResetCard;
             _viewModel.RequestShow -= OnRequestShow;
             _viewModel.RequestClose -= OnRequestClose;
+            _viewModel.Dispose();
         }
 
         base.OnClosed(e);

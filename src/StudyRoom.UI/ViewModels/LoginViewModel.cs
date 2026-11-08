@@ -92,6 +92,10 @@ public partial class LoginViewModel : ObservableObject
                 {
                     await _secureStorageService.SaveSessionAsync(session);
                 }
+                else
+                {
+                    await _secureStorageService.ClearSessionAsync();
+                }
 
                 SuccessMessage = "Đăng nhập thành công!";
                 ErrorMessage = null;
@@ -209,5 +213,15 @@ public partial class LoginViewModel : ObservableObject
         }
 
         return false;
+    }
+
+    public void ResetForm()
+    {
+        Email = string.Empty;
+        Password = string.Empty;
+        ErrorMessage = null;
+        SuccessMessage = null;
+        IsBusy = false;
+        IsRegisterMode = false;
     }
 }

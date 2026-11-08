@@ -9,6 +9,7 @@ using StudyRoom.Core.Entities;
 using StudyRoom.Core.Enums;
 using StudyRoom.Core.Interfaces;
 using StudyRoom.Core.Models;
+using StudyRoom.UI.Views;
 
 namespace StudyRoom.UI.ViewModels;
 
@@ -53,6 +54,9 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private bool _isPaused;
+
+    [ObservableProperty]
+    private bool _isBreakPhase;
 
     [ObservableProperty]
     private bool _canControl = true;
@@ -194,6 +198,55 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
         _messenger.Send(new BatonPassedMessage(targetUserId));
     }
 
+    public Action<FlashcardPromptMessage>? OpenFlashcardHandler { get; set; }
+
+    [RelayCommand]
+    public void TriggerFlashcard()
+    {
+        var cardId = Guid.NewGuid().ToString("N")[..8];
+        var question = $"Câu hỏi ôn tập môn: {Subject}\nKhái niệm cốt lõi nào cần ghi nhớ trong chương hiện tại?";
+        var answer = "Hãy đối chiếu tài liệu và tóm tắt lại định nghĩa trong sổ tay học tập.";
+        var message = new FlashcardPromptMessage(cardId, question, answer, 30);
+
+        if (OpenFlashcardHandler != null)
+        {
+            OpenFlashcardHandler.Invoke(message);
+        }
+        else
+        {
+            OpenDefaultFlashcardDialog(message);
+        }
+
+        _messenger.Send(message);
+    }
+
+    private void OpenDefaultFlashcardDialog(FlashcardPromptMessage message)
+    {
+        if (System.Windows.Application.Current != null)
+        {
+            void ShowDialog()
+            {
+                var flashcardVm = new FlashcardViewModel(_messenger);
+                var dialog = new FlashcardDialog(flashcardVm);
+                if (System.Windows.Application.Current.MainWindow is { IsVisible: true } mainWin)
+                {
+                    dialog.Owner = mainWin;
+                }
+                dialog.Closed += (_, _) => flashcardVm.Dispose();
+                flashcardVm.LoadCard(message.CardId, message.Question, message.Answer, message.TimeoutSeconds);
+            }
+
+            if (System.Windows.Application.Current.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+            {
+                dispatcher.Invoke(ShowDialog);
+            }
+            else
+            {
+                ShowDialog();
+            }
+        }
+    }
+
     private void OnEngineTick(PomodoroSession session)
     {
         if (System.Windows.Application.Current?.Dispatcher is { } dispatcher)
@@ -229,6 +282,7 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
 
         IsRunning = session.State == TimerState.Running;
         IsPaused = session.State == TimerState.Paused;
+        IsBreakPhase = session.Phase == PomodoroPhase.ShortBreak || session.Phase == PomodoroPhase.LongBreak;
         OnPropertyChanged(nameof(IsStopped));
 
         Progress = TotalSeconds > 0 ? (double)RemainingSeconds / TotalSeconds : 0.0;

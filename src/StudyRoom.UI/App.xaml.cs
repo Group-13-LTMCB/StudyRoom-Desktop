@@ -7,6 +7,7 @@ using StudyRoom.Application.Interfaces;
 using StudyRoom.Application.Services;
 using StudyRoom.Core.Interfaces;
 using StudyRoom.Infrastructure.Auth;
+using StudyRoom.Infrastructure.Configuration;
 using StudyRoom.Infrastructure.Network;
 using StudyRoom.Infrastructure.OS;
 using StudyRoom.Infrastructure.Security;
@@ -24,6 +25,10 @@ public partial class App : System.Windows.Application
     {
         var services = new ServiceCollection();
 
+        // Application Configuration (AWS Endpoints & Cognito)
+        var appConfig = AppConfiguration.Load();
+        services.AddSingleton(appConfig);
+
         // Core & Application Engines
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<IPomodoroTimerService, LocalPomodoroTimerService>();
@@ -36,12 +41,18 @@ public partial class App : System.Windows.Application
 
         // Infrastructure Services
         services.AddSingleton<ISecureStorageService, DpapiSecureStorageService>();
-        services.AddSingleton<IAuthService, CognitoAuthService>();
+        services.AddSingleton<IAuthService>(sp =>
+        {
+            var config = sp.GetRequiredService<AppConfiguration>();
+            var region = Amazon.RegionEndpoint.GetBySystemName(config.CognitoRegion);
+            return new CognitoAuthService(clientId: config.CognitoClientId, region: region);
+        });
         services.AddSingleton<IWebSocketClient, WebSocketClient>();
         services.AddSingleton<SqliteLocalCacheRepository>();
         services.AddSingleton<ILocalCacheRepository>(sp => sp.GetRequiredService<SqliteLocalCacheRepository>());
         services.AddSingleton<IKanbanService, KanbanService>();
         services.AddSingleton<IHotKeyService, Win32HotKeyService>();
+        services.AddSingleton<IMemoryOptimizer, MemoryOptimizer>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();

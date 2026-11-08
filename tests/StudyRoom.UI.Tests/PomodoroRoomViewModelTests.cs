@@ -1,4 +1,6 @@
+using CommunityToolkit.Mvvm.Messaging;
 using StudyRoom.Application.Engines;
+using StudyRoom.Application.Messages;
 using StudyRoom.Core.Entities;
 using StudyRoom.Core.Enums;
 using StudyRoom.Core.Models;
@@ -140,4 +142,44 @@ public class PomodoroRoomViewModelTests
 
         Assert.True(backTriggered);
     }
+
+    [Fact]
+    public void PomodoroRoomViewModel_IsBreakPhase_UpdatesCorrectlyOnPhaseTransition()
+    {
+        var (vm, _) = CreateViewModel(25);
+
+        // Initially in Focus phase
+        Assert.False(vm.IsBreakPhase);
+
+        // Skip to Break phase
+        vm.Start();
+        vm.Skip();
+
+        Assert.True(vm.IsBreakPhase);
+        Assert.Contains("Break", vm.PhaseText);
+    }
+
+    [Fact]
+    public void PomodoroRoomViewModel_TriggerFlashcard_FiresHandlerAndSendsMessengerMessage()
+    {
+        var messenger = new WeakReferenceMessenger();
+        var session = new PomodoroSession { FocusDurationSeconds = 1500, ShortBreakDurationSeconds = 300 };
+        var engine = new PomodoroEngine(session);
+        var vm = new PomodoroRoomViewModel(engine, messenger);
+
+        FlashcardPromptMessage? receivedViaMessenger = null;
+        FlashcardPromptMessage? receivedViaHandler = null;
+
+        messenger.Register<FlashcardPromptMessage>(this, (r, m) => receivedViaMessenger = m);
+        vm.OpenFlashcardHandler = msg => receivedViaHandler = msg;
+
+        vm.TriggerFlashcardCommand.Execute(null);
+
+        Assert.NotNull(receivedViaMessenger);
+        Assert.NotNull(receivedViaHandler);
+        Assert.Equal(receivedViaHandler.CardId, receivedViaMessenger.CardId);
+        Assert.Contains(vm.Subject, receivedViaMessenger.Question);
+        Assert.Equal(30, receivedViaMessenger.TimeoutSeconds);
+    }
 }
+

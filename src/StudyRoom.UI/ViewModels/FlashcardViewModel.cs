@@ -68,6 +68,11 @@ public partial class FlashcardViewModel : ObservableObject, IRecipient<Flashcard
 
     public void Receive(FlashcardPromptMessage message)
     {
+        if (CardId == message.CardId && IsOpen)
+        {
+            return;
+        }
+
         if (System.Windows.Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
         {
             dispatcher.Invoke(() => LoadCard(message.CardId, message.Question, message.Answer, message.TimeoutSeconds));
