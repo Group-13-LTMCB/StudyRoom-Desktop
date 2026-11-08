@@ -4,6 +4,7 @@ using StudyRoom.Core.Common;
 using StudyRoom.Core.Interfaces;
 using StudyRoom.Core.Models;
 using StudyRoom.UI.ViewModels;
+using StudyRoom.UI.Views;
 using Xunit;
 
 namespace StudyRoom.UI.Tests;
@@ -153,6 +154,8 @@ public class AuthenticationNavigationTests
                 Assert.Equal(Visibility.Visible, window.LoginControl.Visibility);
                 Assert.Equal(Visibility.Collapsed, window.DashboardControl.Visibility);
                 Assert.Null(storage.StoredSession);
+                Assert.Empty(dashboardVm.UserName);
+                Assert.Empty(dashboardVm.Greeting);
 
                 // Simulate successful login from LoginViewModel
                 loginVm.Email = "newuser@studyroom.io";
@@ -177,5 +180,86 @@ public class AuthenticationNavigationTests
         thread.Join();
 
         Assert.Null(threadEx);
+    }
+
+    [Fact]
+    public void MainWindow_ToggleFloatingBubble_WhenUnauthenticated_DoesNotToggleVisibility()
+    {
+        Exception? threadEx = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var storage = new MockSecureStorageService();
+                var auth = new MockAuthService();
+                var loginVm = new LoginViewModel(auth, storage);
+                var dashboardVm = new DashboardViewModel(new MockDashboardService(), secureStorageService: storage);
+                var bubbleVm = new FloatingBubbleViewModel();
+                var bubbleView = new FloatingBubbleView(bubbleVm);
+
+                var window = new MainWindow(
+                    dashboardVm,
+                    hotKeyService: null,
+                    floatingBubbleView: bubbleView,
+                    memoryOptimizer: null,
+                    loginViewModel: loginVm,
+                    secureStorageService: storage);
+
+                // Initially on Login screen (unauthenticated)
+                Assert.Equal(Visibility.Visible, window.LoginControl.Visibility);
+                Assert.Equal(Visibility.Collapsed, window.DashboardControl.Visibility);
+
+                // Bubble should not be toggled
+                bubbleVm.IsVisible = false;
+                window.ToggleFloatingBubble();
+                Assert.False(bubbleVm.IsVisible);
+
+                bubbleView.ForceClose();
+                bubbleVm.Dispose();
+                dashboardVm.Dispose();
+                window.Close();
+            }
+            catch (Exception ex)
+            {
+                threadEx = ex;
+            }
+        });
+
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+
+        Assert.Null(threadEx);
+    }
+
+    [Fact]
+    public async Task LoginViewModel_LoginAsync_WhenRememberMeFalse_ClearsStoredSession()
+    {
+        var storage = new MockSecureStorageService
+        {
+            StoredSession = new AuthSession
+            {
+                UserId = "old-user",
+                Email = "old@studyroom.io",
+                DisplayName = "Old User",
+                AccessToken = "old-token",
+                IdToken = "old-id",
+                RefreshToken = "old-refresh",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddHours(1)
+            }
+        };
+
+        var auth = new MockAuthService();
+        var loginVm = new LoginViewModel(auth, storage)
+        {
+            Email = "student@studyroom.io",
+            Password = "Password123!",
+            RememberMe = false
+        };
+
+        await loginVm.LoginAsync();
+
+        Assert.Null(storage.StoredSession);
+        Assert.Equal(1, storage.ClearCallCount);
     }
 }

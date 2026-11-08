@@ -183,4 +183,55 @@ public class FlashcardViewModelTests
 
         Assert.Null(threadEx);
     }
+
+    [Fact]
+    public void Receive_DuplicatePromptMessage_DoesNotReloadWhenAlreadyOpen()
+    {
+        var messenger = new WeakReferenceMessenger();
+        using var vm = new FlashcardViewModel(messenger);
+
+        int showCount = 0;
+        vm.RequestShow += () => showCount++;
+
+        messenger.Send(new FlashcardPromptMessage("card_unique_1", "Q1", "A1", 30));
+        Assert.Equal(1, showCount);
+
+        // Sending same card while still open should be ignored
+        messenger.Send(new FlashcardPromptMessage("card_unique_1", "Q1", "A1", 30));
+        Assert.Equal(1, showCount);
+    }
+
+    [Fact]
+    public void FlashcardDialog_OnClosed_DisposesViewModel()
+    {
+        Exception? threadEx = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var messenger = new WeakReferenceMessenger();
+                var vm = new FlashcardViewModel(messenger);
+                var dialog = new StudyRoom.UI.Views.FlashcardDialog(vm);
+
+                dialog.Show();
+                dialog.Close();
+
+                // Sending message after close should not trigger since vm was disposed/unregistered
+                bool showTriggeredAfterClose = false;
+                vm.RequestShow += () => showTriggeredAfterClose = true;
+
+                messenger.Send(new FlashcardPromptMessage("after_close", "Q", "A", 30));
+                Assert.False(showTriggeredAfterClose);
+            }
+            catch (Exception ex)
+            {
+                threadEx = ex;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+
+        Assert.Null(threadEx);
+    }
 }
