@@ -505,3 +505,7 @@ PROJECT.md
 
 # AI Agent Workspaces & Logs
 .agents/
+
+# AWS CDK Output
+cdk.out/
+**/cdk.out/
