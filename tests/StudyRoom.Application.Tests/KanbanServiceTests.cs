@@ -46,6 +46,10 @@ public class KanbanServiceTests
 
             return Task.FromResult<IReadOnlyList<KanbanCard>>(new List<KanbanCard>().AsReadOnly());
         }
+
+        public Task CacheUserGroupsAsync(IEnumerable<StudyRoom.Core.Models.GroupNavigationItem> groups, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task<IReadOnlyList<StudyRoom.Core.Models.GroupNavigationItem>> GetCachedUserGroupsAsync(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<StudyRoom.Core.Models.GroupNavigationItem>>([]);
+        public Task RemoveCachedUserGroupAsync(Guid groupId, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
     private readonly FractionalIndexingHelper _indexingHelper = new();

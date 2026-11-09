@@ -12,9 +12,11 @@ using StudyRoom.Infrastructure.Configuration;
 using StudyRoom.Infrastructure.Network;
 using StudyRoom.Infrastructure.OS;
 using StudyRoom.Infrastructure.Security;
+using StudyRoom.Infrastructure.Services;
 using StudyRoom.Infrastructure.Storage;
 using StudyRoom.UI.ViewModels;
 using StudyRoom.UI.Views;
+using StudyRoom.UI.Views.Components;
 
 namespace StudyRoom.UI;
 
@@ -51,6 +53,7 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IWebSocketClient, WebSocketClient>();
         services.AddSingleton<SqliteLocalCacheRepository>();
         services.AddSingleton<ILocalCacheRepository>(sp => sp.GetRequiredService<SqliteLocalCacheRepository>());
+        services.AddSingleton<IGroupManagementService, GroupManagementService>();
         services.AddSingleton<IKanbanService, KanbanService>();
         services.AddSingleton<IHotKeyService, Win32HotKeyService>();
         services.AddSingleton<IMemoryOptimizer, MemoryOptimizer>();
@@ -60,6 +63,8 @@ public partial class App : System.Windows.Application
         services.AddTransient<MainViewModel>();
         services.AddTransient<KanbanBoardViewModel>();
         services.AddTransient<DashboardViewModel>();
+        services.AddTransient<GroupRailViewModel>();
+        services.AddTransient<JoinGroupDialogViewModel>();
         services.AddTransient<LoginViewModel>();
         services.AddTransient<FlashcardViewModel>();
         services.AddSingleton<FloatingBubbleViewModel>();
@@ -68,6 +73,7 @@ public partial class App : System.Windows.Application
         services.AddTransient<MainWindow>();
         services.AddTransient<LoginView>();
         services.AddTransient<FlashcardDialog>();
+        services.AddTransient<JoinGroupDialog>();
         services.AddSingleton<FloatingBubbleView>();
 
         _serviceProvider = services.BuildServiceProvider();

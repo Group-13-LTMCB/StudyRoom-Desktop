@@ -29,6 +29,18 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     private KanbanBoardViewModel _kanbanVm;
 
     [ObservableProperty]
+    private GroupRailViewModel _groupRailVm;
+
+    [ObservableProperty]
+    private string _currentGroupName = "Không gian cá nhân";
+
+    [ObservableProperty]
+    private string _currentGroupSubject = "Tự học độc lập";
+
+    [ObservableProperty]
+    private bool _isPersonalWorkspace = true;
+
+    [ObservableProperty]
     private string _greeting = "Chào mừng trở lại, Sally!";
 
     [ObservableProperty]
@@ -143,11 +155,17 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         IKanbanService? kanbanService = null,
         IFractionalIndexingHelper? indexingHelper = null,
         IMessenger? messenger = null,
-        ISecureStorageService? secureStorageService = null)
+        ISecureStorageService? secureStorageService = null,
+        IGroupManagementService? groupManagementService = null,
+        GroupRailViewModel? groupRailVm = null)
     {
         _dashboardService = dashboardService;
         _messenger = messenger ?? WeakReferenceMessenger.Default;
         _secureStorageService = secureStorageService;
+
+        _groupRailVm = groupRailVm ?? (groupManagementService != null
+            ? new GroupRailViewModel(groupManagementService, _messenger)
+            : new GroupRailViewModel(new Infrastructure.Services.GroupManagementService(new Infrastructure.Storage.SqliteLocalCacheRepository()), _messenger));
 
         _pomodoroRoomVm = new PomodoroRoomViewModel(pomodoroEngine, _messenger);
         _pomodoroRoomVm.RequestBackToDashboard += () => SelectedNavIndex = 0;
@@ -157,6 +175,7 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
 
         _messenger.Register<CardMovedMessage>(this, (r, m) => ((DashboardViewModel)r).HandleCardMoved(m));
         _messenger.Register<PhaseChangedMessage>(this, (r, m) => ((DashboardViewModel)r).HandlePhaseChanged(m));
+        _messenger.Register<GroupSwitchedMessage>(this, (r, m) => ((DashboardViewModel)r).HandleGroupSwitched(m));
     }
 
     public void SetUserSession(AuthSession session)
@@ -198,6 +217,8 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         IsBusy = true;
         try
         {
+            await GroupRailVm.LoadGroupsAsync();
+
             var metrics = await _dashboardService.GetMetricsAsync();
             FocusTimeToday = $"{metrics.FocusHoursToday:F1} giờ";
             FocusTimeTrend = metrics.FocusTimeTrend;
@@ -230,6 +251,26 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    public void HandleGroupSwitched(GroupSwitchedMessage message)
+    {
+        CurrentGroupName = message.GroupName;
+        IsPersonalWorkspace = message.IsPersonal;
+        CurrentGroupSubject = message.IsPersonal ? "Tự học độc lập" : "Nhóm học tập";
+
+        if (message.IsPersonal)
+        {
+            Greeting = $"Chào mừng trở lại, {UserName}!";
+        }
+        else
+        {
+            Greeting = $"Đang học tại: {message.GroupName}";
+            if (!string.IsNullOrWhiteSpace(message.JoinCode))
+            {
+                JoinRoomCode = message.JoinCode;
+            }
         }
     }
 

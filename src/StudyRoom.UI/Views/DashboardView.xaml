@@ -32,7 +32,10 @@
 
             <!-- Left Sidebar Navigation -->
 
-            <ColumnDefinition Width="230" />
+            <!-- 0. Far-Left Group Server Rail -->
+            <ColumnDefinition Width="72" />
+            <!-- 1. Left Sidebar Navigation -->
+            <ColumnDefinition Width="210" />
 
             <!-- Main Content Area -->
 
@@ -48,7 +51,10 @@
 
         <!-- ========================================== -->
 
-        <Border Grid.Column="0" 
+        <!-- 0. GROUP SERVER RAIL -->
+        <components:GroupRailControl Grid.Column="0" DataContext="{Binding GroupRailVm}" />
+
+        <Border Grid.Column="1" 
 
                 BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
 
@@ -469,7 +475,7 @@
 
         <!-- ========================================== -->
 
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="2">
 
             <!-- VIEW 0: OVERVIEW -->
 
@@ -759,7 +765,10 @@
 
                     <!-- Stat Card 1: Focus Time Today (Lime Accent from Dashboard Mockups) -->
 
-                    <Border Grid.Column="0" 
+                    <!-- 0. GROUP SERVER RAIL -->
+        <components:GroupRailControl Grid.Column="0" DataContext="{Binding GroupRailVm}" />
+
+        <Border Grid.Column="1" 
 
                             Background="#C7F284" 
 
@@ -872,7 +881,10 @@
 
                     <!-- Weekly Activity Vector Spline Chart Section -->
 
-                <Border Grid.Column="0" Margin="0,0,12,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
+                <!-- 0. GROUP SERVER RAIL -->
+        <components:GroupRailControl Grid.Column="0" DataContext="{Binding GroupRailVm}" />
+
+        <Border Grid.Column="1" Margin="0,0,12,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
 
                         BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
 

@@ -1,0 +1,219 @@
+<ui:FluentWindow x:Class="StudyRoom.UI.Views.Components.JoinGroupDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:vm="clr-namespace:StudyRoom.UI.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance vm:JoinGroupDialogViewModel}"
+        Title="Tham gia &amp; Tạo Nhóm Học Tập"
+        Width="640" Height="560"
+        WindowStartupLocation="CenterScreen"
+        WindowBackdropType="Mica"
+        ResizeMode="NoResize">
+
+    <ui:FluentWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </ui:FluentWindow.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <!-- Header -->
+            <RowDefinition Height="Auto" />
+            <!-- Tab Selector -->
+            <RowDefinition Height="Auto" />
+            <!-- Main Content Area -->
+            <RowDefinition Height="*" />
+            <!-- Status & Messages -->
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- 1. Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="38" Height="38" CornerRadius="10" Background="#6366F1" Margin="0,0,12,0">
+                    <TextBlock Text="👥" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Nhóm Học Tập Cộng Tác" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                    <TextBlock Text="Tham gia bằng mã phòng, khám phá nhóm công khai hoặc tạo nhóm mới" 
+                               FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <!-- 2. Modern 3-Tab Selector Buttons -->
+        <Border Grid.Row="1" Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                CornerRadius="12" Padding="4" Margin="0,0,0,18" HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal">
+                <ui:Button Command="{Binding SelectTabCommand}" CommandParameter="0"
+                           Content="🔑 Tham gia bằng mã" Padding="14,7" Margin="0,0,4,0"
+                           Appearance="{Binding IsJoinCodeTab, Converter={x:Null}}">
+                    <ui:Button.Style>
+                        <Style TargetType="ui:Button">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsJoinCodeTab}" Value="True">
+                                    <Setter Property="Background" Value="#6366F1" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:Button.Style>
+                </ui:Button>
+
+                <ui:Button Command="{Binding SelectTabCommand}" CommandParameter="1"
+                           Content="🧭 Khám phá nhóm" Padding="14,7" Margin="0,0,4,0">
+                    <ui:Button.Style>
+                        <Style TargetType="ui:Button">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsExploreTab}" Value="True">
+                                    <Setter Property="Background" Value="#6366F1" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:Button.Style>
+                </ui:Button>
+
+                <ui:Button Command="{Binding SelectTabCommand}" CommandParameter="2"
+                           Content="✨ Tạo nhóm mới" Padding="14,7">
+                    <ui:Button.Style>
+                        <Style TargetType="ui:Button">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsCreateTab}" Value="True">
+                                    <Setter Property="Background" Value="#6366F1" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:Button.Style>
+                </ui:Button>
+            </StackPanel>
+        </Border>
+
+        <!-- 3. Dynamic Tab Content -->
+        <Grid Grid.Row="2">
+            <!-- TAB 0: JOIN BY CODE -->
+            <Grid Visibility="{Binding IsJoinCodeTab, Converter={StaticResource BoolToVis}}">
+                <StackPanel VerticalAlignment="Top" Margin="4,0,4,0">
+                    <TextBlock Text="Nhập mã phòng học (6 chữ số):" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,8" />
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBox Grid.Column="0" Text="{Binding InputJoinCode, UpdateSourceTrigger=PropertyChanged}"
+                                    PlaceholderText="Ví dụ: 102938 hoặc 204859"
+                                    FontSize="14" Padding="12,10" Margin="0,0,8,0" />
+                        <ui:Button Grid.Column="1" Command="{Binding VerifyCodeCommand}"
+                                   Content="Kiểm tra mã" Appearance="Secondary" Padding="16,10" />
+                    </Grid>
+
+                    <!-- Preview Card -->
+                    <Border Background="{DynamicResource ControlFillColorDefaultBrush}" 
+                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                            BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,16"
+                            Visibility="{Binding PreviewGroup, Converter={StaticResource BoolToVis}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Width="44" Height="44" CornerRadius="22" 
+                                    Background="{Binding PreviewGroup.AccentColor}" Margin="0,0,14,0">
+                                <TextBlock Text="{Binding PreviewGroup.ShortCode}" Foreground="White" 
+                                           FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding PreviewGroup.Name}" FontWeight="Bold" FontSize="14" />
+                                <TextBlock Text="{Binding PreviewGroup.Subject}" Opacity="0.8" FontSize="12" />
+                                <TextBlock Text="{Binding PreviewGroup.MemberCount, StringFormat='{}Số lượng thành viên: {0}'}" 
+                                           Opacity="0.6" FontSize="11" Margin="0,2,0,0" />
+                            </StackPanel>
+                            <ui:Button Grid.Column="2" Command="{Binding ConfirmJoinCommand}"
+                                       Content="Vào nhóm ngay" Appearance="Primary" Padding="18,10" VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- TAB 1: EXPLORE PUBLIC GROUPS -->
+            <Grid Visibility="{Binding IsExploreTab, Converter={StaticResource BoolToVis}}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding ExploreGroups}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                        BorderThickness="1" CornerRadius="12" Padding="14,12" Margin="0,0,0,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Column="0" Width="42" Height="42" CornerRadius="21"
+                                                Background="{Binding AccentColor}" Margin="0,0,12,0">
+                                            <TextBlock Text="{Binding ShortCode}" Foreground="White" FontWeight="Bold" 
+                                                       FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
+                                            <TextBlock Text="{Binding Subject}" Opacity="0.8" FontSize="11" />
+                                            <TextBlock Text="{Binding MemberCount, StringFormat='{}Số bạn đang học: {0}'}" 
+                                                       Opacity="0.6" FontSize="10" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                        <ui:Button Grid.Column="2" 
+                                                   Command="{Binding DataContext.QuickJoinExploreGroupCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                   CommandParameter="{Binding}"
+                                                   Content="Tham gia" Appearance="Secondary" Padding="14,6" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- TAB 2: CREATE NEW GROUP -->
+            <Grid Visibility="{Binding IsCreateTab, Converter={StaticResource BoolToVis}}">
+                <StackPanel VerticalAlignment="Top" Margin="4,0,4,0">
+                    <TextBlock Text="Tên nhóm học tập:" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <ui:TextBox Text="{Binding NewGroupName, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="Ví dụ: Lập trình .NET &amp; C#" Padding="12,8" Margin="0,0,0,14" />
+
+                    <TextBlock Text="Môn học hoặc Chủ đề:" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <ui:TextBox Text="{Binding NewGroupSubject, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="Ví dụ: Kỹ thuật phần mềm" Padding="12,8" Margin="0,0,0,14" />
+
+                    <TextBlock Text="Số lượng thành viên tối đa (2 - 20):" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <ui:TextBox Text="{Binding NewGroupMaxMembers, UpdateSourceTrigger=PropertyChanged}"
+                                Padding="12,8" Margin="0,0,0,20" />
+
+                    <ui:Button Command="{Binding ConfirmCreateGroupCommand}"
+                               Content="Tạo và bắt đầu học ngay ✨" Appearance="Primary"
+                               HorizontalAlignment="Stretch" Padding="0,12" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- 4. Messages and Footer -->
+        <StackPanel Grid.Row="3" Margin="0,12,0,0">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="#EF4444" FontSize="12" FontWeight="SemiBold"
+                       Visibility="{Binding ErrorMessage, Converter={StaticResource BoolToVis}}" Margin="0,0,0,4" />
+            <TextBlock Text="{Binding SuccessMessage}" Foreground="#10B981" FontSize="12" FontWeight="SemiBold"
+                       Visibility="{Binding SuccessMessage, Converter={StaticResource BoolToVis}}" Margin="0,0,0,4" />
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow>

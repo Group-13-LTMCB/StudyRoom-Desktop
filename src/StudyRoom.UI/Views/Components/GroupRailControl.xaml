@@ -1,0 +1,175 @@
+<UserControl x:Class="StudyRoom.UI.Views.Components.GroupRailControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:StudyRoom.UI.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance vm:GroupRailViewModel}"
+             d:DesignHeight="700" d:DesignWidth="72"
+             Width="72">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+
+    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+            BorderThickness="0,0,1,0">
+        <Grid>
+            <Grid.RowDefinitions>
+                <!-- Home / Personal button -->
+                <RowDefinition Height="Auto" />
+                <!-- Separator -->
+                <RowDefinition Height="Auto" />
+                <!-- Joined Groups List -->
+                <RowDefinition Height="*" />
+                <!-- Add Group (+) Button -->
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- 1. Home / Personal Space Icon -->
+            <Grid Grid.Row="0" Margin="0,14,0,0">
+                <!-- Active Indicator Pill -->
+                <Rectangle HorizontalAlignment="Left" VerticalAlignment="Center"
+                           Width="4" Height="24" RadiusX="2" RadiusY="2"
+                           Fill="{DynamicResource TextFillColorPrimaryBrush}"
+                           Visibility="{Binding PersonalHome.IsSelected, Converter={StaticResource BoolToVis}}" />
+
+                <ui:Button Command="{Binding SelectPersonalHomeCommand}"
+                           Width="48" Height="48" CornerRadius="24"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Padding="0" Background="#6366F1" BorderThickness="0"
+                           ToolTip="Không gian cá nhân (Tự học độc lập)">
+                    <TextBlock Text="🏠" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </ui:Button>
+            </Grid>
+
+            <!-- 2. Subtle Separator Line -->
+            <Rectangle Grid.Row="1" Width="36" Height="1" 
+                       Fill="{DynamicResource ControlStrokeColorDefaultBrush}" 
+                       Opacity="0.6" Margin="0,10,0,8" HorizontalAlignment="Center" />
+
+            <!-- 3. Groups List (Scrollable) -->
+            <ScrollViewer Grid.Row="2" 
+                          VerticalScrollBarVisibility="Hidden" 
+                          HorizontalScrollBarVisibility="Disabled"
+                          Focusable="False">
+                <ItemsControl ItemsSource="{Binding Groups}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,4,0,4">
+                                <!-- Active Indicator Pill on the left edge -->
+                                <Rectangle HorizontalAlignment="Left" VerticalAlignment="Center"
+                                           Width="4" Height="24" RadiusX="2" RadiusY="2"
+                                           Fill="{DynamicResource TextFillColorPrimaryBrush}"
+                                           Visibility="{Binding IsSelected, Converter={StaticResource BoolToVis}}" />
+
+                                <!-- Group Avatar Button -->
+                                <Button Command="{Binding DataContext.SelectGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Width="48" Height="48"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        Padding="0" BorderThickness="0"
+                                        ToolTipService.InitialShowDelay="150">
+                                    <Button.ToolTip>
+                                        <ToolTip>
+                                            <StackPanel Margin="4">
+                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="13" />
+                                                <TextBlock Text="{Binding Subject}" Opacity="0.8" FontSize="11" />
+                                                <TextBlock Text="{Binding JoinCode, StringFormat='Mã mời: {0}'}" Opacity="0.6" FontSize="10" Margin="0,2,0,0" />
+                                            </StackPanel>
+                                        </ToolTip>
+                                    </Button.ToolTip>
+
+                                    <!-- Right-Click Context Menu -->
+                                    <Button.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="📋 Sao chép mã mời"
+                                                      Command="{Binding DataContext.CopyInviteCodeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}" />
+                                            <MenuItem Header="📌 Ghim lên đầu"
+                                                      Command="{Binding DataContext.PinGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}" />
+                                            <MenuItem Header="🔕 Tắt thông báo"
+                                                      Command="{Binding DataContext.MuteGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}" />
+                                            <Separator />
+                                            <MenuItem Header="🚪 Rời nhóm"
+                                                      Command="{Binding DataContext.LeaveGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}"
+                                                      Foreground="#EF4444" />
+                                        </ContextMenu>
+                                    </Button.ContextMenu>
+
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="AvatarBorder" 
+                                                    CornerRadius="24" 
+                                                    Background="{Binding AccentColor}" 
+                                                    Cursor="Hand">
+                                                <Grid>
+                                                    <TextBlock Text="{Binding ShortCode}" 
+                                                               Foreground="White" 
+                                                               FontWeight="Bold" 
+                                                               FontSize="14"
+                                                               HorizontalAlignment="Center" 
+                                                               VerticalAlignment="Center" />
+
+                                                    <!-- Pinned Icon Badge (top-left) -->
+                                                    <TextBlock Text="📌" FontSize="9"
+                                                               HorizontalAlignment="Left" VerticalAlignment="Top"
+                                                               Margin="3,2,0,0"
+                                                               Visibility="{Binding IsPinned, Converter={StaticResource BoolToVis}}" />
+
+                                                    <!-- Unread Badge (top-right) -->
+                                                    <Border Width="16" Height="16" CornerRadius="8"
+                                                            Background="#EF4444"
+                                                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                            Margin="0,0,-2,-2"
+                                                            BorderThickness="1.5" BorderBrush="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding UnreadCount, Converter={x:Null}}" Value="{x:Null}">
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding UnreadCount}"
+                                                                   Foreground="White" FontSize="9" FontWeight="Bold"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="AvatarBorder" Property="CornerRadius" Value="16" />
+                                                    <Setter TargetName="AvatarBorder" Property="Opacity" Value="0.9" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- 4. Add Group (+) Action Button -->
+            <Border Grid.Row="3" Margin="0,10,0,16" HorizontalAlignment="Center">
+                <ui:Button Command="{Binding OpenJoinDialogCommand}"
+                           Width="48" Height="48" CornerRadius="24"
+                           Padding="0" Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                           BorderThickness="1" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                           ToolTip="Tham gia hoặc tạo nhóm mới (+)">
+                    <TextBlock Text="➕" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </ui:Button>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>
