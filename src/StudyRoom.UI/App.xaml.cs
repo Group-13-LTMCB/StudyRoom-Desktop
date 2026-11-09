@@ -6,6 +6,7 @@ using StudyRoom.Application.Helpers;
 using StudyRoom.Application.Interfaces;
 using StudyRoom.Application.Services;
 using StudyRoom.Core.Interfaces;
+using StudyRoom.UI.Services;
 using StudyRoom.Infrastructure.Auth;
 using StudyRoom.Infrastructure.Configuration;
 using StudyRoom.Infrastructure.Network;
@@ -53,6 +54,7 @@ public partial class App : System.Windows.Application
         services.AddSingleton<IKanbanService, KanbanService>();
         services.AddSingleton<IHotKeyService, Win32HotKeyService>();
         services.AddSingleton<IMemoryOptimizer, MemoryOptimizer>();
+        services.AddSingleton<IAudioService, WpfAudioService>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();

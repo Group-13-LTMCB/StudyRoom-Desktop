@@ -17,6 +17,7 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
 {
     private readonly IPomodoroEngine _engine;
     private readonly IMessenger _messenger;
+    private readonly IAudioService? _audioService;
     private PomodoroPhase _lastBroadcastPhase = (PomodoroPhase)(-1);
 
     [ObservableProperty]
@@ -71,10 +72,11 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
 
     public event Action? RequestBackToDashboard;
 
-    public PomodoroRoomViewModel(IPomodoroEngine? engine = null, IMessenger? messenger = null)
+    public PomodoroRoomViewModel(IPomodoroEngine? engine = null, IMessenger? messenger = null, IAudioService? audioService = null)
     {
         _engine = engine ?? new PomodoroEngine();
         _messenger = messenger ?? WeakReferenceMessenger.Default;
+        _audioService = audioService;
         _engine.Tick += OnEngineTick;
         _engine.PhaseCompleted += OnEnginePhaseCompleted;
 
@@ -261,6 +263,15 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
 
     private void OnEnginePhaseCompleted(PomodoroSession session)
     {
+        if (session.Phase == PomodoroPhase.ShortBreak || session.Phase == PomodoroPhase.LongBreak)
+        {
+            _audioService?.PlayCelebration();
+        }
+        else if (session.Phase == PomodoroPhase.Focus)
+        {
+            _audioService?.PlayFocusStart();
+        }
+
         if (System.Windows.Application.Current?.Dispatcher is { } dispatcher)
         {
             dispatcher.Invoke(() => SyncWithEngineSession(session));

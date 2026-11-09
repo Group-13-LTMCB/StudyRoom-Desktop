@@ -49,6 +49,30 @@ public class LoginViewModelTests
             return Task.FromResult(Result<bool>.Success(true));
         }
 
+        public Task<Result<bool>> ConfirmSignUpAsync(string email, string confirmationCode, CancellationToken cancellationToken = default)
+        {
+            if (!ShouldSucceed)
+            {
+                return Task.FromResult(Result<bool>.Failure(ErrorToReturn ?? "Mã xác thực không hợp lệ"));
+            }
+            return Task.FromResult(Result<bool>.Success(true));
+        }
+
+        public Task<Result<bool>> ResendConfirmationCodeAsync(string email, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ShouldSucceed ? Result<bool>.Success(true) : Result<bool>.Failure(ErrorToReturn ?? "Lỗi"));
+        }
+
+        public Task<Result<bool>> ForgotPasswordAsync(string email, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ShouldSucceed ? Result<bool>.Success(true) : Result<bool>.Failure(ErrorToReturn ?? "Email không tồn tại"));
+        }
+
+        public Task<Result<bool>> ConfirmForgotPasswordAsync(string email, string confirmationCode, string newPassword, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ShouldSucceed ? Result<bool>.Success(true) : Result<bool>.Failure(ErrorToReturn ?? "Mã xác thực không hợp lệ"));
+        }
+
         public Task<Result<AuthTokens>> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(Result<AuthTokens>.Failure("Not implemented in fake"));
@@ -290,6 +314,66 @@ public class LoginViewModelTests
 
         _vm.ShowRegister();
         Assert.True(_vm.IsRegisterMode);
+    }
+
+    [Fact]
+    public async Task ConfirmOtpAsync_ValidCode_SwitchesToSignInMode()
+    {
+        _vm.CurrentAuthMode = AuthMode.ConfirmOtp;
+        _vm.Email = "student@test.com";
+        _vm.OtpCode = "123456";
+
+        await _vm.ConfirmOtpAsync();
+
+        Assert.False(_vm.HasError);
+        Assert.True(_vm.HasSuccess);
+        Assert.Equal(AuthMode.SignIn, _vm.CurrentAuthMode);
+        Assert.Empty(_vm.OtpCode);
+    }
+
+    [Fact]
+    public async Task ContinueAsGuestAsync_CreatesGuestSessionAndLogsIn()
+    {
+        AuthSession? loggedInSession = null;
+        _vm.LoginSucceeded += s => loggedInSession = s;
+
+        await _vm.ContinueAsGuestAsync();
+
+        Assert.NotNull(loggedInSession);
+        Assert.StartsWith("guest_student_", loggedInSession.UserId);
+        Assert.Equal("guest@studyroom.local", loggedInSession.Email);
+        Assert.Equal("Bạn (Khách)", loggedInSession.DisplayName);
+        Assert.NotNull(_storageService.StoredSession);
+    }
+
+    [Fact]
+    public async Task ForgotPasswordAndReset_WorksEndToEnd()
+    {
+        _vm.Email = "student@test.com";
+
+        // Step 1: Send reset code
+        await _vm.SendForgotPasswordCodeAsync();
+        Assert.Equal(AuthMode.ResetPassword, _vm.CurrentAuthMode);
+        Assert.True(_vm.HasSuccess);
+
+        // Step 2: Confirm reset with new password
+        _vm.OtpCode = "123456";
+        _vm.NewPassword = "NewPassword123!";
+        await _vm.ConfirmResetPasswordAsync();
+
+        Assert.Equal(AuthMode.SignIn, _vm.CurrentAuthMode);
+        Assert.Equal("NewPassword123!", _vm.Password);
+        Assert.Empty(_vm.NewPassword);
+    }
+
+    [Fact]
+    public void TogglePasswordVisibility_TogglesState()
+    {
+        Assert.False(_vm.IsPasswordVisible);
+        _vm.TogglePasswordVisibility();
+        Assert.True(_vm.IsPasswordVisible);
+        _vm.TogglePasswordVisibility();
+        Assert.False(_vm.IsPasswordVisible);
     }
 
     [Fact]

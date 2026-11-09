@@ -5,6 +5,15 @@ using StudyRoom.Core.Models;
 
 namespace StudyRoom.UI.ViewModels;
 
+public enum AuthMode
+{
+    SignIn,
+    SignUp,
+    ConfirmOtp,
+    ForgotPassword,
+    ResetPassword
+}
+
 public partial class LoginViewModel : ObservableObject
 {
     private readonly IAuthService _authService;
@@ -25,10 +34,22 @@ public partial class LoginViewModel : ObservableObject
     private string _password = string.Empty;
 
     [ObservableProperty]
+    private string _newPassword = string.Empty;
+
+    [ObservableProperty]
     private string _displayName = string.Empty;
 
     [ObservableProperty]
-    private bool _isRegisterMode;
+    private string _otpCode = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSignInMode))]
+    [NotifyPropertyChangedFor(nameof(IsSignUpMode))]
+    [NotifyPropertyChangedFor(nameof(IsConfirmOtpMode))]
+    [NotifyPropertyChangedFor(nameof(IsForgotPasswordMode))]
+    [NotifyPropertyChangedFor(nameof(IsResetPasswordMode))]
+    [NotifyPropertyChangedFor(nameof(IsRegisterMode))]
+    private AuthMode _currentAuthMode = AuthMode.SignIn;
 
     [ObservableProperty]
     private bool _isBusy;
@@ -37,10 +58,25 @@ public partial class LoginViewModel : ObservableObject
     private bool _rememberMe = true;
 
     [ObservableProperty]
+    private bool _isPasswordVisible;
+
+    [ObservableProperty]
     private AuthSession? _currentSession;
 
     public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
     public bool HasSuccess => !string.IsNullOrEmpty(SuccessMessage);
+
+    public bool IsSignInMode => CurrentAuthMode == AuthMode.SignIn;
+    public bool IsSignUpMode => CurrentAuthMode == AuthMode.SignUp;
+    public bool IsConfirmOtpMode => CurrentAuthMode == AuthMode.ConfirmOtp;
+    public bool IsForgotPasswordMode => CurrentAuthMode == AuthMode.ForgotPassword;
+    public bool IsResetPasswordMode => CurrentAuthMode == AuthMode.ResetPassword;
+
+    public bool IsRegisterMode
+    {
+        get => CurrentAuthMode == AuthMode.SignUp;
+        set => CurrentAuthMode = value ? AuthMode.SignUp : AuthMode.SignIn;
+    }
 
     public event Action<AuthSession>? LoginSucceeded;
 
@@ -148,10 +184,10 @@ public partial class LoginViewModel : ObservableObject
             var result = await _authService.RegisterAsync(Email.Trim(), Password, DisplayName.Trim());
             if (result.IsSuccess)
             {
-                SuccessMessage = "Đăng ký thành công! Hãy đăng nhập để bắt đầu.";
+                SuccessMessage = "Đăng ký thành công! Vui lòng nhập mã OTP gửi về Email.";
                 ErrorMessage = null;
-                IsRegisterMode = false;
                 Password = string.Empty;
+                CurrentAuthMode = AuthMode.ConfirmOtp;
             }
             else
             {
@@ -165,9 +201,190 @@ public partial class LoginViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public async Task ConfirmOtpAsync()
+    {
+        ErrorMessage = null;
+        SuccessMessage = null;
+
+        if (string.IsNullOrWhiteSpace(Email))
+        {
+            ErrorMessage = "Vui lòng nhập Email.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(OtpCode))
+        {
+            ErrorMessage = "Vui lòng nhập mã OTP xác thực.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var result = await _authService.ConfirmSignUpAsync(Email.Trim(), OtpCode.Trim());
+            if (result.IsSuccess)
+            {
+                SuccessMessage = "Xác thực tài khoản thành công! Bạn có thể đăng nhập ngay.";
+                ErrorMessage = null;
+                OtpCode = string.Empty;
+                CurrentAuthMode = AuthMode.SignIn;
+            }
+            else
+            {
+                ErrorMessage = result.Error ?? "Mã xác thực không hợp lệ hoặc đã hết hạn.";
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task ResendOtpAsync()
+    {
+        ErrorMessage = null;
+        SuccessMessage = null;
+
+        if (string.IsNullOrWhiteSpace(Email))
+        {
+            ErrorMessage = "Vui lòng nhập Email để nhận lại mã.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var result = await _authService.ResendConfirmationCodeAsync(Email.Trim());
+            if (result.IsSuccess)
+            {
+                SuccessMessage = "Đã gửi lại mã OTP về Email của bạn.";
+                ErrorMessage = null;
+            }
+            else
+            {
+                ErrorMessage = result.Error ?? "Không thể gửi lại mã OTP lúc này.";
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task SendForgotPasswordCodeAsync()
+    {
+        ErrorMessage = null;
+        SuccessMessage = null;
+
+        if (string.IsNullOrWhiteSpace(Email))
+        {
+            ErrorMessage = "Vui lòng nhập Email để đặt lại mật khẩu.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var result = await _authService.ForgotPasswordAsync(Email.Trim());
+            if (result.IsSuccess)
+            {
+                SuccessMessage = "Đã gửi mã khôi phục về Email! Hãy nhập mã và mật khẩu mới.";
+                ErrorMessage = null;
+                CurrentAuthMode = AuthMode.ResetPassword;
+            }
+            else
+            {
+                ErrorMessage = result.Error ?? "Không thể gửi yêu cầu đặt lại mật khẩu.";
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task ConfirmResetPasswordAsync()
+    {
+        ErrorMessage = null;
+        SuccessMessage = null;
+
+        if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(OtpCode) || string.IsNullOrWhiteSpace(NewPassword))
+        {
+            ErrorMessage = "Vui lòng nhập đầy đủ Email, mã xác thực và mật khẩu mới.";
+            return;
+        }
+
+        if (NewPassword.Length < 8)
+        {
+            ErrorMessage = "Mật khẩu mới phải có ít nhất 8 ký tự.";
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var result = await _authService.ConfirmForgotPasswordAsync(Email.Trim(), OtpCode.Trim(), NewPassword);
+            if (result.IsSuccess)
+            {
+                SuccessMessage = "Đổi mật khẩu thành công! Hãy đăng nhập bằng mật khẩu mới.";
+                ErrorMessage = null;
+                Password = NewPassword;
+                NewPassword = string.Empty;
+                OtpCode = string.Empty;
+                CurrentAuthMode = AuthMode.SignIn;
+            }
+            else
+            {
+                ErrorMessage = result.Error ?? "Mã xác thực không đúng hoặc mật khẩu không hợp lệ.";
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task ContinueAsGuestAsync()
+    {
+        ErrorMessage = null;
+        SuccessMessage = null;
+
+        var guestSession = new AuthSession
+        {
+            UserId = "guest_student_" + Guid.NewGuid().ToString("N")[..8],
+            Email = "guest@studyroom.local",
+            DisplayName = "Bạn (Khách)",
+            IdToken = "guest_id_token",
+            AccessToken = "guest_access_token",
+            RefreshToken = "guest_refresh_token",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(7)
+        };
+
+        CurrentSession = guestSession;
+
+        if (RememberMe)
+        {
+            await _secureStorageService.SaveSessionAsync(guestSession);
+        }
+
+        SuccessMessage = "Đăng nhập chế độ khách thành công!";
+        LoginSucceeded?.Invoke(guestSession);
+    }
+
+    [RelayCommand]
+    public void TogglePasswordVisibility()
+    {
+        IsPasswordVisible = !IsPasswordVisible;
+    }
+
+    [RelayCommand]
     public void SwitchMode()
     {
-        IsRegisterMode = !IsRegisterMode;
+        CurrentAuthMode = CurrentAuthMode == AuthMode.SignUp ? AuthMode.SignIn : AuthMode.SignUp;
         ErrorMessage = null;
         SuccessMessage = null;
     }
@@ -175,23 +392,25 @@ public partial class LoginViewModel : ObservableObject
     [RelayCommand]
     public void ShowLogin()
     {
-        if (IsRegisterMode)
-        {
-            IsRegisterMode = false;
-            ErrorMessage = null;
-            SuccessMessage = null;
-        }
+        CurrentAuthMode = AuthMode.SignIn;
+        ErrorMessage = null;
+        SuccessMessage = null;
     }
 
     [RelayCommand]
     public void ShowRegister()
     {
-        if (!IsRegisterMode)
-        {
-            IsRegisterMode = true;
-            ErrorMessage = null;
-            SuccessMessage = null;
-        }
+        CurrentAuthMode = AuthMode.SignUp;
+        ErrorMessage = null;
+        SuccessMessage = null;
+    }
+
+    [RelayCommand]
+    public void ShowForgotPassword()
+    {
+        CurrentAuthMode = AuthMode.ForgotPassword;
+        ErrorMessage = null;
+        SuccessMessage = null;
     }
 
     [RelayCommand]
@@ -219,9 +438,12 @@ public partial class LoginViewModel : ObservableObject
     {
         Email = string.Empty;
         Password = string.Empty;
+        NewPassword = string.Empty;
+        DisplayName = string.Empty;
+        OtpCode = string.Empty;
         ErrorMessage = null;
         SuccessMessage = null;
         IsBusy = false;
-        IsRegisterMode = false;
+        CurrentAuthMode = AuthMode.SignIn;
     }
 }

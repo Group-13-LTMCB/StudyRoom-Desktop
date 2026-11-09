@@ -16,6 +16,7 @@ public partial class FloatingBubbleViewModel : ObservableObject, IDisposable
     private readonly IRateLimiter _rateLimiter;
     private readonly TimeProvider _timeProvider;
     private readonly IMessenger _messenger;
+    private readonly IAudioService? _audioService;
 
     [ObservableProperty]
     private string _inputText = string.Empty;
@@ -52,19 +53,20 @@ public partial class FloatingBubbleViewModel : ObservableObject, IDisposable
     public event Action? RequestFocusInput;
 
     [ActivatorUtilitiesConstructor]
-    public FloatingBubbleViewModel(IRateLimiter rateLimiter) : this(rateLimiter, TimeProvider.System, null)
+    public FloatingBubbleViewModel(IRateLimiter rateLimiter, IAudioService? audioService = null) : this(rateLimiter, TimeProvider.System, null, audioService)
     {
     }
 
-    public FloatingBubbleViewModel(IRateLimiter rateLimiter, TimeProvider timeProvider) : this(rateLimiter, timeProvider, null)
+    public FloatingBubbleViewModel(IRateLimiter rateLimiter, TimeProvider timeProvider) : this(rateLimiter, timeProvider, null, null)
     {
     }
 
-    public FloatingBubbleViewModel(IRateLimiter rateLimiter, TimeProvider timeProvider, IMessenger? messenger)
+    public FloatingBubbleViewModel(IRateLimiter rateLimiter, TimeProvider timeProvider, IMessenger? messenger, IAudioService? audioService = null)
     {
         _rateLimiter = rateLimiter ?? throw new ArgumentNullException(nameof(rateLimiter));
         _timeProvider = timeProvider ?? TimeProvider.System;
         _messenger = messenger ?? WeakReferenceMessenger.Default;
+        _audioService = audioService;
 
         _messenger.Register<ChatMessageReceivedMessage>(this, (r, m) => ((FloatingBubbleViewModel)r).HandleChatMessageReceived(m));
         _messenger.Register<PhaseChangedMessage>(this, (r, m) => ((FloatingBubbleViewModel)r).HandlePhaseChanged(m));
@@ -76,7 +78,7 @@ public partial class FloatingBubbleViewModel : ObservableObject, IDisposable
         };
     }
 
-    public FloatingBubbleViewModel() : this(new TokenBucketRateLimiter(5, 1), TimeProvider.System, null)
+    public FloatingBubbleViewModel() : this(new TokenBucketRateLimiter(5, 1), TimeProvider.System, null, null)
     {
     }
 
@@ -180,6 +182,7 @@ public partial class FloatingBubbleViewModel : ObservableObject, IDisposable
         if (msg.Message.SenderId == CurrentUserId && msg.Message.IsSelf) return;
         if (Messages.Any(m => m.MessageId == msg.Message.MessageId)) return;
 
+        _audioService?.PlayMessageNotification();
         ReceiveMessage(msg.Message);
     }
 

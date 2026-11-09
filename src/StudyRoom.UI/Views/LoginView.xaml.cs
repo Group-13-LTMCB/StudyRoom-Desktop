@@ -43,4 +43,12 @@ public partial class LoginView : UserControl
             vm.Password = PasswordInput.Password;
         }
     }
+
+    private void RegisterPasswordInput_PasswordChanged(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is LoginViewModel vm)
+        {
+            vm.Password = RegisterPasswordInput.Password;
+        }
+    }
 }

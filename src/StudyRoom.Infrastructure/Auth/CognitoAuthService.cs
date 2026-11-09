@@ -123,6 +123,126 @@ public class CognitoAuthService : IAuthService, IDisposable
         }
     }
 
+    public async Task<Result<bool>> ConfirmSignUpAsync(string email, string confirmationCode, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(confirmationCode))
+        {
+            return Result<bool>.Failure("Email và mã xác nhận không được để trống.");
+        }
+
+        try
+        {
+            var request = new ConfirmSignUpRequest
+            {
+                ClientId = _clientId,
+                Username = email.Trim(),
+                ConfirmationCode = confirmationCode.Trim()
+            };
+
+            await _cognitoClient.ConfirmSignUpAsync(request, cancellationToken);
+            return Result<bool>.Success(true);
+        }
+        catch (AmazonServiceException ex)
+        {
+            return Result<bool>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure(ex.Message);
+        }
+    }
+
+    public async Task<Result<bool>> ResendConfirmationCodeAsync(string email, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return Result<bool>.Failure("Email không được để trống.");
+        }
+
+        try
+        {
+            var request = new ResendConfirmationCodeRequest
+            {
+                ClientId = _clientId,
+                Username = email.Trim()
+            };
+
+            await _cognitoClient.ResendConfirmationCodeAsync(request, cancellationToken);
+            return Result<bool>.Success(true);
+        }
+        catch (AmazonServiceException ex)
+        {
+            return Result<bool>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure(ex.Message);
+        }
+    }
+
+    public async Task<Result<bool>> ForgotPasswordAsync(string email, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return Result<bool>.Failure("Email không được để trống.");
+        }
+
+        try
+        {
+            var request = new ForgotPasswordRequest
+            {
+                ClientId = _clientId,
+                Username = email.Trim()
+            };
+
+            await _cognitoClient.ForgotPasswordAsync(request, cancellationToken);
+            return Result<bool>.Success(true);
+        }
+        catch (AmazonServiceException ex)
+        {
+            return Result<bool>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure(ex.Message);
+        }
+    }
+
+    public async Task<Result<bool>> ConfirmForgotPasswordAsync(string email, string confirmationCode, string newPassword, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(confirmationCode) || string.IsNullOrWhiteSpace(newPassword))
+        {
+            return Result<bool>.Failure("Vui lòng nhập đầy đủ Email, mã xác thực và mật khẩu mới.");
+        }
+
+        if (newPassword.Length < 8)
+        {
+            return Result<bool>.Failure("Mật khẩu mới phải có ít nhất 8 ký tự.");
+        }
+
+        try
+        {
+            var request = new ConfirmForgotPasswordRequest
+            {
+                ClientId = _clientId,
+                Username = email.Trim(),
+                ConfirmationCode = confirmationCode.Trim(),
+                Password = newPassword
+            };
+
+            await _cognitoClient.ConfirmForgotPasswordAsync(request, cancellationToken);
+            return Result<bool>.Success(true);
+        }
+        catch (AmazonServiceException ex)
+        {
+            return Result<bool>.Failure(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure(ex.Message);
+        }
+    }
+
     public async Task<Result<AuthTokens>> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))

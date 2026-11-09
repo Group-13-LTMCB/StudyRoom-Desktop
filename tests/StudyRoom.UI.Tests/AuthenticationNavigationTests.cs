@@ -50,6 +50,18 @@ public class AuthenticationNavigationTests
         public Task<Result<bool>> RegisterAsync(string email, string password, string displayName, CancellationToken cancellationToken = default)
             => Task.FromResult(Result<bool>.Success(true));
 
+        public Task<Result<bool>> ConfirmSignUpAsync(string email, string confirmationCode, CancellationToken cancellationToken = default)
+            => Task.FromResult(confirmationCode == "123456" ? Result<bool>.Success(true) : Result<bool>.Failure("Mã xác thực không hợp lệ."));
+
+        public Task<Result<bool>> ResendConfirmationCodeAsync(string email, CancellationToken cancellationToken = default)
+            => Task.FromResult(Result<bool>.Success(true));
+
+        public Task<Result<bool>> ForgotPasswordAsync(string email, CancellationToken cancellationToken = default)
+            => Task.FromResult(Result<bool>.Success(true));
+
+        public Task<Result<bool>> ConfirmForgotPasswordAsync(string email, string confirmationCode, string newPassword, CancellationToken cancellationToken = default)
+            => Task.FromResult(confirmationCode == "123456" ? Result<bool>.Success(true) : Result<bool>.Failure("Mã xác thực không hợp lệ."));
+
         public Task<Result<AuthTokens>> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
             => Task.FromResult(Result<AuthTokens>.Failure("Not implemented"));
 
