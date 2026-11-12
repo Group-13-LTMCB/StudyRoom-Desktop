@@ -18,6 +18,8 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
     private readonly IPomodoroEngine _engine;
     private readonly IMessenger _messenger;
     private readonly IAudioService? _audioService;
+    private readonly IAmbientSoundService _ambientSoundService;
+    private readonly IWebSocketRelayService? _webSocketRelayService;
     private PomodoroPhase _lastBroadcastPhase = (PomodoroPhase)(-1);
 
     [ObservableProperty]
@@ -68,15 +70,51 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private ObservableCollection<RoomMemberModel> _members = [];
 
+    [ObservableProperty]
+    private bool _isZenMode;
+
+    [ObservableProperty]
+    private string _selectedAmbientTrack = "Off";
+
+    [ObservableProperty]
+    private double _ambientVolume = 0.5;
+
+    [ObservableProperty]
+    private bool _isPlayingAmbient;
+
+    public string AmbientVolumePercentText => $"{(int)(AmbientVolume * 100)}%";
+
+    partial void OnAmbientVolumeChanged(double value)
+    {
+        _ambientSoundService.SetVolume(value);
+        OnPropertyChanged(nameof(AmbientVolumePercentText));
+    }
+
+    partial void OnIsZenModeChanged(bool value)
+    {
+        _messenger.Send(new ZenModeChangedMessage(value));
+        if (!value && IsPlayingAmbient)
+        {
+            // Keep ambient track playing or let user control it
+        }
+    }
+
     public bool IsStopped => !IsRunning && !IsPaused;
 
     public event Action? RequestBackToDashboard;
 
-    public PomodoroRoomViewModel(IPomodoroEngine? engine = null, IMessenger? messenger = null, IAudioService? audioService = null)
+    public PomodoroRoomViewModel(
+        IPomodoroEngine? engine = null,
+        IMessenger? messenger = null,
+        IAudioService? audioService = null,
+        IAmbientSoundService? ambientSoundService = null,
+        IWebSocketRelayService? webSocketRelayService = null)
     {
         _engine = engine ?? new PomodoroEngine();
         _messenger = messenger ?? WeakReferenceMessenger.Default;
         _audioService = audioService;
+        _ambientSoundService = ambientSoundService ?? new Services.OfflineAmbientSoundService();
+        _webSocketRelayService = webSocketRelayService;
         _engine.Tick += OnEngineTick;
         _engine.PhaseCompleted += OnEnginePhaseCompleted;
 
@@ -146,6 +184,7 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
     {
         _engine.Start();
         SyncWithEngineSession(_engine.CurrentSession);
+        _ = _webSocketRelayService?.SendStartPomodoroAsync();
     }
 
     [RelayCommand]
@@ -153,6 +192,7 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
     {
         _engine.Pause();
         SyncWithEngineSession(_engine.CurrentSession);
+        _ = _webSocketRelayService?.SendPausePomodoroAsync();
     }
 
     [RelayCommand]
@@ -160,6 +200,7 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
     {
         _engine.Resume();
         SyncWithEngineSession(_engine.CurrentSession);
+        _ = _webSocketRelayService?.SendStartPomodoroAsync();
     }
 
     [RelayCommand]
@@ -183,6 +224,48 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
+    public void EnterZenMode()
+    {
+        IsZenMode = true;
+    }
+
+    [RelayCommand]
+    public void ExitZenMode()
+    {
+        IsZenMode = false;
+    }
+
+    [RelayCommand]
+    public void ToggleZenMode()
+    {
+        IsZenMode = !IsZenMode;
+    }
+
+    [RelayCommand]
+    public void SelectAmbientTrack(string? track)
+    {
+        if (string.IsNullOrWhiteSpace(track)) return;
+        SelectedAmbientTrack = track;
+        _ambientSoundService.PlayTrack(track);
+        IsPlayingAmbient = _ambientSoundService.IsPlaying;
+    }
+
+    [RelayCommand]
+    public void ToggleAmbientPlayback()
+    {
+        if (IsPlayingAmbient)
+        {
+            _ambientSoundService.Stop();
+            SelectedAmbientTrack = "Off";
+            IsPlayingAmbient = false;
+        }
+        else
+        {
+            SelectAmbientTrack("Rain");
+        }
+    }
+
+    [RelayCommand]
     public void PassBaton(string targetUserId)
     {
         if (string.IsNullOrWhiteSpace(targetUserId))
@@ -198,6 +281,7 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
         }
 
         _messenger.Send(new BatonPassedMessage(targetUserId));
+        _ = _webSocketRelayService?.SendPassBatonAsync(targetUserId);
     }
 
     public Action<FlashcardPromptMessage>? OpenFlashcardHandler { get; set; }
@@ -387,6 +471,7 @@ public partial class PomodoroRoomViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        _ambientSoundService.Dispose();
         _messenger.UnregisterAll(this);
         _engine.Tick -= OnEngineTick;
         _engine.PhaseCompleted -= OnEnginePhaseCompleted;

@@ -7,16 +7,19 @@ public sealed record AppConfiguration
     public const string DefaultCognitoClientId = "studyroom-desktop-client";
     public const string DefaultCognitoRegion = "us-east-1";
     public const string DefaultWebSocketEndpointUrl = "wss://127.0.0.1:8443/ws";
+    public const string DefaultRestApiEndpointUrl = "https://127.0.0.1:8443";
 
     public string CognitoClientId { get; init; } = DefaultCognitoClientId;
     public string CognitoRegion { get; init; } = DefaultCognitoRegion;
     public string WebSocketEndpointUrl { get; init; } = DefaultWebSocketEndpointUrl;
+    public string RestApiEndpointUrl { get; init; } = DefaultRestApiEndpointUrl;
 
     public static AppConfiguration Load(string? configFilePath = null)
     {
         string clientId = DefaultCognitoClientId;
         string region = DefaultCognitoRegion;
         string wsUrl = DefaultWebSocketEndpointUrl;
+        string restUrl = DefaultRestApiEndpointUrl;
 
         // 1. Try reading from configuration file
         string? targetPath = configFilePath;
@@ -69,6 +72,14 @@ public sealed record AppConfiguration
                 {
                     wsUrl = endpointStr.Trim();
                 }
+
+                if (root.TryGetProperty("RestApi", out var rest) &&
+                    rest.TryGetProperty("EndpointUrl", out var restEndpoint) &&
+                    restEndpoint.GetString() is { } restEndpointStr &&
+                    !string.IsNullOrWhiteSpace(restEndpointStr))
+                {
+                    restUrl = restEndpointStr.Trim();
+                }
             }
             catch
             {
@@ -95,11 +106,18 @@ public sealed record AppConfiguration
             wsUrl = envWsUrl.Trim();
         }
 
+        string? envRestUrl = Environment.GetEnvironmentVariable("STUDYROOM_REST_URL");
+        if (!string.IsNullOrWhiteSpace(envRestUrl))
+        {
+            restUrl = envRestUrl.Trim();
+        }
+
         return new AppConfiguration
         {
             CognitoClientId = clientId,
             CognitoRegion = region,
-            WebSocketEndpointUrl = wsUrl
+            WebSocketEndpointUrl = wsUrl,
+            RestApiEndpointUrl = restUrl
         };
     }
 }

@@ -51,6 +51,7 @@ public partial class App : System.Windows.Application
             return new CognitoAuthService(clientId: config.CognitoClientId, region: region);
         });
         services.AddSingleton<IWebSocketClient, WebSocketClient>();
+        services.AddSingleton<IWebSocketRelayService, WebSocketRelayService>();
         services.AddSingleton<SqliteLocalCacheRepository>();
         services.AddSingleton<ILocalCacheRepository>(sp => sp.GetRequiredService<SqliteLocalCacheRepository>());
         services.AddSingleton<IGroupManagementService, GroupManagementService>();
@@ -63,9 +64,12 @@ public partial class App : System.Windows.Application
         services.AddTransient<MainViewModel>();
         services.AddTransient<KanbanBoardViewModel>();
         services.AddTransient<DashboardViewModel>();
+        services.AddTransient<PomodoroRoomViewModel>();
         services.AddTransient<GroupRailViewModel>();
         services.AddTransient<JoinGroupDialogViewModel>();
         services.AddTransient<LoginViewModel>();
+        services.AddTransient<MfaSetupViewModel>();
+        services.AddTransient<ChangePasswordViewModel>();
         services.AddTransient<FlashcardViewModel>();
         services.AddSingleton<FloatingBubbleViewModel>();
 
@@ -74,6 +78,8 @@ public partial class App : System.Windows.Application
         services.AddTransient<LoginView>();
         services.AddTransient<FlashcardDialog>();
         services.AddTransient<JoinGroupDialog>();
+        services.AddTransient<MfaSetupDialog>();
+        services.AddTransient<ChangePasswordDialog>();
         services.AddSingleton<FloatingBubbleView>();
 
         _serviceProvider = services.BuildServiceProvider();

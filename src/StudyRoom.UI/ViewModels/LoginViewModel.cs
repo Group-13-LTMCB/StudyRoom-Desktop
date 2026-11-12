@@ -11,7 +11,8 @@ public enum AuthMode
     SignUp,
     ConfirmOtp,
     ForgotPassword,
-    ResetPassword
+    ResetPassword,
+    MfaChallenge
 }
 
 public partial class LoginViewModel : ObservableObject
@@ -43,11 +44,17 @@ public partial class LoginViewModel : ObservableObject
     private string _otpCode = string.Empty;
 
     [ObservableProperty]
+    private string _mfaCode = string.Empty;
+
+    private string? _mfaSession;
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsSignInMode))]
     [NotifyPropertyChangedFor(nameof(IsSignUpMode))]
     [NotifyPropertyChangedFor(nameof(IsConfirmOtpMode))]
     [NotifyPropertyChangedFor(nameof(IsForgotPasswordMode))]
     [NotifyPropertyChangedFor(nameof(IsResetPasswordMode))]
+    [NotifyPropertyChangedFor(nameof(IsMfaChallengeMode))]
     [NotifyPropertyChangedFor(nameof(IsRegisterMode))]
     private AuthMode _currentAuthMode = AuthMode.SignIn;
 
@@ -71,6 +78,7 @@ public partial class LoginViewModel : ObservableObject
     public bool IsConfirmOtpMode => CurrentAuthMode == AuthMode.ConfirmOtp;
     public bool IsForgotPasswordMode => CurrentAuthMode == AuthMode.ForgotPassword;
     public bool IsResetPasswordMode => CurrentAuthMode == AuthMode.ResetPassword;
+    public bool IsMfaChallengeMode => CurrentAuthMode == AuthMode.MfaChallenge;
 
     public bool IsRegisterMode
     {
@@ -110,7 +118,23 @@ public partial class LoginViewModel : ObservableObject
             var result = await _authService.LoginAsync(Email.Trim(), Password);
             if (result.IsSuccess && result.Value != null)
             {
-                var tokens = result.Value;
+                if (result.Value.RequiresMfa)
+                {
+                    _mfaSession = result.Value.MfaSession;
+                    MfaCode = string.Empty;
+                    CurrentAuthMode = AuthMode.MfaChallenge;
+                    SuccessMessage = "Tài khoản đã kích hoạt 2FA. Vui lòng nhập mã từ Google Authenticator.";
+                    ErrorMessage = null;
+                    return;
+                }
+
+                if (result.Value.Tokens == null)
+                {
+                    ErrorMessage = "Không thể lấy thông tin phiên đăng nhập.";
+                    return;
+                }
+
+                var tokens = result.Value.Tokens;
                 var session = new AuthSession
                 {
                     UserId = tokens.UserId ?? Email.Trim(),
@@ -140,6 +164,71 @@ public partial class LoginViewModel : ObservableObject
             else
             {
                 ErrorMessage = result.Error ?? "Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin.";
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task ConfirmMfaAsync()
+    {
+        ErrorMessage = null;
+        SuccessMessage = null;
+
+        if (string.IsNullOrWhiteSpace(MfaCode))
+        {
+            ErrorMessage = "Vui lòng nhập mã xác thực 6 chữ số từ ứng dụng Authenticator.";
+            return;
+        }
+
+        if (string.IsNullOrEmpty(_mfaSession))
+        {
+            ErrorMessage = "Phiên xác thực MFA không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.";
+            CurrentAuthMode = AuthMode.SignIn;
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            var result = await _authService.RespondToMfaChallengeAsync(Email.Trim(), MfaCode.Trim(), _mfaSession);
+            if (result.IsSuccess && result.Value != null)
+            {
+                var tokens = result.Value;
+                var session = new AuthSession
+                {
+                    UserId = tokens.UserId ?? Email.Trim(),
+                    Email = Email.Trim(),
+                    DisplayName = !string.IsNullOrWhiteSpace(tokens.DisplayName) ? tokens.DisplayName : Email.Trim().Split('@')[0],
+                    IdToken = tokens.IdToken,
+                    AccessToken = tokens.AccessToken,
+                    RefreshToken = tokens.RefreshToken,
+                    ExpiresAtUtc = tokens.ExpiresAtUtc
+                };
+
+                CurrentSession = session;
+
+                if (RememberMe)
+                {
+                    await _secureStorageService.SaveSessionAsync(session);
+                }
+                else
+                {
+                    await _secureStorageService.ClearSessionAsync();
+                }
+
+                SuccessMessage = "Xác thực 2 bước thành công!";
+                ErrorMessage = null;
+                MfaCode = string.Empty;
+                _mfaSession = null;
+                LoginSucceeded?.Invoke(session);
+            }
+            else
+            {
+                ErrorMessage = result.Error ?? "Mã xác thực không chính xác hoặc đã hết hạn.";
             }
         }
         finally
@@ -419,11 +508,39 @@ public partial class LoginViewModel : ObservableObject
         try
         {
             var session = await _secureStorageService.LoadSessionAsync();
-            if (session != null && session.ExpiresAtUtc > DateTimeOffset.UtcNow)
+            if (session != null)
             {
-                CurrentSession = session;
-                LoginSucceeded?.Invoke(session);
-                return true;
+                if (session.ExpiresAtUtc > DateTimeOffset.UtcNow)
+                {
+                    CurrentSession = session;
+                    LoginSucceeded?.Invoke(session);
+                    return true;
+                }
+
+                // If expired but refresh token exists, attempt silent refresh
+                if (!string.IsNullOrWhiteSpace(session.RefreshToken))
+                {
+                    var refreshResult = await _authService.RefreshTokenAsync(session.RefreshToken);
+                    if (refreshResult.IsSuccess && refreshResult.Value != null)
+                    {
+                        var refreshedTokens = refreshResult.Value;
+                        var updatedSession = new AuthSession
+                        {
+                            UserId = refreshedTokens.UserId ?? session.UserId,
+                            Email = refreshedTokens.Email ?? session.Email,
+                            DisplayName = !string.IsNullOrWhiteSpace(refreshedTokens.DisplayName) ? refreshedTokens.DisplayName : session.DisplayName,
+                            IdToken = refreshedTokens.IdToken,
+                            AccessToken = refreshedTokens.AccessToken,
+                            RefreshToken = refreshedTokens.RefreshToken,
+                            ExpiresAtUtc = refreshedTokens.ExpiresAtUtc
+                        };
+
+                        CurrentSession = updatedSession;
+                        await _secureStorageService.SaveSessionAsync(updatedSession);
+                        LoginSucceeded?.Invoke(updatedSession);
+                        return true;
+                    }
+                }
             }
         }
         catch
@@ -441,6 +558,8 @@ public partial class LoginViewModel : ObservableObject
         NewPassword = string.Empty;
         DisplayName = string.Empty;
         OtpCode = string.Empty;
+        MfaCode = string.Empty;
+        _mfaSession = null;
         ErrorMessage = null;
         SuccessMessage = null;
         IsBusy = false;

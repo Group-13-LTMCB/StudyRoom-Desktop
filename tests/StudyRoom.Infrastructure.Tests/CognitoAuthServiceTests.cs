@@ -56,12 +56,14 @@ public class CognitoAuthServiceTests
 
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
-        Assert.Equal("access_token_xyz", result.Value.AccessToken);
-        Assert.Equal(idToken, result.Value.IdToken);
-        Assert.Equal("refresh_token_abc", result.Value.RefreshToken);
-        Assert.Equal("user_123", result.Value.UserId);
-        Assert.Equal("student@studyroom.local", result.Value.Email);
-        Assert.Equal("Student A", result.Value.DisplayName);
+        Assert.NotNull(result.Value.Tokens);
+        Assert.False(result.Value.RequiresMfa);
+        Assert.Equal("access_token_xyz", result.Value.Tokens.AccessToken);
+        Assert.Equal(idToken, result.Value.Tokens.IdToken);
+        Assert.Equal("refresh_token_abc", result.Value.Tokens.RefreshToken);
+        Assert.Equal("user_123", result.Value.Tokens.UserId);
+        Assert.Equal("student@studyroom.local", result.Value.Tokens.Email);
+        Assert.Equal("Student A", result.Value.Tokens.DisplayName);
     }
 
     [Theory]
@@ -148,7 +150,8 @@ public class CognitoAuthServiceTests
         var result = await _service.LoginAsync("user@studyroom.local", "pass");
 
         Assert.True(result.IsSuccess);
-        Assert.Equal("custom_username_42", result.Value!.UserId);
+        Assert.NotNull(result.Value?.Tokens);
+        Assert.Equal("custom_username_42", result.Value!.Tokens!.UserId);
     }
 
     [Fact]
@@ -187,5 +190,206 @@ public class CognitoAuthServiceTests
     public async Task LogoutAsync_CompletesSuccessfully()
     {
         await _service.LogoutAsync();
+    }
+
+    [Fact]
+    public async Task LoginAsync_WhenMfaChallenge_ReturnsRequiresMfaAndSession()
+    {
+        _cognitoMock.Setup(c => c.InitiateAuthAsync(It.IsAny<InitiateAuthRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new InitiateAuthResponse
+            {
+                ChallengeName = ChallengeNameType.SOFTWARE_TOKEN_MFA,
+                Session = "mfa_challenge_session_456"
+            });
+
+        var result = await _service.LoginAsync("user@studyroom.local", "Pass123!");
+
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Value);
+        Assert.True(result.Value.RequiresMfa);
+        Assert.Equal("mfa_challenge_session_456", result.Value.MfaSession);
+        Assert.Null(result.Value.Tokens);
+    }
+
+    [Fact]
+    public async Task RespondToMfaChallengeAsync_ValidCode_ReturnsTokens()
+    {
+        string idToken = CreateSampleJwt("user_123", "mfa@studyroom.local", "Mfa User");
+
+        _cognitoMock.Setup(c => c.RespondToAuthChallengeAsync(It.Is<RespondToAuthChallengeRequest>(r =>
+            r.ChallengeName == ChallengeNameType.SOFTWARE_TOKEN_MFA &&
+            r.ChallengeResponses["SOFTWARE_TOKEN_MFA_CODE"] == "123456" &&
+            r.Session == "session_123"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RespondToAuthChallengeResponse
+            {
+                AuthenticationResult = new AuthenticationResultType
+                {
+                    AccessToken = "mfa_access_token",
+                    IdToken = idToken,
+                    RefreshToken = "mfa_refresh_token",
+                    ExpiresIn = 3600
+                }
+            });
+
+        var result = await _service.RespondToMfaChallengeAsync("mfa@studyroom.local", "123456", "session_123");
+
+        Assert.True(result.IsSuccess);
+        Assert.NotNull(result.Value);
+        Assert.Equal("mfa_access_token", result.Value.AccessToken);
+    }
+
+    [Fact]
+    public async Task SetupTotpMfaAsync_ValidAccessToken_ReturnsSecretCode()
+    {
+        _cognitoMock.Setup(c => c.AssociateSoftwareTokenAsync(It.IsAny<AssociateSoftwareTokenRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AssociateSoftwareTokenResponse
+            {
+                SecretCode = "TOTPSECRETKEYXYZ123"
+            });
+
+        var result = await _service.SetupTotpMfaAsync("valid_access_token");
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("TOTPSECRETKEYXYZ123", result.Value);
+    }
+
+    [Fact]
+    public async Task VerifyTotpMfaAsync_SuccessCode_SetsMfaPreferenceAndReturnsTrue()
+    {
+        _cognitoMock.Setup(c => c.VerifySoftwareTokenAsync(It.Is<VerifySoftwareTokenRequest>(r =>
+            r.UserCode == "123456"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new VerifySoftwareTokenResponse
+            {
+                Status = VerifySoftwareTokenResponseType.SUCCESS
+            });
+
+        _cognitoMock.Setup(c => c.SetUserMFAPreferenceAsync(It.IsAny<SetUserMFAPreferenceRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SetUserMFAPreferenceResponse());
+
+        var result = await _service.VerifyTotpMfaAsync("valid_access_token", "123456");
+
+        Assert.True(result.IsSuccess);
+        Assert.True(result.Value);
+    }
+
+    [Fact]
+    public async Task ChangePasswordAsync_ValidInput_ReturnsSuccess()
+    {
+        _cognitoMock.Setup(c => c.ChangePasswordAsync(It.Is<ChangePasswordRequest>(r =>
+            r.AccessToken == "valid_token" &&
+            r.PreviousPassword == "OldPass123!" &&
+            r.ProposedPassword == "NewPass123!"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ChangePasswordResponse());
+
+        var result = await _service.ChangePasswordAsync("valid_token", "OldPass123!", "NewPass123!");
+
+        Assert.True(result.IsSuccess);
+        Assert.True(result.Value);
+    }
+
+    [Theory]
+    [InlineData("", "OldPass123!", "NewPass123!")]
+    [InlineData("valid_token", "", "NewPass123!")]
+    [InlineData("valid_token", "OldPass123!", "")]
+    public async Task ChangePasswordAsync_MissingInput_ReturnsFailure(string token, string oldPass, string newPass)
+    {
+        var result = await _service.ChangePasswordAsync(token, oldPass, newPass);
+
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task ChangePasswordAsync_ShortPassword_ReturnsFailure()
+    {
+        var result = await _service.ChangePasswordAsync("valid_token", "OldPass123!", "short");
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("ít nhất 8 ký tự", result.Error);
+    }
+
+    [Fact]
+    public async Task ChangePasswordAsync_SameOldAndNewPassword_ReturnsFailure()
+    {
+        var result = await _service.ChangePasswordAsync("valid_token", "SamePass123!", "SamePass123!");
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("không được trùng", result.Error);
+    }
+
+    [Fact]
+    public async Task ChangePasswordAsync_CognitoException_ReturnsFailure()
+    {
+        _cognitoMock.Setup(c => c.ChangePasswordAsync(It.IsAny<ChangePasswordRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new NotAuthorizedException("Current password is incorrect."));
+
+        var result = await _service.ChangePasswordAsync("valid_token", "WrongOld123!", "NewPass123!");
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("Current password is incorrect.", result.Error);
+    }
+
+    [Fact]
+    public async Task GetMfaStatusAsync_EnabledInMfaSettingsList_ReturnsTrue()
+    {
+        _cognitoMock.Setup(c => c.GetUserAsync(It.Is<GetUserRequest>(r => r.AccessToken == "valid_token"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetUserResponse
+            {
+                UserMFASettingList = new List<string> { "SOFTWARE_TOKEN_MFA" }
+            });
+
+        var result = await _service.GetMfaStatusAsync("valid_token");
+
+        Assert.True(result.IsSuccess);
+        Assert.True(result.Value);
+    }
+
+    [Fact]
+    public async Task GetMfaStatusAsync_EnabledInPreferredMfaSetting_ReturnsTrue()
+    {
+        _cognitoMock.Setup(c => c.GetUserAsync(It.Is<GetUserRequest>(r => r.AccessToken == "valid_token"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetUserResponse
+            {
+                PreferredMfaSetting = "SOFTWARE_TOKEN_MFA"
+            });
+
+        var result = await _service.GetMfaStatusAsync("valid_token");
+
+        Assert.True(result.IsSuccess);
+        Assert.True(result.Value);
+    }
+
+    [Fact]
+    public async Task GetMfaStatusAsync_Disabled_ReturnsFalse()
+    {
+        _cognitoMock.Setup(c => c.GetUserAsync(It.Is<GetUserRequest>(r => r.AccessToken == "valid_token"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetUserResponse
+            {
+                UserMFASettingList = new List<string>()
+            });
+
+        var result = await _service.GetMfaStatusAsync("valid_token");
+
+        Assert.True(result.IsSuccess);
+        Assert.False(result.Value);
+    }
+
+    [Fact]
+    public async Task GetMfaStatusAsync_EmptyToken_ReturnsFailure()
+    {
+        var result = await _service.GetMfaStatusAsync(string.Empty);
+
+        Assert.True(result.IsFailure);
+    }
+
+    [Fact]
+    public async Task GetMfaStatusAsync_CognitoException_ReturnsFailure()
+    {
+        _cognitoMock.Setup(c => c.GetUserAsync(It.IsAny<GetUserRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new NotAuthorizedException("Access Token has expired."));
+
+        var result = await _service.GetMfaStatusAsync("expired_token");
+
+        Assert.True(result.IsFailure);
+        Assert.Contains("Access Token has expired.", result.Error);
     }
 }

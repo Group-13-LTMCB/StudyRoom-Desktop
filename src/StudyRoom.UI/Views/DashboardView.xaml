@@ -33,9 +33,31 @@
             <!-- Left Sidebar Navigation -->
 
             <!-- 0. Far-Left Group Server Rail -->
-            <ColumnDefinition Width="72" />
+            <ColumnDefinition>
+                <ColumnDefinition.Style>
+                    <Style TargetType="ColumnDefinition">
+                        <Setter Property="Width" Value="72" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsZenMode}" Value="True">
+                                <Setter Property="Width" Value="0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ColumnDefinition.Style>
+            </ColumnDefinition>
             <!-- 1. Left Sidebar Navigation -->
-            <ColumnDefinition Width="210" />
+            <ColumnDefinition>
+                <ColumnDefinition.Style>
+                    <Style TargetType="ColumnDefinition">
+                        <Setter Property="Width" Value="210" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsZenMode}" Value="True">
+                                <Setter Property="Width" Value="0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ColumnDefinition.Style>
+            </ColumnDefinition>
 
             <!-- Main Content Area -->
 
@@ -52,7 +74,18 @@
         <!-- ========================================== -->
 
         <!-- 0. GROUP SERVER RAIL -->
-        <components:GroupRailControl Grid.Column="0" DataContext="{Binding GroupRailVm}" />
+        <components:GroupRailControl Grid.Column="0" DataContext="{Binding GroupRailVm}">
+            <components:GroupRailControl.Style>
+                <Style TargetType="components:GroupRailControl">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding DataContext.IsZenMode, RelativeSource={RelativeSource AncestorType=views:DashboardView}}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </components:GroupRailControl.Style>
+        </components:GroupRailControl>
 
         <Border Grid.Column="1" 
 
@@ -63,6 +96,17 @@
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
 
                 Padding="16,20,16,20">
+
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding DataContext.IsZenMode, RelativeSource={RelativeSource AncestorType=views:DashboardView}}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
 
             <Grid>
 
@@ -153,220 +197,200 @@
 
 
                     <!-- Room item -->
-
-                    <ui:Button Command="{Binding NavigateToCommand}" CommandParameter="1"
-
+                    <ui:Button Command="{Binding NavigateToCommand}" CommandParameter="3"
                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-
                                Padding="12,10" Margin="0,0,0,6" CornerRadius="10" BorderThickness="0">
-
                         <ui:Button.Style>
-
                             <Style TargetType="ui:Button">
-
                                 <Setter Property="Background" Value="Transparent" />
-
                                 <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
-
                                 <Setter Property="FontWeight" Value="Normal" />
-
                                 <Style.Triggers>
-
-                                    <DataTrigger Binding="{Binding SelectedNavIndex}" Value="1">
-
+                                    <DataTrigger Binding="{Binding SelectedNavIndex}" Value="3">
                                         <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
-
                                         <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
-
                                         <Setter Property="FontWeight" Value="SemiBold" />
-
                                     </DataTrigger>
-
                                 </Style.Triggers>
-
                             </Style>
-
                         </ui:Button.Style>
-
                         <StackPanel Orientation="Horizontal">
-
                             <TextBlock Text="🚪" FontSize="15" Margin="0,0,12,0" />
-
                             <TextBlock Text="Phòng học" />
-
                         </StackPanel>
-
                     </ui:Button>
-
-
 
                     <!-- Pomodoro item -->
-
                     <ui:Button Command="{Binding NavigateToCommand}" CommandParameter="1"
-
                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-
                                Padding="12,10" Margin="0,0,0,6" CornerRadius="10" BorderThickness="0">
-
                         <ui:Button.Style>
-
                             <Style TargetType="ui:Button">
-
                                 <Setter Property="Background" Value="Transparent" />
-
                                 <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
-
                                 <Setter Property="FontWeight" Value="Normal" />
-
                                 <Style.Triggers>
-
                                     <DataTrigger Binding="{Binding SelectedNavIndex}" Value="1">
-
                                         <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
-
                                         <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
-
                                         <Setter Property="FontWeight" Value="SemiBold" />
-
                                     </DataTrigger>
-
                                 </Style.Triggers>
-
                             </Style>
-
                         </ui:Button.Style>
-
                         <StackPanel Orientation="Horizontal">
-
                             <TextBlock Text="⏳" FontSize="15" Margin="0,0,12,0" />
-
                             <TextBlock Text="Pomodoro" />
-
                         </StackPanel>
-
                     </ui:Button>
 
-
-
+                    <!-- Kanban item -->
                     <ui:Button Command="{Binding NavigateToCommand}" CommandParameter="2"
-
                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-
                                Padding="12,10" Margin="0,0,0,6" CornerRadius="10" BorderThickness="0">
-
                         <ui:Button.Style>
-
                             <Style TargetType="ui:Button">
-
                                 <Setter Property="Background" Value="Transparent" />
-
                                 <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
-
                                 <Setter Property="FontWeight" Value="Normal" />
-
                                 <Style.Triggers>
-
                                     <DataTrigger Binding="{Binding SelectedNavIndex}" Value="2">
-
                                         <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
-
                                         <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
-
                                         <Setter Property="FontWeight" Value="SemiBold" />
-
                                     </DataTrigger>
-
                                 </Style.Triggers>
-
                             </Style>
-
                         </ui:Button.Style>
-
                         <StackPanel Orientation="Horizontal">
-
                             <TextBlock Text="📋" FontSize="15" Margin="0,0,12,0" />
-
                             <TextBlock Text="Nhiệm vụ &amp; Kanban" />
-
                         </StackPanel>
-
                     </ui:Button>
 
-
-
-                    <Border Background="Transparent" CornerRadius="10" Padding="12,10" Margin="0,0,0,6">
-
+                    <!-- Statistics item -->
+                    <ui:Button Command="{Binding NavigateToCommand}" CommandParameter="4"
+                               HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                               Padding="12,10" Margin="0,0,0,6" CornerRadius="10" BorderThickness="0">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <Setter Property="FontWeight" Value="Normal" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedNavIndex}" Value="4">
+                                        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
                         <StackPanel Orientation="Horizontal">
-
-                            <TextBlock Text="📈" FontSize="15" Margin="0,0,12,0" Opacity="0.75" />
-
-                            <TextBlock Text="Thống kê" Opacity="0.75" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-
+                            <TextBlock Text="📈" FontSize="15" Margin="0,0,12,0" />
+                            <TextBlock Text="Thống kê" />
                         </StackPanel>
+                    </ui:Button>
 
-                    </Border>
-
-
-
-                    <Border Background="Transparent" CornerRadius="10" Padding="12,10" Margin="0,0,0,6">
-
+                    <!-- Community item -->
+                    <ui:Button Command="{Binding NavigateToCommand}" CommandParameter="5"
+                               HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                               Padding="12,10" Margin="0,0,0,6" CornerRadius="10" BorderThickness="0">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <Setter Property="FontWeight" Value="Normal" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedNavIndex}" Value="5">
+                                        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
                         <StackPanel Orientation="Horizontal">
-
-                            <TextBlock Text="👥" FontSize="15" Margin="0,0,12,0" Opacity="0.75" />
-
-                            <TextBlock Text="Cộng đồng" Opacity="0.75" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-
+                            <TextBlock Text="👥" FontSize="15" Margin="0,0,12,0" />
+                            <TextBlock Text="Cộng đồng" />
                         </StackPanel>
+                    </ui:Button>
 
-                    </Border>
-
-
-
-                    <Border Background="Transparent" CornerRadius="10" Padding="12,10" Margin="0,0,0,6">
-
+                    <!-- Messages item -->
+                    <ui:Button Command="{Binding NavigateToCommand}" CommandParameter="6"
+                               HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                               Padding="12,10" Margin="0,0,0,6" CornerRadius="10" BorderThickness="0">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <Setter Property="FontWeight" Value="Normal" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedNavIndex}" Value="6">
+                                        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
                         <StackPanel Orientation="Horizontal">
-
-                            <TextBlock Text="💬" FontSize="15" Margin="0,0,12,0" Opacity="0.75" />
-
-                            <TextBlock Text="Tin nhắn" Opacity="0.75" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-
+                            <TextBlock Text="💬" FontSize="15" Margin="0,0,12,0" />
+                            <TextBlock Text="Tin nhắn" />
                         </StackPanel>
-
-                    </Border>
-
+                    </ui:Button>
                 </StackPanel>
-
-
 
                 <!-- Bottom Controls: Settings, Theme Toggle, Logout -->
 
+
                 <StackPanel Grid.Row="2">
 
-                    <Border Background="Transparent" CornerRadius="10" Padding="12,8" Margin="0,0,0,4">
-
+                    <ui:Button Command="{Binding NavigateToCommand}" CommandParameter="7"
+                               HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                               Padding="12,8" Margin="0,0,0,4" CornerRadius="10" BorderThickness="0">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <Setter Property="FontWeight" Value="Normal" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedNavIndex}" Value="7">
+                                        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
                         <StackPanel Orientation="Horizontal">
-
                             <TextBlock Text="💬" FontSize="14" Margin="0,0,12,0" Opacity="0.7" />
-
-                            <TextBlock Text="Hỗ trợ &amp; Trợ giúp" FontSize="13" Opacity="0.7" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-
+                            <TextBlock Text="Hỗ trợ &amp; Trợ giúp" FontSize="13" />
                         </StackPanel>
+                    </ui:Button>
 
-                    </Border>
-
-
-
-                    <Border Background="Transparent" CornerRadius="10" Padding="12,8" Margin="0,0,0,12">
-
+                    <ui:Button Command="{Binding NavigateToCommand}" CommandParameter="8"
+                               HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                               Padding="12,8" Margin="0,0,0,12" CornerRadius="10" BorderThickness="0">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <Setter Property="FontWeight" Value="Normal" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedNavIndex}" Value="8">
+                                        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
                         <StackPanel Orientation="Horizontal">
-
                             <TextBlock Text="⚙️" FontSize="14" Margin="0,0,12,0" Opacity="0.7" />
-
-                            <TextBlock Text="Cài đặt hệ thống" FontSize="13" Opacity="0.7" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-
+                            <TextBlock Text="Cài đặt hệ thống" FontSize="13" />
                         </StackPanel>
-
-                    </Border>
+                    </ui:Button>
 
 
 
@@ -765,10 +789,7 @@
 
                     <!-- Stat Card 1: Focus Time Today (Lime Accent from Dashboard Mockups) -->
 
-                    <!-- 0. GROUP SERVER RAIL -->
-        <components:GroupRailControl Grid.Column="0" DataContext="{Binding GroupRailVm}" />
-
-        <Border Grid.Column="1" 
+                    <Border Grid.Column="0" 
 
                             Background="#C7F284" 
 
@@ -881,10 +902,7 @@
 
                     <!-- Weekly Activity Vector Spline Chart Section -->
 
-                <!-- 0. GROUP SERVER RAIL -->
-        <components:GroupRailControl Grid.Column="0" DataContext="{Binding GroupRailVm}" />
-
-        <Border Grid.Column="1" Margin="0,0,12,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
+                <Border Grid.Column="0" Margin="0,0,12,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
 
                         BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
 
@@ -1745,6 +1763,541 @@
                     </Style>
                 </Grid.Style>
                 <views:KanbanBoardView DataContext="{Binding KanbanVm}" />
+            </Grid>
+
+            <!-- VIEW 3: STUDY ROOMS HUB -->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedNavIndex}" Value="3">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="30,24,30,24">
+                        <TextBlock Text="🚪 Phòng Học Trực Tuyến" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <TextBlock Text="Khám phá các phòng học nhóm hoặc tự tạo không gian học tập cùng bạn bè" FontSize="13" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,20" />
+
+                        <Grid Margin="0,0,0,24">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Margin="0,0,10,0" Padding="20" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="14">
+                                <StackPanel>
+                                    <TextBlock Text="🔑 Tham gia phòng bằng mã" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,0,10" />
+                                    <TextBlock Text="Nhập mã phòng 6 chữ số được chia sẻ:" FontSize="12" Opacity="0.8" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8" />
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" Text="{Binding JoinRoomCode, UpdateSourceTrigger=PropertyChanged}" FontSize="13" Padding="10,6" Margin="0,0,8,0" />
+                                        <ui:Button Grid.Column="1" Command="{Binding JoinRoomCommand}" Content="Vào phòng" Background="#6366F1" Foreground="White" FontWeight="SemiBold" Padding="16,6" CornerRadius="8" />
+                                    </Grid>
+                                    <TextBlock Text="{Binding ValidationErrorMessage}" Foreground="#EF4444" FontSize="11" Margin="0,2,0,0" />
+                                    <TextBlock Text="{Binding SuccessMessage}" Foreground="#10B981" FontSize="11" Margin="0,2,0,0" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Margin="10,0,0,0" Padding="20" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="14">
+                                <StackPanel>
+                                    <TextBlock Text="➕ Tạo phòng học mới" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,0,10" />
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" Text="{Binding NewRoomName, UpdateSourceTrigger=PropertyChanged}" FontSize="12" Padding="8,6" Margin="0,0,6,0" />
+                                        <TextBox Grid.Column="1" Text="{Binding NewRoomSubject, UpdateSourceTrigger=PropertyChanged}" FontSize="12" Padding="8,6" Margin="6,0,0,0" />
+                                    </Grid>
+                                    <ui:Button Command="{Binding CreateRoomCommand}" Content="Tạo phòng ngay" Background="#4F46E5" Foreground="White" FontWeight="SemiBold" Padding="0,7" CornerRadius="8" HorizontalAlignment="Stretch" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <TextBlock Text="🔥 Các phòng học đang hoạt động" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,0,12" />
+                        <ItemsControl ItemsSource="{Binding ActiveRooms}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding RoomName}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                <TextBlock Text="{Binding Subject}" FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
+                                            </StackPanel>
+                                            <Border Grid.Column="1" Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="8" Padding="10,4" Margin="12,0" VerticalAlignment="Center">
+                                                <TextBlock FontSize="11" FontWeight="Medium" Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                                    <Run Text="Mã: " />
+                                                    <Run Text="{Binding RoomId}" FontWeight="Bold" Foreground="#6366F1" />
+                                                </TextBlock>
+                                            </Border>
+                                            <ui:Button Grid.Column="2" 
+                                                       Command="{Binding DataContext.QuickJoinRoomCommand, RelativeSource={RelativeSource AncestorType=views:DashboardView}}"
+                                                       CommandParameter="{Binding}"
+                                                       Content="Tham gia" Background="#6366F1" Foreground="White" FontWeight="SemiBold" Padding="14,6" CornerRadius="8" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- VIEW 4: STATISTICS & INSIGHTS -->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedNavIndex}" Value="4">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="30,24,30,24">
+                        <TextBlock Text="📈 Báo Cáo Thống Kê Học Tập" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <TextBlock Text="Phân tích chi tiết thời gian tập trung và chuỗi học tập cá nhân" FontSize="13" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,20" />
+
+                        <Grid Margin="0,0,0,24">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Margin="0,0,8,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="12" Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="⏱️ Hôm nay" FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock Text="{Binding FocusTimeToday}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,4" />
+                                    <TextBlock Text="{Binding FocusTimeTrend}" FontSize="11" Foreground="#10B981" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Margin="4,0,4,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="12" Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="⏳ Tổng giờ học" FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock Text="{Binding TotalStudyTime}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,4" />
+                                    <TextBlock Text="Tích lũy toàn kỳ" FontSize="11" Opacity="0.6" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="2" Margin="4,0,4,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="12" Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="📋 Nhiệm vụ" FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock Text="{Binding CompletedTasks}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,4" />
+                                    <TextBlock Text="{Binding CompletedTasksTrend}" FontSize="11" Foreground="#6366F1" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="3" Margin="8,0,0,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="12" Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="🔥 Chuỗi ngày" FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock Text="{Binding StudyStreak}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,4" />
+                                    <TextBlock Text="{Binding RankBadge}" FontSize="11" Foreground="#F59E0B" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="300" />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Margin="0,0,12,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="16" Padding="20">
+                                <StackPanel>
+                                    <TextBlock Text="Hiệu suất học tập trong tuần" FontSize="14" FontWeight="Bold" Foreground="#6366F1" Margin="0,0,0,10" />
+                                    <components:WeeklyActivityChart ActivityPoints="{Binding WeeklyActivityPoints}" Height="230" />
+                                </StackPanel>
+                            </Border>
+                            <components:ConcentricRingsControl Grid.Column="1" VerticalAlignment="Stretch" />
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- VIEW 5: COMMUNITY -->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedNavIndex}" Value="5">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="30,24,30,24">
+                        <TextBlock Text="👥 Cộng Đồng Học Tập StudyRoom" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <TextBlock Text="Kết nối cùng cộng đồng sinh viên, thi đua chuỗi học tập và học nhóm hiệu quả" FontSize="13" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,20" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="340" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Margin="0,0,14,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="16" Padding="20">
+                                <StackPanel>
+                                    <TextBlock Text="🏆 Bảng Vinh Danh Tuần Này" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,0,14" />
+
+                                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="12" Padding="14,10" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="🥇" FontSize="20" Margin="0,0,12,0" VerticalAlignment="Center" />
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="Sally (Bạn)" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                <TextBlock Text="Khoa học máy tính" FontSize="11" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="128.5 giờ" FontSize="13" FontWeight="Bold" Foreground="#6366F1" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="12" Padding="14,10" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="🥈" FontSize="20" Margin="0,0,12,0" VerticalAlignment="Center" />
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="Trần Minh" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                <TextBlock Text="Kỹ thuật phần mềm" FontSize="11" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="115.0 giờ" FontSize="13" FontWeight="Bold" Foreground="#10B981" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="12" Padding="14,10" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="🥉" FontSize="20" Margin="0,0,12,0" VerticalAlignment="Center" />
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="Lê Thảo" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                <TextBlock Text="Kinh tế đối ngoại" FontSize="11" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="98.2 giờ" FontSize="13" FontWeight="Bold" Foreground="#F59E0B" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="12" Padding="14,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="🎖️" FontSize="20" Margin="0,0,12,0" VerticalAlignment="Center" />
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="Hoàng Nam" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                <TextBlock Text="Khoa học dữ liệu" FontSize="11" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="87.4 giờ" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="1" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="16" Padding="20">
+                                <StackPanel>
+                                    <TextBlock Text="🔥 Nhóm Học Năng Động" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,0,14" />
+                                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="10" Padding="12" Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <TextBlock Text="💡 CLB Thuật Toán LeetCode" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                            <TextBlock Text="8 thành viên đang học" FontSize="11" Opacity="0.7" Foreground="#10B981" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="10" Padding="12" Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <TextBlock Text="📐 Ôn Thi Giải Tích 2" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                            <TextBlock Text="6 thành viên đang học" FontSize="11" Opacity="0.7" Foreground="#10B981" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="10" Padding="12">
+                                        <StackPanel>
+                                            <TextBlock Text="🇬🇧 Luyện Đề IELTS 7.5+" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                            <TextBlock Text="5 thành viên đang học" FontSize="11" Opacity="0.7" Foreground="#10B981" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- VIEW 6: MESSAGES & CHAT -->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedNavIndex}" Value="6">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid Margin="30,24,30,24">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                        <TextBlock Text="💬 Kênh Thảo Luận &amp; Tin Nhắn" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <TextBlock Text="Trao đổi tài liệu, bài tập và tương tác cùng các thành viên trong nhóm học" FontSize="13" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <Border Grid.Row="1" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" Padding="12">
+                                <StackPanel>
+                                    <TextBlock Text="HỘI THOẠI" FontSize="11" FontWeight="Bold" Opacity="0.6" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="6,4,0,8" />
+                                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="10" Padding="12,10" Margin="0,0,0,4">
+                                        <StackPanel>
+                                            <TextBlock Text="📚 Nhóm Toán cao cấp A1" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                            <TextBlock Text="Sally: Mình vừa up bài..." FontSize="11" Opacity="0.6" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Background="Transparent" CornerRadius="10" Padding="12,10" Margin="0,0,0,4">
+                                        <StackPanel>
+                                            <TextBlock Text="💡 CLB Thuật Toán" FontSize="12" FontWeight="Normal" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                            <TextBlock Text="Trần Minh: Giải xong bài..." FontSize="11" Opacity="0.6" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Background="Transparent" CornerRadius="10" Padding="12,10">
+                                        <StackPanel>
+                                            <TextBlock Text="🧑 Trần Minh" FontSize="12" FontWeight="Normal" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                            <TextBlock Text="Hẹn chiều nay học tiếp nhé" FontSize="11" Opacity="0.6" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <Grid Grid.Column="1" Margin="16">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" Padding="0,0,0,10">
+                                    <TextBlock Text="📚 Nhóm Toán cao cấp A1 (Phòng 948210)" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                </Border>
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,10">
+                                    <StackPanel>
+                                        <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="10" Padding="12,8" Margin="0,0,60,8" HorizontalAlignment="Left">
+                                            <StackPanel>
+                                                <TextBlock Text="Trần Minh" FontSize="11" FontWeight="Bold" Foreground="#6366F1" />
+                                                <TextBlock Text="Hôm nay mình hoàn thành xong đề cương rồi nhé mọi người! 🎉" FontSize="12" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,2,0,0" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="10" Padding="12,8" Margin="0,0,60,8" HorizontalAlignment="Left">
+                                            <StackPanel>
+                                                <TextBlock Text="Lê Thảo" FontSize="11" FontWeight="Bold" Foreground="#10B981" />
+                                                <TextBlock Text="Ai có ghi chú phần Chuỗi Fourier không cho mình xin với." FontSize="12" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,2,0,0" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Background="#2563EB" CornerRadius="10" Padding="12,8" Margin="60,0,0,8" HorizontalAlignment="Right">
+                                            <StackPanel>
+                                                <TextBlock Text="Sally (Bạn)" FontSize="11" FontWeight="Bold" Foreground="White" />
+                                                <TextBlock Text="Mình vừa tải lên bảng Kanban rồi đó, bạn check thử xem!" FontSize="12" Foreground="White" Margin="0,2,0,0" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </ScrollViewer>
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" FontSize="12" Padding="10,8" Margin="0,0,8,0" />
+                                    <ui:Button Grid.Column="1" Content="Gửi" Background="#6366F1" Foreground="White" FontWeight="SemiBold" Padding="18,8" CornerRadius="8" />
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+
+            <!-- VIEW 7: SUPPORT & HELP -->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedNavIndex}" Value="7">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="30,24,30,24">
+                        <TextBlock Text="❓ Trung Tâm Hỗ Trợ &amp; Phím Tắt" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <TextBlock Text="Tổng hợp hướng dẫn sử dụng, phím tắt nhanh và quy tắc học tập hiệu quả" FontSize="13" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,20" />
+
+                        <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="16" Padding="20" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="⌨️ Phím Tắt Hệ Thống (Win32 Global Hotkeys)" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,0,12" />
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" HorizontalAlignment="Left">
+                                        <TextBlock Text="Ctrl + Shift + C" FontWeight="Bold" FontSize="12" Foreground="#6366F1" />
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="Bật / Ẩn bong bóng chat nổi (chỉ hoạt động khi trong Pomodoro)" VerticalAlignment="Center" FontSize="13" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                </Grid>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" HorizontalAlignment="Left">
+                                        <TextBlock Text="Ctrl + Shift + P" FontWeight="Bold" FontSize="12" Foreground="#6366F1" />
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="Bắt đầu hoặc Tạm dừng chu kỳ Pomodoro nhanh" VerticalAlignment="Center" FontSize="13" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" HorizontalAlignment="Left">
+                                        <TextBlock Text="Esc" FontWeight="Bold" FontSize="12" Foreground="#6366F1" />
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="Đóng các hộp thoại hoặc hủy thao tác kéo thả thẻ" VerticalAlignment="Center" FontSize="13" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="16" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="⏳ Quy Tắc Học Tập Pomodoro Chuẩn" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,0,10" />
+                                <TextBlock Text="1. Tập trung tối đa 25 phút: Tắt hết các thông báo mạng xã hội và chỉ tập trung vào một mục tiêu học tập duy nhất." FontSize="13" Opacity="0.8" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,6" TextWrapping="Wrap" />
+                                <TextBlock Text="2. Nghỉ ngắn 5 phút: Uống nước, vận động nhẹ nhàng hoặc vươn vai, tránh nhìn vào màn hình máy tính." FontSize="13" Opacity="0.8" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,6" TextWrapping="Wrap" />
+                                <TextBlock Text="3. Nghỉ dài sau 4 chu kỳ: Sau 4 phiên tập trung, hãy nghỉ 15 - 30 phút để não bộ tái tạo năng lượng." FontSize="13" Opacity="0.8" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- VIEW 8: SETTINGS -->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedNavIndex}" Value="8">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="30,24,30,24">
+                        <TextBlock Text="⚙️ Cài Đặt Hệ Thống &amp; Tùy Chọn" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <TextBlock Text="Cấu hình trải nghiệm người dùng, giao diện và tài khoản" FontSize="13" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,20" />
+
+                        <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="16" Padding="20" Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="🎨 Giao diện hệ thống" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                    <TextBlock Text="Chuyển đổi giữa chế độ sáng và chế độ tối (Fluent Design)" FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
+                                </StackPanel>
+                                <ui:Button Grid.Column="1" Command="{Binding ToggleThemeCommand}" Background="#6366F1" Foreground="White" FontWeight="SemiBold" Padding="16,8" CornerRadius="10" Content="{Binding ThemeLabel}" />
+                            </Grid>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="16" Padding="20" Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🛡️ Bảo mật 2 lớp (MFA / Authenticator)" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,10,0" />
+                                        <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="6" Padding="8,2" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding MfaStatusLabel}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentFillColorDefaultBrush}" />
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="Bảo vệ tài khoản bằng Google Authenticator hoặc Microsoft Authenticator (Hoàn toàn miễn phí 0đ)" FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" />
+                                </StackPanel>
+                                <ui:Button Grid.Column="1" Command="{Binding OpenMfaSettingsCommand}" Background="#10B981" Foreground="White" FontWeight="SemiBold" Padding="16,8" CornerRadius="10" Content="Cài đặt 2FA" />
+                            </Grid>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="16" Padding="20" Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="🔑 Đổi mật khẩu tài khoản" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                    <TextBlock Text="Cập nhật mật khẩu định kỳ để bảo vệ dữ liệu học tập và bảo mật tài khoản" FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
+                                </StackPanel>
+                                <ui:Button Grid.Column="1" Command="{Binding OpenChangePasswordCommand}" Background="#F59E0B" Foreground="White" FontWeight="SemiBold" Padding="16,8" CornerRadius="10" Content="Đổi mật khẩu" />
+                            </Grid>
+                        </Border>
+
+                        <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="16" Padding="20" Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="👤 Tài khoản hiện tại" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                    <TextBlock FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0">
+                                        <Run Text="Người dùng: " />
+                                        <Run Text="{Binding UserName}" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <Run Text=" • Chuyên ngành: " />
+                                        <Run Text="{Binding UserMajor}" />
+                                    </TextBlock>
+                                </StackPanel>
+                                <ui:Button Grid.Column="1" Command="{Binding LogoutCommand}" Content="Đăng xuất" Background="#EF4444" Foreground="White" FontWeight="SemiBold" Padding="16,8" CornerRadius="10" />
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
             </Grid>
         </Grid>
 

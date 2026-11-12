@@ -8,75 +8,149 @@
              xmlns:components="clr-namespace:StudyRoom.UI.Views.Components"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance vm:PomodoroRoomViewModel}"
-             d:DesignHeight="850" d:DesignWidth="1050">
+             d:DesignHeight="850" d:DesignWidth="1050"
+             Focusable="True">
+
+    <UserControl.InputBindings>
+        <KeyBinding Key="Escape" Command="{Binding ExitZenModeCommand}" />
+    </UserControl.InputBindings>
 
     <Grid Background="{DynamicResource ApplicationBackgroundBrush}">
         <Grid.ColumnDefinitions>
             <!-- Center Pomodoro Clock & Controls Area -->
             <ColumnDefinition Width="*" />
             <!-- Right Room Members & Baton Panel -->
-            <ColumnDefinition Width="340" />
+            <ColumnDefinition>
+                <ColumnDefinition.Style>
+                    <Style TargetType="ColumnDefinition">
+                        <Setter Property="Width" Value="340" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsZenMode}" Value="True">
+                                <Setter Property="Width" Value="0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ColumnDefinition.Style>
+            </ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <!-- ========================================== -->
         <!-- 1. CENTER POMODORO CLOCK AREA              -->
         <!-- ========================================== -->
-        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="30,24,30,24">
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-                <!-- Navigation Back Header -->
-                <Grid Margin="0,0,0,24">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+            <!-- Zen Mode Exit Button (Top-Right Floating) -->
+            <ui:Button Grid.Row="0"
+                       Grid.RowSpan="2"
+                       Command="{Binding ExitZenModeCommand}"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Top"
+                       Margin="24"
+                       Padding="14,8"
+                       CornerRadius="10"
+                       Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                       BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                       BorderThickness="1"
+                       Panel.ZIndex="100">
+                <ui:Button.Style>
+                    <Style TargetType="ui:Button">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsZenMode}" Value="True">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ui:Button.Style>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="✕" Margin="0,0,8,0" VerticalAlignment="Center" />
+                    <TextBlock Text="Thoát Zen Mode (Esc)" FontWeight="SemiBold" VerticalAlignment="Center" />
+                </StackPanel>
+            </ui:Button>
 
-                    <ui:Button Grid.Column="0" 
-                               Command="{Binding BackToDashboardCommand}" 
-                               Background="{DynamicResource ControlFillColorSecondaryBrush}" 
-                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" 
-                               Padding="14,8" 
-                               CornerRadius="10" 
-                               BorderThickness="1" 
-                               BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⬅️" Margin="0,0,8,0" VerticalAlignment="Center" />
-                            <TextBlock Text="Quay lại Tổng quan" FontWeight="SemiBold" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </ui:Button>
+            <!-- Navigation Back Header -->
+            <Grid Grid.Row="0" Margin="30,24,30,16">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsZenMode}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20,0,0,0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding RoomName}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Center" />
-                            <Border Background="#203222" CornerRadius="8" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="🟢 Đang học" FontSize="11" FontWeight="SemiBold" Foreground="#4ADE80" />
-                            </Border>
-                        </StackPanel>
-                        <TextBlock Text="{Binding Subject}" FontSize="12" Opacity="0.65" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
+                <ui:Button Grid.Column="0" 
+                           Command="{Binding BackToDashboardCommand}" 
+                           Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" 
+                           Padding="14,8" 
+                           CornerRadius="10" 
+                           BorderThickness="1" 
+                           BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⬅️" Margin="0,0,8,0" VerticalAlignment="Center" />
+                        <TextBlock Text="Quay lại Tổng quan" FontWeight="SemiBold" VerticalAlignment="Center" />
                     </StackPanel>
+                </ui:Button>
 
-                    <!-- Room Code Badge -->
-                    <Border Grid.Column="2" 
-                            Background="{DynamicResource ControlFillColorSecondaryBrush}" 
-                            CornerRadius="10" 
-                            Padding="12,6" 
-                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
-                            BorderThickness="1">
-                        <TextBlock FontSize="12" FontWeight="SemiBold">
-                            <Run Text="Mã phòng: " Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                            <Run Text="{Binding RoomId}" Foreground="#6366F1" />
-                        </TextBlock>
-                    </Border>
-                </Grid>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding RoomName}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Center" />
+                        <Border Background="#203222" CornerRadius="8" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="🟢 Đang học" FontSize="11" FontWeight="SemiBold" Foreground="#4ADE80" />
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Subject}" FontSize="12" Opacity="0.65" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
+                </StackPanel>
 
-                <!-- Clock Display Card -->
-                <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
+                <!-- Room Code Badge -->
+                <Border Grid.Column="2" 
+                        Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                        CornerRadius="10" 
+                        Padding="12,6" 
                         BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
-                        BorderThickness="1" 
-                        CornerRadius="20" 
-                        Padding="30,40" 
-                        Margin="0,0,0,24">
+                        BorderThickness="1">
+                    <TextBlock FontSize="12" FontWeight="SemiBold">
+                        <Run Text="Mã phòng: " Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <Run Text="{Binding RoomId}" Foreground="#6366F1" />
+                    </TextBlock>
+                </Border>
+            </Grid>
+
+            <!-- Clock Display Card (Row 1, Centered in Viewport) -->
+            <Grid Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Border>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="CornerRadius" Value="20" />
+                            <Setter Property="Padding" Value="30,40" />
+                            <Setter Property="Margin" Value="30,8,30,16" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsZenMode}" Value="True">
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="Margin" Value="0" />
+                                    <Setter Property="Padding" Value="0" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
                     <StackPanel HorizontalAlignment="Center">
                         <!-- Radial Arc Countdown Clock -->
                         <components:RadialTimerControl Progress="{Binding Progress}" 
@@ -111,6 +185,60 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="▶️" Margin="0,0,8,0" VerticalAlignment="Center" />
                                     <TextBlock Text="Bắt đầu học tập" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </ui:Button>
+
+                            <!-- Enter Zen Mode Button (Visible when NOT in Zen Mode) -->
+                            <ui:Button Command="{Binding EnterZenModeCommand}"
+                                       Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                       BorderThickness="1"
+                                       FontWeight="SemiBold"
+                                       FontSize="14"
+                                       Padding="18,12"
+                                       CornerRadius="12"
+                                       Margin="0,0,10,0">
+                                <ui:Button.Style>
+                                    <Style TargetType="ui:Button">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsZenMode}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🧘" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="Zen Mode" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </ui:Button>
+
+                            <!-- Exit Zen Mode Button (Cluster, Visible when in Zen Mode) -->
+                            <ui:Button Command="{Binding ExitZenModeCommand}"
+                                       Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                       BorderThickness="1"
+                                       FontWeight="SemiBold"
+                                       FontSize="14"
+                                       Padding="18,12"
+                                       CornerRadius="12"
+                                       Margin="0,0,10,0">
+                                <ui:Button.Style>
+                                    <Style TargetType="ui:Button">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsZenMode}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="✕" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="Thoát Zen Mode (Esc)" VerticalAlignment="Center" />
                                 </StackPanel>
                             </ui:Button>
 
@@ -223,7 +351,7 @@
 
                         </StackPanel>
 
-                        <!-- Flashcard Break Challenge Button (Only visible during break phase) -->
+                        <!-- Flashcard Break Challenge Button (Only visible during break phase AND NOT in Zen Mode) -->
                         <ui:Button Command="{Binding TriggerFlashcardCommand}"
                                    Background="#6366F1"
                                    Foreground="White"
@@ -238,9 +366,13 @@
                                 <Style TargetType="ui:Button">
                                     <Setter Property="Visibility" Value="Collapsed" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsBreakPhase}" Value="True">
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsBreakPhase}" Value="True" />
+                                                <Condition Binding="{Binding IsZenMode}" Value="False" />
+                                            </MultiDataTrigger.Conditions>
                                             <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
+                                        </MultiDataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </ui:Button.Style>
@@ -249,33 +381,178 @@
                                 <TextBlock Text="Thử thách Flashcard" VerticalAlignment="Center" />
                             </StackPanel>
                         </ui:Button>
+
+                        <!-- Ambient Sound Controller (Visible in Zen Mode) -->
+                        <Border Margin="0,28,0,0"
+                                Padding="16,10"
+                                Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="16"
+                                HorizontalAlignment="Center">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsZenMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="🎵 Âm thanh nền:" 
+                                           FontSize="13" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" 
+                                           VerticalAlignment="Center" 
+                                           Margin="0,0,12,0" />
+
+                                <!-- Rain -->
+                                <ui:Button Command="{Binding SelectAmbientTrackCommand}" CommandParameter="Rain"
+                                           Padding="12,6" Margin="0,0,6,0" CornerRadius="8" FontSize="12">
+                                    <ui:Button.Style>
+                                        <Style TargetType="ui:Button">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedAmbientTrack}" Value="Rain">
+                                                    <Setter Property="Background" Value="#6366F1" />
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ui:Button.Style>
+                                    <TextBlock Text="🌧️ Mưa rơi" />
+                                </ui:Button>
+
+                                <!-- Waves -->
+                                <ui:Button Command="{Binding SelectAmbientTrackCommand}" CommandParameter="Waves"
+                                           Padding="12,6" Margin="0,0,6,0" CornerRadius="8" FontSize="12">
+                                    <ui:Button.Style>
+                                        <Style TargetType="ui:Button">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedAmbientTrack}" Value="Waves">
+                                                    <Setter Property="Background" Value="#6366F1" />
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ui:Button.Style>
+                                    <TextBlock Text="🌊 Sóng biển" />
+                                </ui:Button>
+
+                                <!-- Cafe -->
+                                <ui:Button Command="{Binding SelectAmbientTrackCommand}" CommandParameter="Cafe"
+                                           Padding="12,6" Margin="0,0,6,0" CornerRadius="8" FontSize="12">
+                                    <ui:Button.Style>
+                                        <Style TargetType="ui:Button">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedAmbientTrack}" Value="Cafe">
+                                                    <Setter Property="Background" Value="#6366F1" />
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ui:Button.Style>
+                                    <TextBlock Text="☕ Quán cà phê" />
+                                </ui:Button>
+
+                                <!-- Fire -->
+                                <ui:Button Command="{Binding SelectAmbientTrackCommand}" CommandParameter="Fire"
+                                           Padding="12,6" Margin="0,0,6,0" CornerRadius="8" FontSize="12">
+                                    <ui:Button.Style>
+                                        <Style TargetType="ui:Button">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedAmbientTrack}" Value="Fire">
+                                                    <Setter Property="Background" Value="#6366F1" />
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ui:Button.Style>
+                                    <TextBlock Text="🔥 Lửa trại" />
+                                </ui:Button>
+
+                                <!-- Off -->
+                                <ui:Button Command="{Binding SelectAmbientTrackCommand}" CommandParameter="Off"
+                                           Padding="12,6" Margin="0,0,10,0" CornerRadius="8" FontSize="12">
+                                    <ui:Button.Style>
+                                        <Style TargetType="ui:Button">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <Setter Property="BorderThickness" Value="0" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedAmbientTrack}" Value="Off">
+                                                    <Setter Property="Background" Value="#EF4444" />
+                                                    <Setter Property="Foreground" Value="White" />
+                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ui:Button.Style>
+                                    <TextBlock Text="🔇 Tắt" />
+                                </ui:Button>
+
+                                <!-- Volume Slider -->
+                                <TextBlock Text="🔊" FontSize="13" VerticalAlignment="Center" Margin="6,0,6,0" />
+                                <Slider Minimum="0" Maximum="1" Value="{Binding AmbientVolume, UpdateSourceTrigger=PropertyChanged}" Width="90" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding AmbientVolumePercentText}" FontSize="11" Width="36" VerticalAlignment="Center" Margin="6,0,0,0" Opacity="0.75" />
+                            </StackPanel>
+                        </Border>
+
                     </StackPanel>
                 </Border>
+            </Grid>
 
-                <!-- Study Tips Banner -->
-                <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" 
-                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
-                        BorderThickness="1" 
-                        CornerRadius="14" 
-                        Padding="18,14">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="💡" FontSize="18" Margin="0,0,12,0" VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="1" 
-                                   Text="Mẹo Pomodoro: Hãy tắt mọi thông báo mạng xã hội và tập trung duy nhất vào 1 bài tập. Đồng hồ sẽ tự động chuyển sang giờ nghỉ giải lao 5 phút sau khi kết thúc 25 phút tập trung." 
-                                   FontSize="12" 
-                                   Opacity="0.8" 
-                                   TextWrapping="Wrap" 
-                                   VerticalAlignment="Center" 
-                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                    </Grid>
-                </Border>
-
-            </StackPanel>
-        </ScrollViewer>
+            <!-- Study Tips Banner (Row 2) -->
+            <Border Grid.Row="2" 
+                    Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="14" 
+                    Padding="18,14"
+                    Margin="30,0,30,24">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsZenMode}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="💡" FontSize="18" Margin="0,0,12,0" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" 
+                               Text="Mẹo Pomodoro: Hãy tắt mọi thông báo mạng xã hội và tập trung duy nhất vào 1 bài tập. Đồng hồ sẽ tự động chuyển sang giờ nghỉ giải lao 5 phút sau khi kết thúc 25 phút tập trung." 
+                               FontSize="12" 
+                               Opacity="0.8" 
+                               TextWrapping="Wrap" 
+                               VerticalAlignment="Center" 
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </Grid>
+            </Border>
+        </Grid>
 
         <!-- ========================================== -->
         <!-- 2. RIGHT ROOM MEMBERS PANEL                -->
@@ -285,6 +562,16 @@
                 BorderThickness="1,0,0,0" 
                 Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
                 Padding="20">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Visible" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsZenMode}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                 <StackPanel>
 

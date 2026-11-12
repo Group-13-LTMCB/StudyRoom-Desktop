@@ -17,6 +17,7 @@ public partial class FloatingBubbleViewModel : ObservableObject, IDisposable
     private readonly TimeProvider _timeProvider;
     private readonly IMessenger _messenger;
     private readonly IAudioService? _audioService;
+    private readonly IWebSocketRelayService? _webSocketRelayService;
 
     [ObservableProperty]
     private string _inputText = string.Empty;
@@ -53,20 +54,29 @@ public partial class FloatingBubbleViewModel : ObservableObject, IDisposable
     public event Action? RequestFocusInput;
 
     [ActivatorUtilitiesConstructor]
-    public FloatingBubbleViewModel(IRateLimiter rateLimiter, IAudioService? audioService = null) : this(rateLimiter, TimeProvider.System, null, audioService)
+    public FloatingBubbleViewModel(
+        IRateLimiter rateLimiter,
+        IAudioService? audioService = null,
+        IWebSocketRelayService? webSocketRelayService = null) : this(rateLimiter, TimeProvider.System, null, audioService, webSocketRelayService)
     {
     }
 
-    public FloatingBubbleViewModel(IRateLimiter rateLimiter, TimeProvider timeProvider) : this(rateLimiter, timeProvider, null, null)
+    public FloatingBubbleViewModel(IRateLimiter rateLimiter, TimeProvider timeProvider) : this(rateLimiter, timeProvider, null, null, null)
     {
     }
 
-    public FloatingBubbleViewModel(IRateLimiter rateLimiter, TimeProvider timeProvider, IMessenger? messenger, IAudioService? audioService = null)
+    public FloatingBubbleViewModel(
+        IRateLimiter rateLimiter,
+        TimeProvider timeProvider,
+        IMessenger? messenger,
+        IAudioService? audioService = null,
+        IWebSocketRelayService? webSocketRelayService = null)
     {
         _rateLimiter = rateLimiter ?? throw new ArgumentNullException(nameof(rateLimiter));
         _timeProvider = timeProvider ?? TimeProvider.System;
         _messenger = messenger ?? WeakReferenceMessenger.Default;
         _audioService = audioService;
+        _webSocketRelayService = webSocketRelayService;
 
         _messenger.Register<ChatMessageReceivedMessage>(this, (r, m) => ((FloatingBubbleViewModel)r).HandleChatMessageReceived(m));
         _messenger.Register<PhaseChangedMessage>(this, (r, m) => ((FloatingBubbleViewModel)r).HandlePhaseChanged(m));
@@ -103,20 +113,25 @@ public partial class FloatingBubbleViewModel : ObservableObject, IDisposable
         RateLimitWarning = null;
         RetryAfter = TimeSpan.Zero;
 
+        var senderId = _webSocketRelayService?.UserId is { Length: > 0 } uid ? uid : CurrentUserId;
+        var senderName = _webSocketRelayService?.DisplayName is { Length: > 0 } name ? name : CurrentUserName;
+
         var message = new ChatMessage
         {
             MessageId = Guid.NewGuid().ToString("N"),
-            SenderId = CurrentUserId,
-            SenderName = CurrentUserName,
+            SenderId = senderId,
+            SenderName = senderName,
             Content = InputText.Trim(),
             Timestamp = _timeProvider.GetUtcNow(),
             IsSelf = true
         };
 
         Messages.Add(message);
+        var textToSend = message.Content;
         InputText = string.Empty;
 
         _messenger.Send(new ChatMessageReceivedMessage(message));
+        _ = _webSocketRelayService?.SendChatAsync(textToSend);
     }
 
     [RelayCommand]

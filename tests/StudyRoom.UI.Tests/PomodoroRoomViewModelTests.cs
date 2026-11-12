@@ -181,5 +181,157 @@ public class PomodoroRoomViewModelTests
         Assert.Contains(vm.Subject, receivedViaMessenger.Question);
         Assert.Equal(30, receivedViaMessenger.TimeoutSeconds);
     }
+
+    [Fact]
+    public void PomodoroRoomViewModel_InitialZenMode_IsFalse()
+    {
+        var (vm, _) = CreateViewModel(25);
+
+        Assert.False(vm.IsZenMode);
+    }
+
+    [Fact]
+    public void PomodoroRoomViewModel_EnterZenMode_SetsStateAndBroadcastsMessage()
+    {
+        var messenger = new WeakReferenceMessenger();
+        var session = new PomodoroSession { FocusDurationSeconds = 1500, ShortBreakDurationSeconds = 300 };
+        var engine = new PomodoroEngine(session);
+        var vm = new PomodoroRoomViewModel(engine, messenger);
+
+        ZenModeChangedMessage? receivedMessage = null;
+        messenger.Register<ZenModeChangedMessage>(this, (r, m) => receivedMessage = m);
+
+        vm.EnterZenMode();
+
+        Assert.True(vm.IsZenMode);
+        Assert.NotNull(receivedMessage);
+        Assert.True(receivedMessage.IsZenMode);
+    }
+
+    [Fact]
+    public void PomodoroRoomViewModel_ExitZenMode_SetsStateAndBroadcastsMessage()
+    {
+        var messenger = new WeakReferenceMessenger();
+        var session = new PomodoroSession { FocusDurationSeconds = 1500, ShortBreakDurationSeconds = 300 };
+        var engine = new PomodoroEngine(session);
+        var vm = new PomodoroRoomViewModel(engine, messenger);
+
+        vm.EnterZenMode();
+        Assert.True(vm.IsZenMode);
+
+        ZenModeChangedMessage? receivedMessage = null;
+        messenger.Register<ZenModeChangedMessage>(this, (r, m) => receivedMessage = m);
+
+        vm.ExitZenMode();
+
+        Assert.False(vm.IsZenMode);
+        Assert.NotNull(receivedMessage);
+        Assert.False(receivedMessage.IsZenMode);
+    }
+
+    [Fact]
+    public void PomodoroRoomViewModel_ToggleZenMode_AlternatesStateAndBroadcastsMessage()
+    {
+        var messenger = new WeakReferenceMessenger();
+        var session = new PomodoroSession { FocusDurationSeconds = 1500, ShortBreakDurationSeconds = 300 };
+        var engine = new PomodoroEngine(session);
+        var vm = new PomodoroRoomViewModel(engine, messenger);
+
+        ZenModeChangedMessage? receivedMessage = null;
+        messenger.Register<ZenModeChangedMessage>(this, (r, m) => receivedMessage = m);
+
+        vm.ToggleZenMode();
+        Assert.True(vm.IsZenMode);
+        Assert.NotNull(receivedMessage);
+        Assert.True(receivedMessage.IsZenMode);
+
+        vm.ToggleZenMode();
+        Assert.False(vm.IsZenMode);
+        Assert.False(receivedMessage.IsZenMode);
+    }
+
+    [Fact]
+    public void PomodoroRoomViewModel_ZenModeCommands_ExecuteCorrectly()
+    {
+        var (vm, _) = CreateViewModel(25);
+
+        Assert.False(vm.IsZenMode);
+
+        vm.EnterZenModeCommand.Execute(null);
+        Assert.True(vm.IsZenMode);
+
+        vm.ExitZenModeCommand.Execute(null);
+        Assert.False(vm.IsZenMode);
+
+        vm.ToggleZenModeCommand.Execute(null);
+        Assert.True(vm.IsZenMode);
+
+        vm.ToggleZenModeCommand.Execute(null);
+        Assert.False(vm.IsZenMode);
+    }
+
+    [Fact]
+    public void PomodoroRoomViewModel_SelectAmbientTrack_UpdatesTrackAndPlayState()
+    {
+        var (vm, _) = CreateViewModel(25);
+
+        Assert.Equal("Off", vm.SelectedAmbientTrack);
+        Assert.False(vm.IsPlayingAmbient);
+
+        vm.SelectAmbientTrackCommand.Execute("Rain");
+        Assert.Equal("Rain", vm.SelectedAmbientTrack);
+        Assert.True(vm.IsPlayingAmbient);
+
+        vm.SelectAmbientTrackCommand.Execute("Waves");
+        Assert.Equal("Waves", vm.SelectedAmbientTrack);
+        Assert.True(vm.IsPlayingAmbient);
+
+        vm.SelectAmbientTrackCommand.Execute("Cafe");
+        Assert.Equal("Cafe", vm.SelectedAmbientTrack);
+        Assert.True(vm.IsPlayingAmbient);
+
+        vm.SelectAmbientTrackCommand.Execute("Fire");
+        Assert.Equal("Fire", vm.SelectedAmbientTrack);
+        Assert.True(vm.IsPlayingAmbient);
+
+        vm.SelectAmbientTrackCommand.Execute("Off");
+        Assert.Equal("Off", vm.SelectedAmbientTrack);
+        Assert.False(vm.IsPlayingAmbient);
+    }
+
+    [Fact]
+    public void PomodoroRoomViewModel_AmbientVolume_UpdatesPercentText()
+    {
+        var (vm, _) = CreateViewModel(25);
+
+        Assert.Equal(0.5, vm.AmbientVolume);
+        Assert.Equal("50%", vm.AmbientVolumePercentText);
+
+        vm.AmbientVolume = 0.8;
+        Assert.Equal(0.8, vm.AmbientVolume);
+        Assert.Equal("80%", vm.AmbientVolumePercentText);
+
+        vm.AmbientVolume = 1.0;
+        Assert.Equal("100%", vm.AmbientVolumePercentText);
+
+        vm.AmbientVolume = 0.0;
+        Assert.Equal("0%", vm.AmbientVolumePercentText);
+    }
+
+    [Fact]
+    public void PomodoroRoomViewModel_ToggleAmbientPlayback_TogglesBetweenRainAndOff()
+    {
+        var (vm, _) = CreateViewModel(25);
+
+        Assert.False(vm.IsPlayingAmbient);
+
+        vm.ToggleAmbientPlaybackCommand.Execute(null);
+        Assert.True(vm.IsPlayingAmbient);
+        Assert.Equal("Rain", vm.SelectedAmbientTrack);
+
+        vm.ToggleAmbientPlaybackCommand.Execute(null);
+        Assert.False(vm.IsPlayingAmbient);
+        Assert.Equal("Off", vm.SelectedAmbientTrack);
+    }
 }
 

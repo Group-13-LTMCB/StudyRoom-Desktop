@@ -16,11 +16,26 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     private readonly IDashboardService _dashboardService;
     private readonly IMessenger _messenger;
     private readonly ISecureStorageService? _secureStorageService;
+    private readonly IAuthService? _authService;
+    private readonly IWebSocketRelayService? _webSocketRelayService;
+    private AuthSession? _currentSession;
 
     public event Action? RequestLogout;
 
     [ObservableProperty]
     private int _selectedNavIndex = 0; // 0 = Overview, 1 = Pomodoro, 2 = Kanban
+
+    [ObservableProperty]
+    private bool _isZenMode;
+
+    partial void OnSelectedNavIndexChanged(int value)
+    {
+        if (value != 1 && IsZenMode)
+        {
+            IsZenMode = false;
+            PomodoroRoomVm.ExitZenMode();
+        }
+    }
 
     [ObservableProperty]
     private PomodoroRoomViewModel _pomodoroRoomVm;
@@ -48,6 +63,12 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private string _userMajor = "Khoa học máy tính";
+
+    [ObservableProperty]
+    private bool _isMfaEnabled;
+
+    [ObservableProperty]
+    private string _mfaStatusLabel = "Chưa kích hoạt";
 
     [ObservableProperty]
     private string _totalStudyTime = "128 giờ";
@@ -157,36 +178,110 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         IMessenger? messenger = null,
         ISecureStorageService? secureStorageService = null,
         IGroupManagementService? groupManagementService = null,
-        GroupRailViewModel? groupRailVm = null)
+        GroupRailViewModel? groupRailVm = null,
+        IAuthService? authService = null,
+        IWebSocketRelayService? webSocketRelayService = null,
+        PomodoroRoomViewModel? pomodoroRoomVm = null)
     {
         _dashboardService = dashboardService;
         _messenger = messenger ?? WeakReferenceMessenger.Default;
         _secureStorageService = secureStorageService;
+        _authService = authService;
+        _webSocketRelayService = webSocketRelayService;
 
         _groupRailVm = groupRailVm ?? (groupManagementService != null
             ? new GroupRailViewModel(groupManagementService, _messenger)
             : new GroupRailViewModel(new Infrastructure.Services.GroupManagementService(new Infrastructure.Storage.SqliteLocalCacheRepository()), _messenger));
 
-        _pomodoroRoomVm = new PomodoroRoomViewModel(pomodoroEngine, _messenger);
+        _pomodoroRoomVm = pomodoroRoomVm ?? new PomodoroRoomViewModel(pomodoroEngine, _messenger, webSocketRelayService: _webSocketRelayService);
         _pomodoroRoomVm.RequestBackToDashboard += () => SelectedNavIndex = 0;
 
-        _kanbanVm = kanbanVm ?? new KanbanBoardViewModel(kanbanService, indexingHelper, _messenger);
+        _kanbanVm = kanbanVm ?? new KanbanBoardViewModel(kanbanService, indexingHelper, _messenger, _webSocketRelayService);
         _kanbanVm.RequestBackToDashboard += () => SelectedNavIndex = 0;
 
         _messenger.Register<CardMovedMessage>(this, (r, m) => ((DashboardViewModel)r).HandleCardMoved(m));
         _messenger.Register<PhaseChangedMessage>(this, (r, m) => ((DashboardViewModel)r).HandlePhaseChanged(m));
         _messenger.Register<GroupSwitchedMessage>(this, (r, m) => ((DashboardViewModel)r).HandleGroupSwitched(m));
+        _messenger.Register<ZenModeChangedMessage>(this, (r, m) => ((DashboardViewModel)r).HandleZenModeChanged(m));
     }
 
     public void SetUserSession(AuthSession session)
     {
+        _currentSession = session;
         UserName = !string.IsNullOrWhiteSpace(session.DisplayName) ? session.DisplayName : session.Email.Split('@')[0];
         Greeting = $"Chào mừng trở lại, {UserName}!";
+        _ = RefreshMfaStatusAsync();
+        _ = _webSocketRelayService?.ConnectAsync(session.AccessToken, session.UserId, UserName, CurrentGroupName);
+    }
+
+    public async Task RefreshMfaStatusAsync()
+    {
+        if (_authService != null && _currentSession != null && !string.IsNullOrWhiteSpace(_currentSession.AccessToken))
+        {
+            try
+            {
+                var result = await _authService.GetMfaStatusAsync(_currentSession.AccessToken);
+                if (result.IsSuccess)
+                {
+                    IsMfaEnabled = result.Value;
+                    MfaStatusLabel = IsMfaEnabled ? "Đã kích hoạt 🛡️" : "Chưa kích hoạt";
+                }
+            }
+            catch
+            {
+                // Bỏ qua lỗi kết nối nền
+            }
+        }
+    }
+
+    [RelayCommand]
+    public async Task OpenMfaSettingsAsync()
+    {
+        if (_authService == null || _currentSession == null || string.IsNullOrWhiteSpace(_currentSession.AccessToken))
+        {
+            return;
+        }
+
+        var dialogVm = new MfaSetupViewModel(_authService);
+        dialogVm.MfaStatusChanged += enabled =>
+        {
+            IsMfaEnabled = enabled;
+            MfaStatusLabel = enabled ? "Đã kích hoạt 🛡️" : "Chưa kích hoạt";
+        };
+
+        var dialog = new Views.Components.MfaSetupDialog(dialogVm);
+        await dialogVm.InitializeAsync(_currentSession.AccessToken, _currentSession.Email, IsMfaEnabled);
+        dialog.ShowDialog();
+    }
+
+    [RelayCommand]
+    public void OpenChangePassword()
+    {
+        if (_authService == null || _currentSession == null || string.IsNullOrWhiteSpace(_currentSession.AccessToken))
+        {
+            return;
+        }
+
+        var dialogVm = new ChangePasswordViewModel(_authService);
+        dialogVm.Initialize(_currentSession.AccessToken);
+        var dialog = new Views.Components.ChangePasswordDialog(dialogVm);
+        dialog.ShowDialog();
     }
 
     [RelayCommand]
     public async Task LogoutAsync()
     {
+        if (IsZenMode)
+        {
+            IsZenMode = false;
+            PomodoroRoomVm.ExitZenMode();
+        }
+
+        if (_webSocketRelayService != null)
+        {
+            await _webSocketRelayService.DisconnectAsync();
+        }
+
         if (_secureStorageService != null)
         {
             await _secureStorageService.ClearSessionAsync();
@@ -272,6 +367,8 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
                 JoinRoomCode = message.JoinCode;
             }
         }
+
+        _ = _webSocketRelayService?.SwitchRoomAsync(message.GroupName);
     }
 
     [RelayCommand]
@@ -498,6 +595,23 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         else
         {
             UpdatePomodoroMetrics();
+        }
+    }
+
+    public void HandleZenModeChanged(ZenModeChangedMessage message)
+    {
+        void UpdateState()
+        {
+            IsZenMode = message.IsZenMode;
+        }
+
+        if (System.Windows.Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            dispatcher.Invoke(UpdateState);
+        }
+        else
+        {
+            UpdateState();
         }
     }
 

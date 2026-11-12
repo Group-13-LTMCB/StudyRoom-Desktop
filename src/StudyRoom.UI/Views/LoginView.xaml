@@ -555,6 +555,57 @@
                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" />
                         </StackPanel>
 
+                        <!-- ============================================== -->
+                        <!-- 6. MFA CHALLENGE VIEW (Software Token TOTP)     -->
+                        <!-- ============================================== -->
+                        <StackPanel Visibility="{Binding IsMfaChallengeMode, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="🛡️ Xác thực 2 bước (MFA)" FontSize="18" FontWeight="Bold" Margin="0,0,0,8" />
+                            <TextBlock Text="Tài khoản của bạn đã được bảo vệ bằng mã bảo mật 2 lớp. Vui lòng mở Google Authenticator hoặc Microsoft Authenticator và nhập mã 6 số."
+                                       FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,18" />
+
+                            <StackPanel Margin="0,0,0,18">
+                                <TextBlock Text="Mã xác thực 6 số" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,6" />
+                                <ui:TextBox Text="{Binding MfaCode, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="••••••"
+                                            FontSize="20"
+                                            FontWeight="Bold"
+                                            HorizontalContentAlignment="Center"
+                                            Height="44" MaxLength="6" />
+                            </StackPanel>
+
+                            <ui:Button Command="{Binding ConfirmMfaCommand}"
+                                       HorizontalAlignment="Stretch"
+                                       Height="42"
+                                       CornerRadius="10"
+                                       Appearance="Primary"
+                                       Margin="0,0,0,12">
+                                <Grid>
+                                    <TextBlock Text="Xác thực &amp; Vào ứng dụng 🚀" FontWeight="SemiBold" FontSize="14"
+                                               VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <ui:ProgressRing IsIndeterminate="True" Width="20" Height="20"
+                                                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
+                                </Grid>
+                            </ui:Button>
+
+                            <ui:Button Content="Quay lại Đăng nhập"
+                                       Command="{Binding ShowLoginCommand}"
+                                       HorizontalAlignment="Center"
+                                       Background="Transparent" BorderThickness="0"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" />
+                        </StackPanel>
+
                     </StackPanel>
                 </Grid>
             </Grid>

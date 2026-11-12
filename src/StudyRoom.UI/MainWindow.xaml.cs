@@ -46,6 +46,14 @@ public partial class MainWindow : FluentWindow
         }
 
         _dashboardViewModel.RequestLogout += OnLogoutRequested;
+        _dashboardViewModel.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(DashboardViewModel.SelectedNavIndex)
+                || e.PropertyName == nameof(DashboardViewModel.IsZenMode))
+            {
+                UpdateFloatingBubbleVisibility();
+            }
+        };
 
         StateChanged += OnWindowStateChanged;
         Loaded += OnWindowLoaded;
@@ -111,10 +119,7 @@ public partial class MainWindow : FluentWindow
         LoginControl.Visibility = System.Windows.Visibility.Collapsed;
         DashboardControl.Visibility = System.Windows.Visibility.Visible;
 
-        if (_floatingBubbleView != null && IsVisible)
-        {
-            _floatingBubbleView.Show();
-        }
+        UpdateFloatingBubbleVisibility();
 
         _ = _dashboardViewModel.LoadDataCommand.ExecuteAsync(null);
     }
@@ -159,9 +164,23 @@ public partial class MainWindow : FluentWindow
             }
         }
 
-        if (DashboardControl.Visibility == System.Windows.Visibility.Visible)
+        UpdateFloatingBubbleVisibility();
+    }
+
+    private void UpdateFloatingBubbleVisibility()
+    {
+        if (_floatingBubbleView == null) return;
+
+        // Bong bóng chat chỉ được phép hiện khi tham gia Pomodoro (SelectedNavIndex == 1) và không ở chế độ Zen Mode
+        if (DashboardControl.Visibility == System.Windows.Visibility.Visible 
+            && _dashboardViewModel.SelectedNavIndex == 1 
+            && !_dashboardViewModel.IsZenMode)
         {
-            _floatingBubbleView?.Show();
+            _floatingBubbleView.Show();
+        }
+        else
+        {
+            _floatingBubbleView.Hide();
         }
     }
 

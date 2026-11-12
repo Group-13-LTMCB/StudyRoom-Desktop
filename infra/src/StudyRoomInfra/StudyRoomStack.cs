@@ -74,6 +74,13 @@ public class StudyRoomStack : Stack
             {
                 Email = true
             },
+            AccountRecovery = AccountRecovery.EMAIL_ONLY,
+            Mfa = Mfa.OPTIONAL,
+            MfaSecondFactor = new MfaSecondFactor
+            {
+                Sms = false,
+                Otp = true
+            },
             SelfSignUpEnabled = true,
             RemovalPolicy = RemovalPolicy.DESTROY
         });
@@ -238,6 +245,9 @@ public class StudyRoomStack : Stack
     {
         string[] candidates =
         [
+            System.IO.Path.GetFullPath("backend/publish"),
+            System.IO.Path.GetFullPath("../backend/publish"),
+            System.IO.Path.GetFullPath("../../backend/publish"),
             System.IO.Path.GetFullPath("backend/src/StudyRoom.Backend"),
             System.IO.Path.GetFullPath("../backend/src/StudyRoom.Backend"),
             System.IO.Path.GetFullPath("../../backend/src/StudyRoom.Backend")
@@ -245,7 +255,9 @@ public class StudyRoomStack : Stack
 
         foreach (var candidate in candidates)
         {
-            if (System.IO.Directory.Exists(candidate))
+            if (System.IO.Directory.Exists(candidate) &&
+                (System.IO.File.Exists(System.IO.Path.Combine(candidate, "StudyRoom.Backend.dll")) ||
+                 System.IO.File.Exists(System.IO.Path.Combine(candidate, "StudyRoom.Backend.csproj"))))
             {
                 return candidate;
             }

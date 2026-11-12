@@ -29,10 +29,16 @@ public partial class LoginView : UserControl
     {
         if (e.PropertyName == nameof(LoginViewModel.Password) &&
             sender is LoginViewModel vm &&
-            string.IsNullOrEmpty(vm.Password) &&
-            PasswordInput.Password != string.Empty)
+            string.IsNullOrEmpty(vm.Password))
         {
-            PasswordInput.Password = string.Empty;
+            if (PasswordInput.Password != string.Empty)
+            {
+                PasswordInput.Password = string.Empty;
+            }
+            if (RegisterPasswordInput.Password != string.Empty)
+            {
+                RegisterPasswordInput.Password = string.Empty;
+            }
         }
     }
 

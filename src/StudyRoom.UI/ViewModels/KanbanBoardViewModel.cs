@@ -17,6 +17,7 @@ public partial class KanbanBoardViewModel : ObservableObject, IDisposable
     private readonly IKanbanService _kanbanService;
     private readonly IFractionalIndexingHelper _indexingHelper;
     private readonly IMessenger _messenger;
+    private readonly IWebSocketRelayService? _webSocketRelayService;
     private readonly List<KanbanCardItemViewModel> _allCards = [];
 
     public const string DefaultGroupId = "00000000-0000-0000-0000-000000000001";
@@ -106,11 +107,13 @@ public partial class KanbanBoardViewModel : ObservableObject, IDisposable
     public KanbanBoardViewModel(
         IKanbanService? kanbanService = null,
         IFractionalIndexingHelper? indexingHelper = null,
-        IMessenger? messenger = null)
+        IMessenger? messenger = null,
+        IWebSocketRelayService? webSocketRelayService = null)
     {
         _indexingHelper = indexingHelper ?? new FractionalIndexingHelper();
         _kanbanService = kanbanService ?? new KanbanService(_indexingHelper);
         _messenger = messenger ?? WeakReferenceMessenger.Default;
+        _webSocketRelayService = webSocketRelayService;
 
         _messenger.Register<CardMovedMessage>(this, (r, m) => ((KanbanBoardViewModel)r).HandleCardMoved(m));
 
@@ -237,6 +240,7 @@ public partial class KanbanBoardViewModel : ObservableObject, IDisposable
             ApplyFilter();
 
             _messenger.Send(new CardMovedMessage(card.Id.ToString(), targetColumn, card.Rank));
+            _ = _webSocketRelayService?.SendCardMovedAsync(card.Id.ToString(), targetColumn, card.Rank);
         }
         catch (Exception ex)
         {

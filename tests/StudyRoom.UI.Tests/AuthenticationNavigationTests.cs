@@ -35,8 +35,8 @@ public class AuthenticationNavigationTests
 
     private sealed class MockAuthService : IAuthService
     {
-        public Task<Result<AuthTokens>> LoginAsync(string email, string password, CancellationToken cancellationToken = default)
-            => Task.FromResult(Result<AuthTokens>.Success(new AuthTokens
+        public Task<Result<LoginResult>> LoginAsync(string email, string password, CancellationToken cancellationToken = default)
+            => Task.FromResult(Result<LoginResult>.Success(LoginResult.Success(new AuthTokens
             {
                 AccessToken = "mock-access",
                 IdToken = "mock-id",
@@ -45,7 +45,7 @@ public class AuthenticationNavigationTests
                 UserId = "user-999",
                 Email = email,
                 DisplayName = "Nguyen Van B"
-            }));
+            })));
 
         public Task<Result<bool>> RegisterAsync(string email, string password, string displayName, CancellationToken cancellationToken = default)
             => Task.FromResult(Result<bool>.Success(true));
@@ -65,7 +65,34 @@ public class AuthenticationNavigationTests
         public Task<Result<AuthTokens>> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
             => Task.FromResult(Result<AuthTokens>.Failure("Not implemented"));
 
-        public Task LogoutAsync(CancellationToken cancellationToken = default)
+        public Task<Result<AuthTokens>> RespondToMfaChallengeAsync(string email, string mfaCode, string mfaSession, CancellationToken cancellationToken = default)
+            => Task.FromResult(mfaCode == "123456" ? Result<AuthTokens>.Success(new AuthTokens
+            {
+                AccessToken = "mock-access",
+                IdToken = "mock-id",
+                RefreshToken = "mock-refresh",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddHours(2),
+                UserId = "user-999",
+                Email = email,
+                DisplayName = "Nguyen Van B"
+            }) : Result<AuthTokens>.Failure("Mã MFA không hợp lệ."));
+
+        public Task<Result<string>> SetupTotpMfaAsync(string accessToken, CancellationToken cancellationToken = default)
+            => Task.FromResult(Result<string>.Success("MOCKSECRETKEY123456"));
+
+        public Task<Result<bool>> VerifyTotpMfaAsync(string accessToken, string totpCode, CancellationToken cancellationToken = default)
+            => Task.FromResult(totpCode == "123456" ? Result<bool>.Success(true) : Result<bool>.Failure("Mã không hợp lệ."));
+
+        public Task<Result<bool>> SetMfaPreferenceAsync(string accessToken, bool enabled, CancellationToken cancellationToken = default)
+            => Task.FromResult(Result<bool>.Success(true));
+
+        public Task<Result<bool>> GetMfaStatusAsync(string accessToken, CancellationToken cancellationToken = default)
+            => Task.FromResult(Result<bool>.Success(true));
+
+        public Task<Result<bool>> ChangePasswordAsync(string accessToken, string oldPassword, string newPassword, CancellationToken cancellationToken = default)
+            => Task.FromResult(Result<bool>.Success(true));
+
+        public Task LogoutAsync(string? accessToken = null, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
     }
 

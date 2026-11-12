@@ -11,17 +11,24 @@ public class LoginViewModelTests
     private class FakeAuthService : IAuthService
     {
         public bool ShouldSucceed { get; set; } = true;
+        public bool RequireMfa { get; set; } = false;
+        public bool CanRefreshToken { get; set; } = false;
         public string? ErrorToReturn { get; set; }
         public AuthTokens? TokensToReturn { get; set; }
         public string? LastLoginEmail { get; private set; }
         public string? LastRegisterName { get; private set; }
 
-        public Task<Result<AuthTokens>> LoginAsync(string email, string password, CancellationToken cancellationToken = default)
+        public Task<Result<LoginResult>> LoginAsync(string email, string password, CancellationToken cancellationToken = default)
         {
             LastLoginEmail = email;
             if (!ShouldSucceed)
             {
-                return Task.FromResult(Result<AuthTokens>.Failure(ErrorToReturn ?? "Invalid credentials"));
+                return Task.FromResult(Result<LoginResult>.Failure(ErrorToReturn ?? "Invalid credentials"));
+            }
+
+            if (RequireMfa)
+            {
+                return Task.FromResult(Result<LoginResult>.Success(LoginResult.Challenge("fake_mfa_session_123")));
             }
 
             var tokens = TokensToReturn ?? new AuthTokens
@@ -35,7 +42,7 @@ public class LoginViewModelTests
                 DisplayName = "Test User"
             };
 
-            return Task.FromResult(Result<AuthTokens>.Success(tokens));
+            return Task.FromResult(Result<LoginResult>.Success(LoginResult.Success(tokens)));
         }
 
         public Task<Result<bool>> RegisterAsync(string email, string password, string displayName, CancellationToken cancellationToken = default)
@@ -75,10 +82,72 @@ public class LoginViewModelTests
 
         public Task<Result<AuthTokens>> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(Result<AuthTokens>.Failure("Not implemented in fake"));
+            if (!CanRefreshToken || !ShouldSucceed || string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return Task.FromResult(Result<AuthTokens>.Failure(ErrorToReturn ?? "Not implemented in fake"));
+            }
+
+            var tokens = TokensToReturn ?? new AuthTokens
+            {
+                IdToken = "refreshed_id_token",
+                AccessToken = "refreshed_access_token",
+                RefreshToken = refreshToken,
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddHours(1),
+                UserId = "user_456",
+                Email = "student@test.com",
+                DisplayName = "Test User"
+            };
+
+            return Task.FromResult(Result<AuthTokens>.Success(tokens));
         }
 
-        public Task LogoutAsync(CancellationToken cancellationToken = default)
+        public Task<Result<AuthTokens>> RespondToMfaChallengeAsync(string email, string mfaCode, string mfaSession, CancellationToken cancellationToken = default)
+        {
+            if (!ShouldSucceed || mfaCode != "123456")
+            {
+                return Task.FromResult(Result<AuthTokens>.Failure(ErrorToReturn ?? "Mã xác thực không chính xác"));
+            }
+
+            var tokens = TokensToReturn ?? new AuthTokens
+            {
+                IdToken = "id_token_123",
+                AccessToken = "access_token_123",
+                RefreshToken = "refresh_token_123",
+                ExpiresAtUtc = DateTimeOffset.UtcNow.AddHours(1),
+                UserId = "user_456",
+                Email = email,
+                DisplayName = "Test User"
+            };
+
+            return Task.FromResult(Result<AuthTokens>.Success(tokens));
+        }
+
+        public Task<Result<string>> SetupTotpMfaAsync(string accessToken, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ShouldSucceed ? Result<string>.Success("MOCKSECRETKEY123") : Result<string>.Failure("Lỗi setup TOTP"));
+        }
+
+        public Task<Result<bool>> VerifyTotpMfaAsync(string accessToken, string totpCode, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ShouldSucceed && totpCode == "123456" ? Result<bool>.Success(true) : Result<bool>.Failure("Mã không hợp lệ"));
+        }
+
+        public Task<Result<bool>> SetMfaPreferenceAsync(string accessToken, bool enabled, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Result<bool>.Success(true));
+        }
+
+        public Task<Result<bool>> GetMfaStatusAsync(string accessToken, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Result<bool>.Success(true));
+        }
+
+        public Task<Result<bool>> ChangePasswordAsync(string accessToken, string oldPassword, string newPassword, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ShouldSucceed ? Result<bool>.Success(true) : Result<bool>.Failure(ErrorToReturn ?? "Đổi mật khẩu thất bại"));
+        }
+
+        public Task LogoutAsync(string? accessToken = null, CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
         }
@@ -293,6 +362,62 @@ public class LoginViewModelTests
     }
 
     [Fact]
+    public async Task CheckExistingSessionAsync_ExpiredSessionWithValidRefreshToken_RefreshesSessionAndLogsIn()
+    {
+        var expired = new AuthSession
+        {
+            UserId = "user_456",
+            Email = "student@test.com",
+            DisplayName = "Test User",
+            IdToken = "old_id_tok",
+            AccessToken = "old_acc_tok",
+            RefreshToken = "valid_refresh_tok",
+            ExpiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(-5)
+        };
+        _storageService.StoredSession = expired;
+        _authService.CanRefreshToken = true;
+
+        AuthSession? loggedInSession = null;
+        _vm.LoginSucceeded += s => loggedInSession = s;
+
+        bool result = await _vm.CheckExistingSessionAsync();
+
+        Assert.True(result);
+        Assert.NotNull(_vm.CurrentSession);
+        Assert.Equal("refreshed_access_token", _vm.CurrentSession.AccessToken);
+        Assert.NotNull(loggedInSession);
+        Assert.True(_storageService.SaveCalled);
+    }
+
+    [Fact]
+    public void ResetForm_ClearsAllFieldsAndMessages()
+    {
+        _vm.Email = "test@email.com";
+        _vm.Password = "pass123";
+        _vm.NewPassword = "newpass123";
+        _vm.DisplayName = "Student";
+        _vm.OtpCode = "123456";
+        _vm.MfaCode = "654321";
+        _vm.ErrorMessage = "error";
+        _vm.SuccessMessage = "success";
+        _vm.IsBusy = true;
+        _vm.CurrentAuthMode = AuthMode.MfaChallenge;
+
+        _vm.ResetForm();
+
+        Assert.Empty(_vm.Email);
+        Assert.Empty(_vm.Password);
+        Assert.Empty(_vm.NewPassword);
+        Assert.Empty(_vm.DisplayName);
+        Assert.Empty(_vm.OtpCode);
+        Assert.Empty(_vm.MfaCode);
+        Assert.False(_vm.HasError);
+        Assert.False(_vm.HasSuccess);
+        Assert.False(_vm.IsBusy);
+        Assert.Equal(AuthMode.SignIn, _vm.CurrentAuthMode);
+    }
+
+    [Fact]
     public void ShowLogin_WhenInRegisterMode_SwitchesToLoginAndIdempotent()
     {
         _vm.IsRegisterMode = true;
@@ -409,5 +534,60 @@ public class LoginViewModelTests
         thread.Join();
 
         Assert.Null(threadEx);
+    }
+
+    [Fact]
+    public async Task LoginAsync_WhenMfaRequired_TransitionsToMfaChallengeMode()
+    {
+        _authService.RequireMfa = true;
+        _vm.Email = "mfa@test.com";
+        _vm.Password = "Password123!";
+
+        await _vm.LoginAsync();
+
+        Assert.Equal(AuthMode.MfaChallenge, _vm.CurrentAuthMode);
+        Assert.True(_vm.IsMfaChallengeMode);
+        Assert.True(_vm.HasSuccess);
+        Assert.False(_vm.HasError);
+    }
+
+    [Fact]
+    public async Task ConfirmMfaAsync_ValidMfaCode_SavesSessionAndFiresEvent()
+    {
+        _authService.RequireMfa = true;
+        _vm.Email = "mfa@test.com";
+        _vm.Password = "Password123!";
+        await _vm.LoginAsync();
+
+        bool eventFired = false;
+        AuthSession? receivedSession = null;
+        _vm.LoginSucceeded += s =>
+        {
+            eventFired = true;
+            receivedSession = s;
+        };
+
+        _vm.MfaCode = "123456";
+        await _vm.ConfirmMfaAsync();
+
+        Assert.True(eventFired);
+        Assert.NotNull(receivedSession);
+        Assert.NotNull(_storageService.StoredSession);
+        Assert.True(_vm.HasSuccess);
+    }
+
+    [Fact]
+    public async Task ConfirmMfaAsync_InvalidMfaCode_SetsErrorMessage()
+    {
+        _authService.RequireMfa = true;
+        _vm.Email = "mfa@test.com";
+        _vm.Password = "Password123!";
+        await _vm.LoginAsync();
+
+        _vm.MfaCode = "999999";
+        await _vm.ConfirmMfaAsync();
+
+        Assert.True(_vm.HasError);
+        Assert.Contains("Mã xác thực không chính xác", _vm.ErrorMessage);
     }
 }
