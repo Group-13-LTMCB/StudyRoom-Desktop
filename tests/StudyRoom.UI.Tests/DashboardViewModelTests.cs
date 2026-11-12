@@ -7,6 +7,7 @@ using Xunit;
 
 namespace StudyRoom.UI.Tests;
 
+// Uses a fake dashboard service to test view-model behavior without database or UI dependencies.
 public class DashboardViewModelTests
 {
     private static DashboardViewModel CreateViewModel(IEnumerable<StudyRoomSummary>? initialRooms = null)
@@ -23,8 +24,6 @@ public class DashboardViewModelTests
         Assert.Equal("Chào mừng trở lại, Sally!", vm.Greeting);
         Assert.Equal("Sally", vm.UserName);
         Assert.Equal("Khoa học máy tính", vm.UserMajor);
-        Assert.True(vm.IsDarkMode);
-        Assert.Equal("Dark", vm.CurrentThemeName);
         Assert.Equal("1W", vm.SelectedTimeframe);
         Assert.Equal(0, vm.SelectedHubTabIndex);
         Assert.Empty(vm.JoinRoomCode);
@@ -52,37 +51,6 @@ public class DashboardViewModelTests
         Assert.Equal("Top 5% Toàn trường", vm.RankBadge);
         Assert.Equal(7, vm.WeeklyActivityPoints.Count);
         Assert.Equal(4, vm.ActiveRooms.Count);
-    }
-
-    [Fact]
-    public void DashboardViewModel_ToggleTheme_SwitchesThemeAndState()
-    {
-        var vm = CreateViewModel();
-        Assert.True(vm.IsDarkMode);
-        Assert.Equal("Dark", vm.CurrentThemeName);
-
-        vm.ToggleThemeCommand.Execute(null);
-
-        Assert.False(vm.IsDarkMode);
-        Assert.Equal("Light", vm.CurrentThemeName);
-
-        vm.ToggleThemeCommand.Execute(null);
-
-        Assert.True(vm.IsDarkMode);
-        Assert.Equal("Dark", vm.CurrentThemeName);
-    }
-
-    [Fact]
-    public void DashboardViewModel_ToggleTheme_Headless_DoesNotThrow()
-    {
-        var vm = CreateViewModel();
-        var exception = Record.Exception(() =>
-        {
-            vm.ToggleThemeCommand.Execute(null);
-            vm.ToggleThemeCommand.Execute(null);
-        });
-
-        Assert.Null(exception);
     }
 
     [Fact]
@@ -289,24 +257,6 @@ public class DashboardViewModelTests
         Assert.False(vm.HasError);
         Assert.Null(vm.ValidationErrorMessage);
         Assert.NotNull(vm.SuccessMessage);
-    }
-
-    [Fact]
-    public void ToggleTheme_UpdatesThemeLabelAndIcon()
-    {
-        var vm = CreateViewModel();
-        Assert.Equal("Chế độ tối", vm.ThemeLabel);
-        Assert.Equal("🌙", vm.ThemeIcon);
-
-        vm.ToggleThemeCommand.Execute(null);
-
-        Assert.Equal("Chế độ sáng", vm.ThemeLabel);
-        Assert.Equal("☀️", vm.ThemeIcon);
-
-        vm.ToggleThemeCommand.Execute(null);
-
-        Assert.Equal("Chế độ tối", vm.ThemeLabel);
-        Assert.Equal("🌙", vm.ThemeIcon);
     }
 
     [Fact]

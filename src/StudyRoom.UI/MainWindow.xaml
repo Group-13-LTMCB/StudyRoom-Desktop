@@ -12,20 +12,18 @@
         Height="840" Width="1300"
         MinHeight="720" MinWidth="1050"
         WindowStartupLocation="CenterScreen">
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- TitleBar -->
-        <ui:TitleBar Grid.Row="0" Title="StudyRoom Desktop" />
-
-        <!-- Login View -->
-        <views:LoginView x:Name="LoginControl" Grid.Row="1" Visibility="Collapsed" />
-
-        <!-- Main Content Area: DashboardView -->
+        <!-- Login spans both rows; the TitleBar is layered last so it stays above either view. -->
+        <views:LoginView x:Name="LoginControl" Grid.RowSpan="2" Visibility="Collapsed" />
         <views:DashboardView x:Name="DashboardControl" Grid.Row="1" Visibility="Visible" />
+
+        <!-- Keep title-bar controls on the dark-theme text brush for contrast. -->
+        <ui:TitleBar Grid.Row="0" Title="StudyRoom Desktop"
+                     ButtonsForeground="{DynamicResource TextFillColorPrimaryBrush}" />
     </Grid>
 </ui:FluentWindow>

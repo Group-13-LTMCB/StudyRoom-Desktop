@@ -7,10 +7,10 @@ using StudyRoom.Application.Messages;
 using StudyRoom.Core.Enums;
 using StudyRoom.Core.Interfaces;
 using StudyRoom.Core.Models;
-using Wpf.Ui.Appearance;
 
 namespace StudyRoom.UI.ViewModels;
 
+// Holds dashboard display state and coordinates dashboard-specific actions and child view models.
 public partial class DashboardViewModel : ObservableObject, IDisposable
 {
     private readonly IDashboardService _dashboardService;
@@ -136,18 +136,6 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _isBusy;
 
-    [ObservableProperty]
-    private bool _isDarkMode = true;
-
-    [ObservableProperty]
-    private string _currentThemeName = "Dark";
-
-    [ObservableProperty]
-    private string _themeLabel = "Chế độ tối";
-
-    [ObservableProperty]
-    private string _themeIcon = "🌙";
-
     public DashboardViewModel(
         IDashboardService dashboardService,
         IPomodoroEngine? pomodoroEngine = null,
@@ -270,27 +258,6 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
             if (!string.IsNullOrWhiteSpace(message.JoinCode))
             {
                 JoinRoomCode = message.JoinCode;
-            }
-        }
-    }
-
-    [RelayCommand]
-    public void ToggleTheme()
-    {
-        IsDarkMode = !IsDarkMode;
-        CurrentThemeName = IsDarkMode ? "Dark" : "Light";
-        ThemeLabel = IsDarkMode ? "Chế độ tối" : "Chế độ sáng";
-        ThemeIcon = IsDarkMode ? "🌙" : "☀️";
-
-        if (System.Windows.Application.Current != null)
-        {
-            try
-            {
-                ApplicationThemeManager.Apply(IsDarkMode ? ApplicationTheme.Dark : ApplicationTheme.Light);
-            }
-            catch
-            {
-                // Headless test runner or unattached window fallback
             }
         }
     }

@@ -26,6 +26,7 @@
 
 
 
+    <!-- Dashboard surfaces use the app-wide WPF-UI theme resources configured in App.xaml. -->
     <Grid Background="{DynamicResource ApplicationBackgroundBrush}">
 
         <Grid.ColumnDefinitions>
@@ -370,68 +371,6 @@
 
 
 
-                    <!-- Theme Toggle Switcher -->
-
-                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" 
-
-                            CornerRadius="12" 
-
-                            Padding="12,8" 
-
-                            Margin="0,0,0,12">
-
-                        <Grid>
-
-                            <Grid.ColumnDefinitions>
-
-                                <ColumnDefinition Width="Auto" />
-
-                                <ColumnDefinition Width="*" />
-
-                                <ColumnDefinition Width="Auto" />
-
-                            </Grid.ColumnDefinitions>
-
-
-
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-
-                                <TextBlock Text="{Binding ThemeIcon}" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center" />
-
-                                <TextBlock Text="{Binding ThemeLabel}" FontSize="12" FontWeight="Medium" Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Center" />
-
-                            </StackPanel>
-
-
-
-                            <!-- Theme Toggle Action Button -->
-
-                            <ui:Button Grid.Column="2" 
-
-                                    Command="{Binding ToggleThemeCommand}" 
-
-                                    Background="#6366F1" 
-
-                                    Foreground="White"
-
-                                    BorderThickness="0"
-
-                                    CornerRadius="14"
-
-                                    Padding="10,4"
-
-                                    FontSize="11"
-
-                                    FontWeight="SemiBold"
-
-                                    Content="{Binding CurrentThemeName}" />
-
-                        </Grid>
-
-                    </Border>
-
-
-
                     <!-- Log Out -->
 
                     <ui:Button Command="{Binding LogoutCommand}"
@@ -513,39 +452,39 @@
 
                 <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
 
-            <StackPanel Margin="24,20,24,24">
+                    <StackPanel Margin="24,20,24,24">
 
 
 
-                <!-- Header Greeting & Search Bar -->
+                        <!-- Header Greeting & Search Bar -->
 
-                <Grid Margin="0,0,0,20">
+                        <Grid Margin="0,0,0,20">
 
-                    <Grid.ColumnDefinitions>
+                            <Grid.ColumnDefinitions>
 
-                        <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
 
-                        <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
 
-                    </Grid.ColumnDefinitions>
-
-
-
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-
-                        <TextBlock Text="{Binding Greeting}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-
-                        <TextBlock Text="Cùng tiếp tục hoàn thành các mục tiêu học tập ngày hôm nay." FontSize="13" Opacity="0.65" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
-
-                    </StackPanel>
+                            </Grid.ColumnDefinitions>
 
 
 
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
 
-                        <!-- Search Box -->
+                                <TextBlock Text="{Binding Greeting}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                        <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                                <TextBlock Text="Cùng tiếp tục hoàn thành các mục tiêu học tập ngày hôm nay." FontSize="13" Opacity="0.65" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
+
+                            </StackPanel>
+
+
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+
+                                <!-- Search Box -->
+
+                                <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" 
 
                                 CornerRadius="10" 
 
@@ -559,19 +498,19 @@
 
                                 Margin="0,0,12,0">
 
-                            <Grid>
+                                    <Grid>
 
-                                <Grid.ColumnDefinitions>
+                                        <Grid.ColumnDefinitions>
 
-                                    <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
 
-                                    <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
 
-                                </Grid.ColumnDefinitions>
+                                        </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0" Text="🔍" FontSize="13" Opacity="0.5" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                        <TextBlock Grid.Column="0" Text="🔍" FontSize="13" Opacity="0.5" VerticalAlignment="Center" Margin="0,0,8,0" />
 
-                                <TextBox Grid.Column="1" 
+                                        <TextBox Grid.Column="1" 
 
                                          Background="Transparent" 
 
@@ -585,15 +524,15 @@
 
                                          Padding="0" />
 
-                            </Grid>
+                                    </Grid>
 
-                        </Border>
+                                </Border>
 
 
 
-                        <!-- Notification Bell Icon -->
+                                <!-- Notification Bell Icon -->
 
-                        <Border Width="36" Height="36" 
+                                <Border Width="36" Height="36" 
 
                                 CornerRadius="10" 
 
@@ -605,15 +544,15 @@
 
                                 Margin="0,0,8,0">
 
-                            <TextBlock Text="🔔" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <TextBlock Text="🔔" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-                        </Border>
+                                </Border>
 
 
 
-                        <!-- Filter Options Icon -->
+                                <!-- Filter Options Icon -->
 
-                        <Border Width="36" Height="36" 
+                                <Border Width="36" Height="36" 
 
                                 CornerRadius="10" 
 
@@ -623,49 +562,49 @@
 
                                 BorderThickness="1">
 
-                            <TextBlock Text="⚙️" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <TextBlock Text="⚙️" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-                        </Border>
+                                </Border>
 
-                    </StackPanel>
+                            </StackPanel>
 
-                </Grid>
-
-
-
-                <!-- Hero Banner Card -->
-
-                <Border CornerRadius="16" Margin="0,0,0,20" Padding="24,20">
-
-                    <Border.Background>
-
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-
-                            <GradientStop Color="#1E1B4B" Offset="0" />
-
-                            <GradientStop Color="#0F172A" Offset="1" />
-
-                        </LinearGradientBrush>
-
-                    </Border.Background>
-
-                    <Grid>
-
-                        <Grid.ColumnDefinitions>
-
-                            <ColumnDefinition Width="*" />
-
-                            <ColumnDefinition Width="Auto" />
-
-                        </Grid.ColumnDefinitions>
+                        </Grid>
 
 
 
-                        <!-- Hero Banner Text Content -->
+                        <!-- Hero Banner Card -->
 
-                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <Border CornerRadius="16" Margin="0,0,0,20" Padding="24,20">
 
-                            <TextBlock Text="Tiếp tục học tập &amp; Chinh phục mục tiêu! 🚀" 
+                            <Border.Background>
+
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+
+                                    <GradientStop Color="#1E1B4B" Offset="0" />
+
+                                    <GradientStop Color="#0F172A" Offset="1" />
+
+                                </LinearGradientBrush>
+
+                            </Border.Background>
+
+                            <Grid>
+
+                                <Grid.ColumnDefinitions>
+
+                                    <ColumnDefinition Width="*" />
+
+                                    <ColumnDefinition Width="Auto" />
+
+                                </Grid.ColumnDefinitions>
+
+
+
+                                <!-- Hero Banner Text Content -->
+
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+
+                                    <TextBlock Text="Tiếp tục học tập &amp; Chinh phục mục tiêu! 🚀" 
 
                                        FontSize="19" 
 
@@ -673,7 +612,7 @@
 
                                        Foreground="White" />
 
-                            <TextBlock Text="Tham gia phòng học nhóm Pomodoro ngay hôm nay để nhận chuỗi điểm chuyên cần và thảo luận cùng cộng đồng sinh viên." 
+                                    <TextBlock Text="Tham gia phòng học nhóm Pomodoro ngay hôm nay để nhận chuỗi điểm chuyên cần và thảo luận cùng cộng đồng sinh viên." 
 
                                        FontSize="12" 
 
@@ -683,9 +622,9 @@
 
                                        TextWrapping="Wrap" />
 
-                            <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
 
-                                <ui:Button Command="{Binding QuickJoinRoomCommand}" 
+                                        <ui:Button Command="{Binding QuickJoinRoomCommand}" 
 
                                         Background="#6366F1" 
 
@@ -703,15 +642,15 @@
 
                                         Content="Tham gia phòng học ngay" />
 
-                            </StackPanel>
+                                    </StackPanel>
 
-                        </StackPanel>
+                                </StackPanel>
 
 
 
-                        <!-- Hero Banner Decorative Badges -->
+                                <!-- Hero Banner Decorative Badges -->
 
-                        <Border Grid.Column="1" 
+                                <Border Grid.Column="1" 
 
                                 Width="120" Height="100" 
 
@@ -729,46 +668,43 @@
 
                                 Margin="16,0,0,0">
 
-                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 
-                                <TextBlock Text="🔥" FontSize="26" HorizontalAlignment="Center" />
+                                        <TextBlock Text="🔥" FontSize="26" HorizontalAlignment="Center" />
 
-                                <TextBlock Text="Chuỗi 7 Ngày" FontSize="11" FontWeight="Bold" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                                        <TextBlock Text="Chuỗi 7 Ngày" FontSize="11" FontWeight="Bold" Foreground="#38BDF8" HorizontalAlignment="Center" Margin="0,4,0,0" />
 
-                                <TextBlock Text="Top 5% Chuyên Cần" FontSize="9" Foreground="#94A3B8" HorizontalAlignment="Center" />
+                                        <TextBlock Text="Top 5% Chuyên Cần" FontSize="9" Foreground="#94A3B8" HorizontalAlignment="Center" />
 
-                            </StackPanel>
+                                    </StackPanel>
+
+                                </Border>
+
+                            </Grid>
 
                         </Border>
 
-                    </Grid>
-
-                </Border>
 
 
+                        <!-- 3 Stat Cards Grid -->
 
-                <!-- 3 Stat Cards Grid -->
+                        <Grid Margin="0,0,0,20">
 
-                <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
 
-                    <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
 
-                        <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
 
-                        <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
 
-                        <ColumnDefinition Width="*" />
-
-                    </Grid.ColumnDefinitions>
+                            </Grid.ColumnDefinitions>
 
 
 
-                    <!-- Stat Card 1: Focus Time Today (Lime Accent from Dashboard Mockups) -->
+                            <!-- Stat Card 1: Focus Time Today (Lime Accent from Dashboard Mockups) -->
 
-                    <!-- 0. GROUP SERVER RAIL -->
-        <components:GroupRailControl Grid.Column="0" DataContext="{Binding GroupRailVm}" />
-
-        <Border Grid.Column="1" 
+                            <Border Grid.Column="0" 
 
                             Background="#C7F284" 
 
@@ -778,29 +714,29 @@
 
                             Margin="0,0,10,0">
 
-                        <StackPanel>
+                                <StackPanel>
 
-                            <Border Width="34" Height="34" CornerRadius="17" Background="#111827" HorizontalAlignment="Left" Margin="0,0,0,10">
+                                    <Border Width="34" Height="34" CornerRadius="17" Background="#111827" HorizontalAlignment="Left" Margin="0,0,0,10">
 
-                                <TextBlock Text="⏱️" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <TextBlock Text="⏱️" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                                    </Border>
+
+                                    <TextBlock Text="{Binding FocusTimeToday}" FontSize="24" FontWeight="Bold" Foreground="#111827" />
+
+                                    <TextBlock Text="Thời gian tập trung hôm nay" FontSize="12" FontWeight="Medium" Foreground="#1F2937" Margin="0,4,0,2" />
+
+                                    <TextBlock Text="{Binding FocusTimeTrend}" FontSize="11" Foreground="#374151" Opacity="0.85" />
+
+                                </StackPanel>
 
                             </Border>
 
-                            <TextBlock Text="{Binding FocusTimeToday}" FontSize="24" FontWeight="Bold" Foreground="#111827" />
-
-                            <TextBlock Text="Thời gian tập trung hôm nay" FontSize="12" FontWeight="Medium" Foreground="#1F2937" Margin="0,4,0,2" />
-
-                            <TextBlock Text="{Binding FocusTimeTrend}" FontSize="11" Foreground="#374151" Opacity="0.85" />
-
-                        </StackPanel>
-
-                    </Border>
 
 
+                            <!-- Stat Card 2: Completed Tasks (Soft Lavender / Primary Card) -->
 
-                    <!-- Stat Card 2: Completed Tasks (Soft Lavender / Primary Card) -->
-
-                    <Border Grid.Column="1" 
+                            <Border Grid.Column="1" 
 
                             Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
 
@@ -814,29 +750,29 @@
 
                             Margin="5,0,5,0">
 
-                        <StackPanel>
+                                <StackPanel>
 
-                            <Border Width="34" Height="34" CornerRadius="17" Background="{DynamicResource ControlFillColorSecondaryBrush}" HorizontalAlignment="Left" Margin="0,0,0,10">
+                                    <Border Width="34" Height="34" CornerRadius="17" Background="{DynamicResource ControlFillColorSecondaryBrush}" HorizontalAlignment="Left" Margin="0,0,0,10">
 
-                                <TextBlock Text="📋" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <TextBlock Text="📋" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                                    </Border>
+
+                                    <TextBlock Text="{Binding CompletedTasks}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                                    <TextBlock Text="Nhiệm vụ hoàn thành" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,2" />
+
+                                    <TextBlock Text="{Binding CompletedTasksTrend}" FontSize="11" Foreground="#6366F1" FontWeight="Medium" />
+
+                                </StackPanel>
 
                             </Border>
 
-                            <TextBlock Text="{Binding CompletedTasks}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-
-                            <TextBlock Text="Nhiệm vụ hoàn thành" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,2" />
-
-                            <TextBlock Text="{Binding CompletedTasksTrend}" FontSize="11" Foreground="#6366F1" FontWeight="Medium" />
-
-                        </StackPanel>
-
-                    </Border>
 
 
+                            <!-- Stat Card 3: Study Streak (Flame / Dark Card) -->
 
-                    <!-- Stat Card 3: Study Streak (Flame / Dark Card) -->
-
-                    <Border Grid.Column="2" 
+                            <Border Grid.Column="2" 
 
                             Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
 
@@ -850,41 +786,38 @@
 
                             Margin="10,0,0,0">
 
-                        <StackPanel>
+                                <StackPanel>
 
-                            <Border Width="34" Height="34" CornerRadius="17" Background="{DynamicResource ControlFillColorSecondaryBrush}" HorizontalAlignment="Left" Margin="0,0,0,10">
+                                    <Border Width="34" Height="34" CornerRadius="17" Background="{DynamicResource ControlFillColorSecondaryBrush}" HorizontalAlignment="Left" Margin="0,0,0,10">
 
-                                <TextBlock Text="🔥" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <TextBlock Text="🔥" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                                    </Border>
+
+                                    <TextBlock Text="{Binding StudyStreak}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+
+                                    <TextBlock Text="Chuỗi học tập liên tục" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,2" />
+
+                                    <TextBlock Text="{Binding StudyStreakTrend}" FontSize="11" Foreground="#F59E0B" FontWeight="Medium" />
+
+                                </StackPanel>
 
                             </Border>
 
-                            <TextBlock Text="{Binding StudyStreak}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-
-                            <TextBlock Text="Chuỗi học tập liên tục" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,4,0,2" />
-
-                            <TextBlock Text="{Binding StudyStreakTrend}" FontSize="11" Foreground="#F59E0B" FontWeight="Medium" />
-
-                        </StackPanel>
-
-                    </Border>
-
-                </Grid>
+                        </Grid>
 
 
 
-                <!-- Dual Analytics Grid: Concentric Rings & Vector Spline Chart (Reference Image 2) -->
-                <Grid Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="280" />
-                    </Grid.ColumnDefinitions>
+                        <!-- Dual Analytics Grid: Concentric Rings & Vector Spline Chart (Reference Image 2) -->
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="280" />
+                            </Grid.ColumnDefinitions>
 
-                    <!-- Weekly Activity Vector Spline Chart Section -->
+                            <!-- Weekly Activity Vector Spline Chart Section -->
 
-                <!-- 0. GROUP SERVER RAIL -->
-        <components:GroupRailControl Grid.Column="0" DataContext="{Binding GroupRailVm}" />
-
-        <Border Grid.Column="1" Margin="0,0,12,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
+                            <Border Grid.Column="0" Margin="0,0,12,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
 
                         BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
 
@@ -894,223 +827,223 @@
 
                         Padding="20">
 
-                    <StackPanel>
+                                <StackPanel>
 
-                        <!-- Chart Subheader & Timeframe Switchers -->
+                                    <!-- Chart Subheader & Timeframe Switchers -->
 
-                        <Grid Margin="0,0,0,16">
+                                    <Grid Margin="0,0,0,16">
 
-                            <Grid.ColumnDefinitions>
+                                        <Grid.ColumnDefinitions>
 
-                                <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
 
-                                <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
 
-                            </Grid.ColumnDefinitions>
-
-
-
-                            <!-- Subheader Navigation Tabs -->
-
-                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-
-                                <StackPanel Margin="0,0,16,0">
-
-                                    <TextBlock Text="Hiệu suất tuần" FontSize="14" FontWeight="Bold" Foreground="#6366F1" />
-
-                                    <Border Height="2" Background="#6366F1" Margin="0,4,0,0" CornerRadius="1" />
-
-                                </StackPanel>
-
-                                <TextBlock Text="Thống kê tháng" FontSize="13" Opacity="0.6" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,16,0" VerticalAlignment="Top" />
-
-                                <TextBlock Text="Lịch sử chi tiết" FontSize="13" Opacity="0.6" Foreground="{DynamicResource TextFillColorSecondaryBrush}" VerticalAlignment="Top" />
-
-                            </StackPanel>
+                                        </Grid.ColumnDefinitions>
 
 
 
-                            <!-- Timeframe Pills (1W, 1M, 1Y, ALL) -->
+                                        <!-- Subheader Navigation Tabs -->
 
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
 
-                                <ui:Button Command="{Binding ChangeTimeframeCommand}" CommandParameter="1W"
+                                            <StackPanel Margin="0,0,16,0">
+
+                                                <TextBlock Text="Hiệu suất tuần" FontSize="14" FontWeight="Bold" Foreground="#6366F1" />
+
+                                                <Border Height="2" Background="#6366F1" Margin="0,4,0,0" CornerRadius="1" />
+
+                                            </StackPanel>
+
+                                            <TextBlock Text="Thống kê tháng" FontSize="13" Opacity="0.6" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,16,0" VerticalAlignment="Top" />
+
+                                            <TextBlock Text="Lịch sử chi tiết" FontSize="13" Opacity="0.6" Foreground="{DynamicResource TextFillColorSecondaryBrush}" VerticalAlignment="Top" />
+
+                                        </StackPanel>
+
+
+
+                                        <!-- Timeframe Pills (1W, 1M, 1Y, ALL) -->
+
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+
+                                            <ui:Button Command="{Binding ChangeTimeframeCommand}" CommandParameter="1W"
 
                                         Content="1T" FontSize="11"
 
                                         Padding="10,4" Margin="2,0" CornerRadius="6" BorderThickness="0">
 
-                                    <ui:Button.Style>
+                                                <ui:Button.Style>
 
-                                        <Style TargetType="ui:Button">
+                                                    <Style TargetType="ui:Button">
 
-                                            <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                                        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
 
-                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                                            <Setter Property="FontWeight" Value="Normal" />
+                                                        <Setter Property="FontWeight" Value="Normal" />
 
-                                            <Style.Triggers>
+                                                        <Style.Triggers>
 
-                                                <DataTrigger Binding="{Binding SelectedTimeframe}" Value="1W">
+                                                            <DataTrigger Binding="{Binding SelectedTimeframe}" Value="1W">
 
-                                                    <Setter Property="Background" Value="#6366F1" />
+                                                                <Setter Property="Background" Value="#6366F1" />
 
-                                                    <Setter Property="Foreground" Value="White" />
+                                                                <Setter Property="Foreground" Value="White" />
 
-                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                <Setter Property="FontWeight" Value="SemiBold" />
 
-                                                </DataTrigger>
+                                                            </DataTrigger>
 
-                                            </Style.Triggers>
+                                                        </Style.Triggers>
 
-                                        </Style>
+                                                    </Style>
 
-                                    </ui:Button.Style>
+                                                </ui:Button.Style>
 
-                                </ui:Button>
+                                            </ui:Button>
 
-                                <ui:Button Command="{Binding ChangeTimeframeCommand}" CommandParameter="1M"
+                                            <ui:Button Command="{Binding ChangeTimeframeCommand}" CommandParameter="1M"
 
                                         Content="1Th" FontSize="11"
 
                                         Padding="10,4" Margin="2,0" CornerRadius="6" BorderThickness="0">
 
-                                    <ui:Button.Style>
+                                                <ui:Button.Style>
 
-                                        <Style TargetType="ui:Button">
+                                                    <Style TargetType="ui:Button">
 
-                                            <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                                        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
 
-                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                                            <Setter Property="FontWeight" Value="Normal" />
+                                                        <Setter Property="FontWeight" Value="Normal" />
 
-                                            <Style.Triggers>
+                                                        <Style.Triggers>
 
-                                                <DataTrigger Binding="{Binding SelectedTimeframe}" Value="1M">
+                                                            <DataTrigger Binding="{Binding SelectedTimeframe}" Value="1M">
 
-                                                    <Setter Property="Background" Value="#6366F1" />
+                                                                <Setter Property="Background" Value="#6366F1" />
 
-                                                    <Setter Property="Foreground" Value="White" />
+                                                                <Setter Property="Foreground" Value="White" />
 
-                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                <Setter Property="FontWeight" Value="SemiBold" />
 
-                                                </DataTrigger>
+                                                            </DataTrigger>
 
-                                            </Style.Triggers>
+                                                        </Style.Triggers>
 
-                                        </Style>
+                                                    </Style>
 
-                                    </ui:Button.Style>
+                                                </ui:Button.Style>
 
-                                </ui:Button>
+                                            </ui:Button>
 
-                                <ui:Button Command="{Binding ChangeTimeframeCommand}" CommandParameter="1Y"
+                                            <ui:Button Command="{Binding ChangeTimeframeCommand}" CommandParameter="1Y"
 
                                         Content="1N" FontSize="11"
 
                                         Padding="10,4" Margin="2,0" CornerRadius="6" BorderThickness="0">
 
-                                    <ui:Button.Style>
+                                                <ui:Button.Style>
 
-                                        <Style TargetType="ui:Button">
+                                                    <Style TargetType="ui:Button">
 
-                                            <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                                        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
 
-                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                                            <Setter Property="FontWeight" Value="Normal" />
+                                                        <Setter Property="FontWeight" Value="Normal" />
 
-                                            <Style.Triggers>
+                                                        <Style.Triggers>
 
-                                                <DataTrigger Binding="{Binding SelectedTimeframe}" Value="1Y">
+                                                            <DataTrigger Binding="{Binding SelectedTimeframe}" Value="1Y">
 
-                                                    <Setter Property="Background" Value="#6366F1" />
+                                                                <Setter Property="Background" Value="#6366F1" />
 
-                                                    <Setter Property="Foreground" Value="White" />
+                                                                <Setter Property="Foreground" Value="White" />
 
-                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                <Setter Property="FontWeight" Value="SemiBold" />
 
-                                                </DataTrigger>
+                                                            </DataTrigger>
 
-                                            </Style.Triggers>
+                                                        </Style.Triggers>
 
-                                        </Style>
+                                                    </Style>
 
-                                    </ui:Button.Style>
+                                                </ui:Button.Style>
 
-                                </ui:Button>
+                                            </ui:Button>
 
-                                <ui:Button Command="{Binding ChangeTimeframeCommand}" CommandParameter="ALL"
+                                            <ui:Button Command="{Binding ChangeTimeframeCommand}" CommandParameter="ALL"
 
                                         Content="Tất cả" FontSize="11"
 
                                         Padding="10,4" Margin="2,0" CornerRadius="6" BorderThickness="0">
 
-                                    <ui:Button.Style>
+                                                <ui:Button.Style>
 
-                                        <Style TargetType="ui:Button">
+                                                    <Style TargetType="ui:Button">
 
-                                            <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                                        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
 
-                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                                            <Setter Property="FontWeight" Value="Normal" />
+                                                        <Setter Property="FontWeight" Value="Normal" />
 
-                                            <Style.Triggers>
+                                                        <Style.Triggers>
 
-                                                <DataTrigger Binding="{Binding SelectedTimeframe}" Value="ALL">
+                                                            <DataTrigger Binding="{Binding SelectedTimeframe}" Value="ALL">
 
-                                                    <Setter Property="Background" Value="#6366F1" />
+                                                                <Setter Property="Background" Value="#6366F1" />
 
-                                                    <Setter Property="Foreground" Value="White" />
+                                                                <Setter Property="Foreground" Value="White" />
 
-                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                <Setter Property="FontWeight" Value="SemiBold" />
 
-                                                </DataTrigger>
+                                                            </DataTrigger>
 
-                                            </Style.Triggers>
+                                                        </Style.Triggers>
 
-                                        </Style>
+                                                    </Style>
 
-                                    </ui:Button.Style>
+                                                </ui:Button.Style>
 
-                                </ui:Button>
+                                            </ui:Button>
 
-                            </StackPanel>
+                                        </StackPanel>
 
+                                    </Grid>
+
+
+
+                                    <!-- Smooth Bézier Curve Vector Line Chart Component -->
+
+                                    <components:WeeklyActivityChart ActivityPoints="{Binding WeeklyActivityPoints}" Height="210" Margin="0,8,0,0" />
+
+                                </StackPanel>
+
+                            </Border>
+
+                            <!-- Concentric Multi-Ring Statistics (Reference Image 2) -->
+                            <components:ConcentricRingsControl Grid.Column="1" VerticalAlignment="Stretch" />
                         </Grid>
 
 
 
-                        <!-- Smooth Bézier Curve Vector Line Chart Component -->
-
-                        <components:WeeklyActivityChart ActivityPoints="{Binding WeeklyActivityPoints}" Height="210" Margin="0,8,0,0" />
-
                     </StackPanel>
 
-                </Border>
-
-                    <!-- Concentric Multi-Ring Statistics (Reference Image 2) -->
-                    <components:ConcentricRingsControl Grid.Column="1" VerticalAlignment="Stretch" />
-                </Grid>
+                </ScrollViewer>
 
 
 
-            </StackPanel>
+                <!-- ========================================== -->
 
-        </ScrollViewer>
+                <!-- 3. RIGHT STUDENT HUB PANEL                 -->
 
+                <!-- ========================================== -->
 
-
-        <!-- ========================================== -->
-
-        <!-- 3. RIGHT STUDENT HUB PANEL                 -->
-
-        <!-- ========================================== -->
-
-        <Border Grid.Column="1" 
+                <Border Grid.Column="1" 
 
                 BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
 
@@ -1120,15 +1053,15 @@
 
                 Padding="18,20,18,20">
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
 
-                <StackPanel>
+                        <StackPanel>
 
 
 
-                    <!-- Student Profile Summary Card -->
+                            <!-- Student Profile Summary Card -->
 
-                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                            <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" 
 
                             BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
 
@@ -1140,74 +1073,74 @@
 
                             Margin="0,0,0,16">
 
-                        <StackPanel HorizontalAlignment="Center">
+                                <StackPanel HorizontalAlignment="Center">
 
-                            <!-- Circular Avatar with Neon Gradient Ring -->
+                                    <!-- Circular Avatar with Neon Gradient Ring -->
 
-                            <Border Width="64" Height="64" CornerRadius="32" Padding="2" HorizontalAlignment="Center" Margin="0,0,0,8">
+                                    <Border Width="64" Height="64" CornerRadius="32" Padding="2" HorizontalAlignment="Center" Margin="0,0,0,8">
 
-                                <Border.Background>
+                                        <Border.Background>
 
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
 
-                                        <GradientStop Color="#6366F1" Offset="0" />
+                                                <GradientStop Color="#6366F1" Offset="0" />
 
-                                        <GradientStop Color="#EC4899" Offset="1" />
+                                                <GradientStop Color="#EC4899" Offset="1" />
 
-                                    </LinearGradientBrush>
+                                            </LinearGradientBrush>
 
-                                </Border.Background>
+                                        </Border.Background>
 
-                                <Border Background="#1E1F26" CornerRadius="30">
+                                        <Border Background="#1E1F26" CornerRadius="30">
 
-                                    <TextBlock Text="👩‍🎓" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                            <TextBlock Text="👩‍🎓" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-                                </Border>
+                                        </Border>
 
-                            </Border>
-
-
-
-                            <TextBlock Text="{Binding UserName}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" HorizontalAlignment="Center" />
-
-                            <TextBlock Text="{Binding UserMajor}" FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" Margin="0,2,0,12" />
+                                    </Border>
 
 
 
-                            <TextBlock Text="Tổng thời gian học tập" FontSize="11" Opacity="0.6" Foreground="{DynamicResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding UserName}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" HorizontalAlignment="Center" />
 
-                            <TextBlock Text="{Binding TotalStudyTime}" FontSize="28" FontWeight="ExtraBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" HorizontalAlignment="Center" Margin="0,2,0,8" />
+                                    <TextBlock Text="{Binding UserMajor}" FontSize="12" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" Margin="0,2,0,12" />
 
 
 
-                            <!-- Rank Pill Badge -->
+                                    <TextBlock Text="Tổng thời gian học tập" FontSize="11" Opacity="0.6" Foreground="{DynamicResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" />
 
-                            <Border Background="#203222" CornerRadius="12" Padding="10,4" HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding TotalStudyTime}" FontSize="28" FontWeight="ExtraBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" HorizontalAlignment="Center" Margin="0,2,0,8" />
 
-                                <StackPanel Orientation="Horizontal">
 
-                                    <TextBlock Text="⭐" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" />
 
-                                    <TextBlock Text="{Binding RankBadge}" FontSize="11" FontWeight="SemiBold" Foreground="#4ADE80" VerticalAlignment="Center" />
+                                    <!-- Rank Pill Badge -->
+
+                                    <Border Background="#203222" CornerRadius="12" Padding="10,4" HorizontalAlignment="Center">
+
+                                        <StackPanel Orientation="Horizontal">
+
+                                            <TextBlock Text="⭐" FontSize="11" Margin="0,0,4,0" VerticalAlignment="Center" />
+
+                                            <TextBlock Text="{Binding RankBadge}" FontSize="11" FontWeight="SemiBold" Foreground="#4ADE80" VerticalAlignment="Center" />
+
+                                        </StackPanel>
+
+                                    </Border>
 
                                 </StackPanel>
 
                             </Border>
 
-                        </StackPanel>
-
-                    </Border>
 
 
+                            <!-- Task Calendar Mini Widget (Reference Image 3) -->
+                            <components:TaskCalendarControl Margin="0,0,0,16" />
 
-                    <!-- Task Calendar Mini Widget (Reference Image 3) -->
-                    <components:TaskCalendarControl Margin="0,0,0,16" />
+                            <!-- Feedback Alert Banners -->
 
-                    <!-- Feedback Alert Banners -->
+                            <!-- Error Alert -->
 
-                    <!-- Error Alert -->
-
-                    <Border CornerRadius="10" 
+                            <Border CornerRadius="10" 
 
                             Background="#301A1A" 
 
@@ -1219,41 +1152,41 @@
 
                             Margin="0,0,0,12">
 
-                        <Border.Style>
+                                <Border.Style>
 
-                            <Style TargetType="Border">
+                                    <Style TargetType="Border">
 
-                                <Setter Property="Visibility" Value="Collapsed" />
+                                        <Setter Property="Visibility" Value="Collapsed" />
 
-                                <Style.Triggers>
+                                        <Style.Triggers>
 
-                                    <DataTrigger Binding="{Binding HasError}" Value="True">
+                                            <DataTrigger Binding="{Binding HasError}" Value="True">
 
-                                        <Setter Property="Visibility" Value="Visible" />
+                                                <Setter Property="Visibility" Value="Visible" />
 
-                                    </DataTrigger>
+                                            </DataTrigger>
 
-                                </Style.Triggers>
+                                        </Style.Triggers>
 
-                            </Style>
+                                    </Style>
 
-                        </Border.Style>
+                                </Border.Style>
 
-                        <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal">
 
-                            <TextBlock Text="⚠️" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="⚠️" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center" />
 
-                            <TextBlock Text="{Binding ValidationErrorMessage}" FontSize="12" Foreground="#F87171" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding ValidationErrorMessage}" FontSize="12" Foreground="#F87171" TextWrapping="Wrap" VerticalAlignment="Center" />
 
-                        </StackPanel>
+                                </StackPanel>
 
-                    </Border>
+                            </Border>
 
 
 
-                    <!-- Success Alert -->
+                            <!-- Success Alert -->
 
-                    <Border CornerRadius="10" 
+                            <Border CornerRadius="10" 
 
                             Background="#18301E" 
 
@@ -1265,47 +1198,47 @@
 
                             Margin="0,0,0,12">
 
-                        <Border.Style>
+                                <Border.Style>
 
-                            <Style TargetType="Border">
+                                    <Style TargetType="Border">
 
-                                <Setter Property="Visibility" Value="Visible" />
+                                        <Setter Property="Visibility" Value="Visible" />
 
-                                <Style.Triggers>
+                                        <Style.Triggers>
 
-                                    <DataTrigger Binding="{Binding SuccessMessage}" Value="{x:Null}">
+                                            <DataTrigger Binding="{Binding SuccessMessage}" Value="{x:Null}">
 
-                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                <Setter Property="Visibility" Value="Collapsed" />
 
-                                    </DataTrigger>
+                                            </DataTrigger>
 
-                                    <DataTrigger Binding="{Binding SuccessMessage}" Value="">
+                                            <DataTrigger Binding="{Binding SuccessMessage}" Value="">
 
-                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                <Setter Property="Visibility" Value="Collapsed" />
 
-                                    </DataTrigger>
+                                            </DataTrigger>
 
-                                </Style.Triggers>
+                                        </Style.Triggers>
 
-                            </Style>
+                                    </Style>
 
-                        </Border.Style>
+                                </Border.Style>
 
-                        <StackPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal">
 
-                            <TextBlock Text="✅" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="✅" FontSize="13" Margin="0,0,8,0" VerticalAlignment="Center" />
 
-                            <TextBlock Text="{Binding SuccessMessage}" FontSize="12" Foreground="#4ADE80" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding SuccessMessage}" FontSize="12" Foreground="#4ADE80" TextWrapping="Wrap" VerticalAlignment="Center" />
 
-                        </StackPanel>
+                                </StackPanel>
 
-                    </Border>
+                            </Border>
 
 
 
-                    <!-- Quick Room Hub (Vào phòng & Tạo phòng) -->
+                            <!-- Quick Room Hub (Vào phòng & Tạo phòng) -->
 
-                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                            <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" 
 
                             BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
 
@@ -1315,23 +1248,23 @@
 
                             Padding="16">
 
-                        <StackPanel>
+                                <StackPanel>
 
-                            <!-- Tab Header Pills -->
+                                    <!-- Tab Header Pills -->
 
-                            <Grid Margin="0,0,0,14">
+                                    <Grid Margin="0,0,0,14">
 
-                                <Grid.ColumnDefinitions>
+                                        <Grid.ColumnDefinitions>
 
-                                    <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
 
-                                    <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
 
-                                </Grid.ColumnDefinitions>
+                                        </Grid.ColumnDefinitions>
 
 
 
-                                <ui:Button Grid.Column="0" 
+                                        <ui:Button Grid.Column="0" 
 
                                         Command="{Binding SelectJoinTabCommand}"
 
@@ -1349,35 +1282,35 @@
 
                                         BorderThickness="0">
 
-                                    <ui:Button.Style>
+                                            <ui:Button.Style>
 
-                                        <Style TargetType="ui:Button">
+                                                <Style TargetType="ui:Button">
 
-                                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+                                                    <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
 
-                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                                            <Style.Triggers>
+                                                    <Style.Triggers>
 
-                                                <DataTrigger Binding="{Binding SelectedHubTabIndex}" Value="0">
+                                                        <DataTrigger Binding="{Binding SelectedHubTabIndex}" Value="0">
 
-                                                    <Setter Property="Background" Value="#6366F1" />
+                                                            <Setter Property="Background" Value="#6366F1" />
 
-                                                    <Setter Property="Foreground" Value="White" />
+                                                            <Setter Property="Foreground" Value="White" />
 
-                                                </DataTrigger>
+                                                        </DataTrigger>
 
-                                            </Style.Triggers>
+                                                    </Style.Triggers>
 
-                                        </Style>
+                                                </Style>
 
-                                    </ui:Button.Style>
+                                            </ui:Button.Style>
 
-                                </ui:Button>
+                                        </ui:Button>
 
 
 
-                                <ui:Button Grid.Column="1" 
+                                        <ui:Button Grid.Column="1" 
 
                                         Command="{Binding SelectCreateTabCommand}"
 
@@ -1395,67 +1328,67 @@
 
                                         BorderThickness="0">
 
-                                    <ui:Button.Style>
+                                            <ui:Button.Style>
 
-                                        <Style TargetType="ui:Button">
+                                                <Style TargetType="ui:Button">
 
-                                            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+                                                    <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
 
-                                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                                            <Style.Triggers>
+                                                    <Style.Triggers>
 
-                                                <DataTrigger Binding="{Binding SelectedHubTabIndex}" Value="1">
+                                                        <DataTrigger Binding="{Binding SelectedHubTabIndex}" Value="1">
 
-                                                    <Setter Property="Background" Value="#6366F1" />
+                                                            <Setter Property="Background" Value="#6366F1" />
 
-                                                    <Setter Property="Foreground" Value="White" />
+                                                            <Setter Property="Foreground" Value="White" />
 
-                                                </DataTrigger>
+                                                        </DataTrigger>
 
-                                            </Style.Triggers>
+                                                    </Style.Triggers>
 
-                                        </Style>
+                                                </Style>
 
-                                    </ui:Button.Style>
+                                            </ui:Button.Style>
 
-                                </ui:Button>
+                                        </ui:Button>
 
-                            </Grid>
-
-
-
-                            <!-- Tab 0: Vào phòng (Join Room) -->
-
-                            <Grid>
-
-                                <Grid.Style>
-
-                                    <Style TargetType="Grid">
-
-                                        <Setter Property="Visibility" Value="Collapsed" />
-
-                                        <Style.Triggers>
-
-                                            <DataTrigger Binding="{Binding SelectedHubTabIndex}" Value="0">
-
-                                                <Setter Property="Visibility" Value="Visible" />
-
-                                            </DataTrigger>
-
-                                        </Style.Triggers>
-
-                                    </Style>
-
-                                </Grid.Style>
+                                    </Grid>
 
 
 
-                                <StackPanel>
+                                    <!-- Tab 0: Vào phòng (Join Room) -->
 
-                                    <TextBlock Text="Nhập mã phòng 6 chữ số:" FontSize="12" Opacity="0.75" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,6" />
+                                    <Grid>
 
-                                    <TextBox Text="{Binding JoinRoomCode, UpdateSourceTrigger=PropertyChanged}" 
+                                        <Grid.Style>
+
+                                            <Style TargetType="Grid">
+
+                                                <Setter Property="Visibility" Value="Collapsed" />
+
+                                                <Style.Triggers>
+
+                                                    <DataTrigger Binding="{Binding SelectedHubTabIndex}" Value="0">
+
+                                                        <Setter Property="Visibility" Value="Visible" />
+
+                                                    </DataTrigger>
+
+                                                </Style.Triggers>
+
+                                            </Style>
+
+                                        </Grid.Style>
+
+
+
+                                        <StackPanel>
+
+                                            <TextBlock Text="Nhập mã phòng 6 chữ số:" FontSize="12" Opacity="0.75" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,6" />
+
+                                            <TextBox Text="{Binding JoinRoomCode, UpdateSourceTrigger=PropertyChanged}" 
 
                                              FontSize="13" 
 
@@ -1465,7 +1398,7 @@
 
 
 
-                                    <ui:Button Command="{Binding JoinRoomCommand}" 
+                                            <ui:Button Command="{Binding JoinRoomCommand}" 
 
                                             Background="#6366F1" 
 
@@ -1485,21 +1418,21 @@
 
 
 
-                                    <!-- Recent Rooms List Header -->
+                                            <!-- Recent Rooms List Header -->
 
-                                    <TextBlock Text="Phòng học đang hoạt động" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,18,0,8" />
+                                            <TextBlock Text="Phòng học đang hoạt động" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,18,0,8" />
 
 
 
-                                    <!-- ItemsControl for Active Rooms -->
+                                            <!-- ItemsControl for Active Rooms -->
 
-                                    <ItemsControl ItemsSource="{Binding ActiveRooms}">
+                                            <ItemsControl ItemsSource="{Binding ActiveRooms}">
 
-                                        <ItemsControl.ItemTemplate>
+                                                <ItemsControl.ItemTemplate>
 
-                                            <DataTemplate>
+                                                    <DataTemplate>
 
-                                                <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
+                                                        <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}" 
 
                                                         BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
 
@@ -1511,53 +1444,53 @@
 
                                                         Margin="0,0,0,8">
 
-                                                    <Grid>
+                                                            <Grid>
 
-                                                        <Grid.ColumnDefinitions>
+                                                                <Grid.ColumnDefinitions>
 
-                                                            <ColumnDefinition Width="*" />
+                                                                    <ColumnDefinition Width="*" />
 
-                                                            <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="Auto" />
 
-                                                        </Grid.ColumnDefinitions>
+                                                                </Grid.ColumnDefinitions>
 
 
 
-                                                        <StackPanel Grid.Column="0">
+                                                                <StackPanel Grid.Column="0">
 
-                                                            <TextBlock Text="{Binding RoomName}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                                    <TextBlock Text="{Binding RoomName}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                                                            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
 
-                                                                <TextBlock Text="{Binding Subject}" FontSize="11" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,8,0" />
+                                                                        <TextBlock Text="{Binding Subject}" FontSize="11" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,8,0" />
 
-                                                                <TextBlock FontSize="10" Opacity="0.6">
+                                                                        <TextBlock FontSize="10" Opacity="0.6">
 
                                                                     <Run Text="Mã: " /><Run Text="{Binding RoomId}" />
 
-                                                                </TextBlock>
+                                                                        </TextBlock>
 
-                                                            </StackPanel>
+                                                                    </StackPanel>
 
-                                                        </StackPanel>
+                                                                </StackPanel>
 
 
 
-                                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
 
-                                                            <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="6" Padding="6,2" Margin="0,0,8,0">
+                                                                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="6" Padding="6,2" Margin="0,0,8,0">
 
-                                                                <TextBlock FontSize="11" Opacity="0.8">
+                                                                        <TextBlock FontSize="11" Opacity="0.8">
 
                                                                     <Run Text="{Binding MembersCount}" /><Run Text="/" /><Run Text="{Binding MaxMembers}" /><Run Text=" 👤" />
 
-                                                                </TextBlock>
+                                                                        </TextBlock>
 
-                                                            </Border>
+                                                                    </Border>
 
 
 
-                                                            <ui:Button Command="{Binding DataContext.QuickJoinRoomCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                                    <ui:Button Command="{Binding DataContext.QuickJoinRoomCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
 
                                                                     CommandParameter="{Binding}"
 
@@ -1577,67 +1510,55 @@
 
                                                                     BorderThickness="0" />
 
-                                                        </StackPanel>
+                                                                </StackPanel>
 
-                                                    </Grid>
+                                                            </Grid>
 
-                                                </Border>
+                                                        </Border>
 
-                                            </DataTemplate>
+                                                    </DataTemplate>
 
-                                        </ItemsControl.ItemTemplate>
+                                                </ItemsControl.ItemTemplate>
 
-                                    </ItemsControl>
+                                            </ItemsControl>
 
-                                </StackPanel>
+                                        </StackPanel>
 
-                            </Grid>
-
-
-
-                            <!-- Tab 1: Tạo phòng (Create Room) -->
-
-                            <Grid>
-
-                                <Grid.Style>
-
-                                    <Style TargetType="Grid">
-
-                                        <Setter Property="Visibility" Value="Collapsed" />
-
-                                        <Style.Triggers>
-
-                                            <DataTrigger Binding="{Binding SelectedHubTabIndex}" Value="1">
-
-                                                <Setter Property="Visibility" Value="Visible" />
-
-                                            </DataTrigger>
-
-                                        </Style.Triggers>
-
-                                    </Style>
-
-                                </Grid.Style>
+                                    </Grid>
 
 
 
-                                <StackPanel>
+                                    <!-- Tab 1: Tạo phòng (Create Room) -->
 
-                                    <TextBlock Text="Tên phòng học mới:" FontSize="12" Opacity="0.75" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,4" />
+                                    <Grid>
 
-                                    <TextBox Text="{Binding NewRoomName, UpdateSourceTrigger=PropertyChanged}" 
+                                        <Grid.Style>
 
-                                             FontSize="12" 
+                                            <Style TargetType="Grid">
 
-                                             Padding="10,7" 
+                                                <Setter Property="Visibility" Value="Collapsed" />
 
-                                             Margin="0,0,0,10" />
+                                                <Style.Triggers>
+
+                                                    <DataTrigger Binding="{Binding SelectedHubTabIndex}" Value="1">
+
+                                                        <Setter Property="Visibility" Value="Visible" />
+
+                                                    </DataTrigger>
+
+                                                </Style.Triggers>
+
+                                            </Style>
+
+                                        </Grid.Style>
 
 
 
-                                    <TextBlock Text="Môn học hoặc chủ đề:" FontSize="12" Opacity="0.75" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,4" />
+                                        <StackPanel>
 
-                                    <TextBox Text="{Binding NewRoomSubject, UpdateSourceTrigger=PropertyChanged}" 
+                                            <TextBlock Text="Tên phòng học mới:" FontSize="12" Opacity="0.75" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,4" />
+
+                                            <TextBox Text="{Binding NewRoomName, UpdateSourceTrigger=PropertyChanged}" 
 
                                              FontSize="12" 
 
@@ -1647,11 +1568,23 @@
 
 
 
-                                    <TextBlock Text="Chế độ quản lý phòng:" FontSize="12" Opacity="0.75" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,4" />
+                                            <TextBlock Text="Môn học hoặc chủ đề:" FontSize="12" Opacity="0.75" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,4" />
 
-                                    <StackPanel Orientation="Vertical" Margin="0,0,0,14">
+                                            <TextBox Text="{Binding NewRoomSubject, UpdateSourceTrigger=PropertyChanged}" 
 
-                                        <RadioButton GroupName="ControlModeGroup"
+                                             FontSize="12" 
+
+                                             Padding="10,7" 
+
+                                             Margin="0,0,0,10" />
+
+
+
+                                            <TextBlock Text="Chế độ quản lý phòng:" FontSize="12" Opacity="0.75" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,4" />
+
+                                            <StackPanel Orientation="Vertical" Margin="0,0,0,14">
+
+                                                <RadioButton GroupName="ControlModeGroup"
 
                                                      Content="Chỉ chủ phòng quản lý đồng hồ (Host Only)" 
 
@@ -1663,7 +1596,7 @@
 
                                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                                        <RadioButton GroupName="ControlModeGroup"
+                                                <RadioButton GroupName="ControlModeGroup"
 
                                                      Content="Tất cả thành viên bình đẳng (Equal)" 
 
@@ -1673,11 +1606,11 @@
 
                                                      Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
 
-                                    </StackPanel>
+                                            </StackPanel>
 
 
 
-                                    <ui:Button Command="{Binding CreateRoomCommand}" 
+                                            <ui:Button Command="{Binding CreateRoomCommand}" 
 
                                             Background="#6366F1" 
 
@@ -1695,23 +1628,23 @@
 
                                             Content="Tạo phòng học ngay" />
 
+                                        </StackPanel>
+
+                                    </Grid>
+
+
+
                                 </StackPanel>
 
-                            </Grid>
+                            </Border>
 
 
 
                         </StackPanel>
 
-                    </Border>
+                    </ScrollViewer>
 
-
-
-                </StackPanel>
-
-            </ScrollViewer>
-
-        </Border>
+                </Border>
 
             </Grid>
 
@@ -1753,4 +1686,3 @@
     </Grid>
 
 </UserControl>
-

@@ -14,6 +14,7 @@ public enum AuthMode
     ResetPassword
 }
 
+// Exposes authentication state and commands consumed by LoginView's mode-specific forms.
 public partial class LoginViewModel : ObservableObject
 {
     private readonly IAuthService _authService;
@@ -22,7 +23,6 @@ public partial class LoginViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasError))]
     private string? _errorMessage;
-
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSuccess))]
     private string? _successMessage;
@@ -56,6 +56,8 @@ public partial class LoginViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _rememberMe = true;
+    [ObservableProperty]
+    private bool _acceptTerms;
 
     [ObservableProperty]
     private bool _isPasswordVisible;
@@ -175,6 +177,12 @@ public partial class LoginViewModel : ObservableObject
         if (Password.Length < 8)
         {
             ErrorMessage = "Mật khẩu phải có ít nhất 8 ký tự.";
+            return;
+        }
+
+        if (!AcceptTerms)
+        {
+            ErrorMessage = "Vui lòng đồng ý với Điều khoản sử dụng và Chính sách bảo mật.";
             return;
         }
 
@@ -346,7 +354,6 @@ public partial class LoginViewModel : ObservableObject
             IsBusy = false;
         }
     }
-
     [RelayCommand]
     public async Task ContinueAsGuestAsync()
     {
@@ -375,6 +382,12 @@ public partial class LoginViewModel : ObservableObject
         LoginSucceeded?.Invoke(guestSession);
     }
 
+    [RelayCommand]
+    public void ContinueWithGoogle()
+    {
+        SuccessMessage = null;
+        ErrorMessage = "Đăng nhập bằng Google sẽ sớm được hỗ trợ.";
+    }
     [RelayCommand]
     public void TogglePasswordVisibility()
     {
@@ -441,6 +454,7 @@ public partial class LoginViewModel : ObservableObject
         NewPassword = string.Empty;
         DisplayName = string.Empty;
         OtpCode = string.Empty;
+        AcceptTerms = false;
         ErrorMessage = null;
         SuccessMessage = null;
         IsBusy = false;

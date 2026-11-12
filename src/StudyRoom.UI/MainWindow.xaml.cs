@@ -62,6 +62,7 @@ public partial class MainWindow : FluentWindow
         }
     }
 
+    // Restore a saved session before choosing which view to expose.
     private async void OnWindowLoaded(object sender, System.Windows.RoutedEventArgs e)
     {
         await CheckSessionAndNavigateAsync();
@@ -101,6 +102,7 @@ public partial class MainWindow : FluentWindow
         LoginControl.Visibility = System.Windows.Visibility.Visible;
     }
 
+    // Keep both views alive and switch visibility so the dashboard retains its state on logout.
     public void ShowDashboard(AuthSession? session = null)
     {
         if (session != null)

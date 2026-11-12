@@ -6,6 +6,7 @@ using Xunit;
 
 namespace StudyRoom.UI.Tests;
 
+// Exercises authentication validation and state changes against a deterministic fake auth service.
 public class LoginViewModelTests
 {
     private class FakeAuthService : IAuthService
@@ -206,6 +207,7 @@ public class LoginViewModelTests
         _vm.DisplayName = "Nguyen Van A";
         _vm.Email = "a@test.com";
         _vm.Password = "Pass123456";
+        _vm.AcceptTerms = true;
 
         await _vm.RegisterAsync();
 
@@ -214,6 +216,20 @@ public class LoginViewModelTests
         Assert.False(_vm.IsRegisterMode);
         Assert.Empty(_vm.Password);
         Assert.Equal("Nguyen Van A", _authService.LastRegisterName);
+    }
+
+    [Fact]
+    public async Task RegisterAsync_TermsNotAccepted_SetsErrorWithoutCallingAuthService()
+    {
+        _vm.DisplayName = "Nguyen Van A";
+        _vm.Email = "a@test.com";
+        _vm.Password = "Pass123456";
+
+        await _vm.RegisterAsync();
+
+        Assert.True(_vm.HasError);
+        Assert.Contains("đồng ý", _vm.ErrorMessage);
+        Assert.Null(_authService.LastRegisterName);
     }
 
     [Fact]
