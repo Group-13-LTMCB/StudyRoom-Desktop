@@ -1,0 +1,423 @@
+<UserControl x:Class="StudyRoom.UI.Views.KanbanBoardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:StudyRoom.UI.ViewModels"
+             xmlns:components="clr-namespace:StudyRoom.UI.Views.Components"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance vm:KanbanBoardViewModel}"
+             d:DesignHeight="850" d:DesignWidth="1100">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource ApplicationBackgroundBrush}">
+        <!-- Main Layout: Row 0 Header, Row 1 Columns -->
+        <Grid Margin="28,24,28,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- ========================================== -->
+            <!-- 1. HEADER & CONTROLS TOOLBAR               -->
+            <!-- ========================================== -->
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Back Button -->
+                <ui:Button Grid.Column="0" 
+                           Command="{Binding BackToDashboardCommand}" 
+                           Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" 
+                           Padding="14,8" 
+                           CornerRadius="10" 
+                           BorderThickness="1" 
+                           BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                           Margin="0,0,20,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⬅️" Margin="0,0,8,0" VerticalAlignment="Center" />
+                        <TextBlock Text="Quay lại Tổng quan" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+
+                <!-- Board Title & Subtitle -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding BoardTitle}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                    <TextBlock Text="Kéo thả hoặc dùng nút chuyển nhanh để theo dõi tiến độ công việc" FontSize="12" Opacity="0.65" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
+                </StackPanel>
+
+                <!-- Search Box & Add Button -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Search Box -->
+                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                            CornerRadius="10" 
+                            Padding="12,6" 
+                            Width="230"
+                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            Margin="0,0,12,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🔍" FontSize="13" Opacity="0.5" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <TextBox Grid.Column="1" 
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     Background="Transparent" 
+                                     BorderThickness="0" 
+                                     FontSize="12" 
+                                     Foreground="{DynamicResource TextFillColorPrimaryBrush}" 
+                                     VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Add Card Button -->
+                    <ui:Button Command="{Binding OpenAddCardDialogCommand}"
+                               Background="#6366F1" 
+                               Foreground="White" 
+                               FontWeight="SemiBold" 
+                               FontSize="13" 
+                               Padding="16,8" 
+                               CornerRadius="10" 
+                               BorderThickness="0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="➕" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" />
+                            <TextBlock Text="Thêm nhiệm vụ" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </ui:Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- ========================================== -->
+            <!-- 2. KANBAN 3 COLUMNS                        -->
+            <!-- ========================================== -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- ========================================== -->
+                <!-- COLUMN 0: CẦN LÀM (TODO)                   -->
+                <!-- ========================================== -->
+                <Border Grid.Column="0" 
+                        Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="16,14"
+                        AllowDrop="True"
+                        Tag="0"
+                        DragOver="OnColumnDragOver"
+                        Drop="OnColumnDrop">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Column Accent Indicator -->
+                        <Border Grid.Row="0" Height="4" Background="#3B82F6" CornerRadius="2" Margin="0,0,0,12" />
+
+                        <!-- Column Header -->
+                        <Grid Grid.Row="1" Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="📋 Cần làm" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                <Border Background="#203B82F6" CornerRadius="10" Padding="8,2" Margin="8,0,0,0">
+                                    <TextBlock Text="{Binding TodoCount}" FontSize="12" FontWeight="SemiBold" Foreground="#3B82F6" />
+                                </Border>
+                            </StackPanel>
+
+                            <ui:Button Grid.Column="2" 
+                                       Command="{Binding OpenAddCardDialogCommand}" 
+                                       CommandParameter="Todo"
+                                       Background="Transparent" 
+                                       BorderThickness="0" 
+                                       Padding="6,4" 
+                                       ToolTip="Thêm nhiệm vụ vào Cần làm">
+                                <TextBlock Text="➕" FontSize="13" Opacity="0.75" />
+                            </ui:Button>
+                        </Grid>
+
+                        <!-- Cards List -->
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding TodoCards}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <components:KanbanCardControl />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- ========================================== -->
+                <!-- COLUMN 1: ĐANG LÀM (IN PROGRESS)           -->
+                <!-- ========================================== -->
+                <Border Grid.Column="2" 
+                        Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="16,14"
+                        AllowDrop="True"
+                        Tag="1"
+                        DragOver="OnColumnDragOver"
+                        Drop="OnColumnDrop">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Column Accent Indicator -->
+                        <Border Grid.Row="0" Height="4" Background="#F59E0B" CornerRadius="2" Margin="0,0,0,12" />
+
+                        <!-- Column Header -->
+                        <Grid Grid.Row="1" Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="⚡ Đang làm" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                <Border Background="#20F59E0B" CornerRadius="10" Padding="8,2" Margin="8,0,0,0">
+                                    <TextBlock Text="{Binding InProgressCount}" FontSize="12" FontWeight="SemiBold" Foreground="#F59E0B" />
+                                </Border>
+                            </StackPanel>
+
+                            <ui:Button Grid.Column="2" 
+                                       Command="{Binding OpenAddCardDialogCommand}" 
+                                       CommandParameter="InProgress"
+                                       Background="Transparent" 
+                                       BorderThickness="0" 
+                                       Padding="6,4" 
+                                       ToolTip="Thêm nhiệm vụ vào Đang làm">
+                                <TextBlock Text="➕" FontSize="13" Opacity="0.75" />
+                            </ui:Button>
+                        </Grid>
+
+                        <!-- Cards List -->
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding InProgressCards}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <components:KanbanCardControl />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- ========================================== -->
+                <!-- COLUMN 2: HOÀN THÀNH (DONE)               -->
+                <!-- ========================================== -->
+                <Border Grid.Column="4" 
+                        Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="16,14"
+                        AllowDrop="True"
+                        Tag="2"
+                        DragOver="OnColumnDragOver"
+                        Drop="OnColumnDrop">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Column Accent Indicator -->
+                        <Border Grid.Row="0" Height="4" Background="#10B981" CornerRadius="2" Margin="0,0,0,12" />
+
+                        <!-- Column Header -->
+                        <Grid Grid.Row="1" Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="✅ Hoàn thành" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                <Border Background="#2010B981" CornerRadius="10" Padding="8,2" Margin="8,0,0,0">
+                                    <TextBlock Text="{Binding DoneCount}" FontSize="12" FontWeight="SemiBold" Foreground="#10B981" />
+                                </Border>
+                            </StackPanel>
+
+                            <ui:Button Grid.Column="2" 
+                                       Command="{Binding OpenAddCardDialogCommand}" 
+                                       CommandParameter="Done"
+                                       Background="Transparent" 
+                                       BorderThickness="0" 
+                                       Padding="6,4" 
+                                       ToolTip="Thêm nhiệm vụ vào Hoàn thành">
+                                <TextBlock Text="➕" FontSize="13" Opacity="0.75" />
+                            </ui:Button>
+                        </Grid>
+
+                        <!-- Cards List -->
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding DoneCards}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <components:KanbanCardControl />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </Grid>
+
+        <!-- ========================================== -->
+        <!-- 3. ADD CARD MODAL OVERLAY                  -->
+        <!-- ========================================== -->
+        <Grid Background="#80000000" 
+              Visibility="{Binding IsAddCardDialogOpen, Converter={StaticResource BoolToVis}}">
+            <Border Width="480" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="16"
+                    Padding="26">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20" Direction="270" ShadowDepth="6" Opacity="0.3" />
+                </Border.Effect>
+
+                <StackPanel>
+                    <!-- Modal Header -->
+                    <Grid Margin="0,0,0,18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="✨ Thêm nhiệm vụ mới" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                            <TextBlock Text="Nhập thông tin bài tập hoặc công việc cần theo dõi" FontSize="12" Opacity="0.65" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,2,0,0" />
+                        </StackPanel>
+
+                        <ui:Button Grid.Column="1" 
+                                   Command="{Binding CloseAddCardDialogCommand}"
+                                   Background="Transparent" 
+                                   BorderThickness="0" 
+                                   Padding="6,2"
+                                   VerticalAlignment="Top">
+                            <TextBlock Text="✕" FontSize="14" Opacity="0.6" />
+                        </ui:Button>
+                    </Grid>
+
+                    <!-- Title Field -->
+                    <TextBlock Text="Tiêu đề nhiệm vụ (*):" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,0,6" />
+                    <TextBox Text="{Binding NewCardTitle, UpdateSourceTrigger=PropertyChanged}" 
+                             FontSize="13" 
+                             Padding="10,8" 
+                             Margin="0,0,0,14" />
+
+                    <!-- Description Field -->
+                    <TextBlock Text="Mô tả chi tiết (tùy chọn):" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,0,6" />
+                    <TextBox Text="{Binding NewCardDescription, UpdateSourceTrigger=PropertyChanged}" 
+                             FontSize="12" 
+                             Padding="10,8" 
+                             Height="75" 
+                             AcceptsReturn="True" 
+                             TextWrapping="Wrap" 
+                             Margin="0,0,0,16" />
+
+                    <!-- Column Selector -->
+                    <TextBlock Text="Cột trạng thái:" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="0,0,0,6" />
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                        <RadioButton GroupName="KanbanColumnGroup" 
+                                     Content="📋 Cần làm" 
+                                     IsChecked="{Binding IsColumnTodo, Mode=TwoWay}" 
+                                     FontSize="12" 
+                                     Foreground="{DynamicResource TextFillColorPrimaryBrush}" 
+                                     Margin="0,0,18,0" />
+                        <RadioButton GroupName="KanbanColumnGroup" 
+                                     Content="⚡ Đang làm" 
+                                     IsChecked="{Binding IsColumnInProgress, Mode=TwoWay}" 
+                                     FontSize="12" 
+                                     Foreground="{DynamicResource TextFillColorPrimaryBrush}" 
+                                     Margin="0,0,18,0" />
+                        <RadioButton GroupName="KanbanColumnGroup" 
+                                     Content="✅ Hoàn thành" 
+                                     IsChecked="{Binding IsColumnDone, Mode=TwoWay}" 
+                                     FontSize="12" 
+                                     Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                    </StackPanel>
+
+                    <!-- Validation Error Message -->
+                    <TextBlock Text="{Binding AddCardValidationError}" 
+                               Foreground="#EF4444" 
+                               FontSize="12" 
+                               Margin="0,0,0,12" 
+                               TextWrapping="Wrap" 
+                               Visibility="{Binding AddCardValidationError, Converter={StaticResource BoolToVis}}" />
+
+                    <!-- Action Buttons -->
+                    <Grid Margin="0,6,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <ui:Button Grid.Column="0" 
+                                   Command="{Binding CloseAddCardDialogCommand}"
+                                   Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" 
+                                   BorderThickness="1" 
+                                   BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                                   CornerRadius="8" 
+                                   Padding="0,9" 
+                                   HorizontalAlignment="Stretch" 
+                                   IsCancel="True"
+                                   Content="Hủy bỏ" />
+
+                        <ui:Button Grid.Column="2" 
+                                   Command="{Binding SaveNewCardCommand}"
+                                   Background="#6366F1" 
+                                   Foreground="White" 
+                                   FontWeight="SemiBold" 
+                                   CornerRadius="8" 
+                                   Padding="0,9" 
+                                   HorizontalAlignment="Stretch" 
+                                   IsDefault="True"
+                                   Content="Lưu nhiệm vụ" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

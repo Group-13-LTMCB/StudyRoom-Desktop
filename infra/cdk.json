@@ -1,0 +1,17 @@
+{
+  "app": "dotnet run --project src/StudyRoomInfra/StudyRoomInfra.csproj",
+  "watch": {
+    "include": [
+      "**"
+    ],
+    "exclude": [
+      "README.md",
+      "cdk*.json",
+      "src/*/bin",
+      "src/*/obj"
+    ]
+  },
+  "context": {
+    "@aws-cdk/core:stackRelativeExports": true
+  }
+}

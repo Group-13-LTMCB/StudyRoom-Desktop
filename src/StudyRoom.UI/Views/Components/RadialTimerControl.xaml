@@ -1,0 +1,65 @@
+<UserControl x:Class="StudyRoom.UI.Views.Components.RadialTimerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="360" d:DesignWidth="360"
+             SizeChanged="OnSizeChanged">
+
+    <Grid Width="340" Height="340" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <!-- Canvas for Background Ring & Animated Progress Arc -->
+        <Canvas x:Name="ArcCanvas" Width="340" Height="340">
+            <!-- Background Circular Track -->
+            <Ellipse x:Name="TrackEllipse" 
+                     Width="310" Height="310" 
+                     Canvas.Left="15" Canvas.Top="15"
+                     Stroke="{DynamicResource ControlFillColorSecondaryBrush}" 
+                     StrokeThickness="12" />
+
+            <!-- Foreground Progress Arc -->
+            <Path x:Name="ProgressPath" 
+                  Stroke="#6366F1" 
+                  StrokeThickness="12" 
+                  StrokeStartLineCap="Round" 
+                  StrokeEndLineCap="Round" />
+        </Canvas>
+
+        <!-- Center Information Display -->
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!-- Phase Badge Pill -->
+            <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                    CornerRadius="14" 
+                    Padding="12,5" 
+                    HorizontalAlignment="Center" 
+                    Margin="0,0,0,8">
+                <TextBlock x:Name="PhaseTextBlock" 
+                           Text="🎯 Pha Tập Trung (Focus)" 
+                           FontSize="12" 
+                           FontWeight="SemiBold" 
+                           Foreground="#6366F1" />
+            </Border>
+
+            <!-- Big Countdown Digital Time -->
+            <TextBlock x:Name="TimeTextBlock" 
+                       Text="25:00" 
+                       FontSize="52" 
+                       FontWeight="Bold" 
+                       HorizontalAlignment="Center" 
+                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" 
+                       Margin="0,2,0,4" />
+
+            <!-- Cycle Pill -->
+            <Border Background="{DynamicResource ControlFillColorTertiaryBrush}" 
+                    CornerRadius="10" 
+                    Padding="10,3" 
+                    HorizontalAlignment="Center">
+                <TextBlock x:Name="CycleTextBlock" 
+                           Text="Chu kỳ: 1 / 4" 
+                           FontSize="11" 
+                           Opacity="0.75" 
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

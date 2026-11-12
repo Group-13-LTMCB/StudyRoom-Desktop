@@ -1,0 +1,182 @@
+<ui:FluentWindow x:Class="StudyRoom.UI.Views.Components.MfaSetupDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:vm="clr-namespace:StudyRoom.UI.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance vm:MfaSetupViewModel}"
+        Title="Cài đặt Xác Thực 2 Bước (MFA)"
+        Width="520" Height="620"
+        WindowStartupLocation="CenterScreen"
+        WindowBackdropType="Mica"
+        ResizeMode="NoResize">
+
+    <ui:FluentWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </ui:FluentWindow.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <!-- 0. Header -->
+            <RowDefinition Height="Auto" />
+            <!-- 1. Mode Selector (QR vs Secret) -->
+            <RowDefinition Height="Auto" />
+            <!-- 2. Display Area -->
+            <RowDefinition Height="*" />
+            <!-- 3. Verify & Action -->
+            <RowDefinition Height="Auto" />
+            <!-- 4. Messages -->
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- 0. Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="40" Height="40" CornerRadius="10" Background="#6366F1" Margin="0,0,12,0">
+                    <TextBlock Text="🛡️" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Bảo Mật 2 Lớp (TOTP)" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                    <TextBlock Text="Google Authenticator / Microsoft Authenticator (Hoàn toàn miễn phí)" 
+                               FontSize="11" Opacity="0.7" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <!-- 1. Tab Selector -->
+        <Border Grid.Row="1" Background="{DynamicResource ControlFillColorSecondaryBrush}" 
+                CornerRadius="12" Padding="4" Margin="0,0,0,16" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal">
+                <ui:Button Command="{Binding SelectModeCommand}" CommandParameter="0"
+                           Content="📷 Quét Mã QR" Padding="18,8" Margin="0,0,4,0" CornerRadius="8">
+                    <ui:Button.Style>
+                        <Style TargetType="ui:Button">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsQrMode}" Value="True">
+                                    <Setter Property="Background" Value="#6366F1" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:Button.Style>
+                </ui:Button>
+
+                <ui:Button Command="{Binding SelectModeCommand}" CommandParameter="1"
+                           Content="🔑 Nhập Khóa Bí Mật" Padding="18,8" CornerRadius="8">
+                    <ui:Button.Style>
+                        <Style TargetType="ui:Button">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSecretMode}" Value="True">
+                                    <Setter Property="Background" Value="#6366F1" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:Button.Style>
+                </ui:Button>
+            </StackPanel>
+        </Border>
+
+        <!-- 2. Display Area -->
+        <Border Grid.Row="2" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                BorderThickness="1" CornerRadius="16" Padding="20" Margin="0,0,0,16">
+            <Grid VerticalAlignment="Center">
+                <!-- QR Code Mode -->
+                <StackPanel Visibility="{Binding IsQrMode, Converter={StaticResource BoolToVis}}" HorizontalAlignment="Center">
+                    <Border Background="White" CornerRadius="12" Padding="12" Width="184" Height="184" Margin="0,0,0,12" HorizontalAlignment="Center">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="12" Direction="270" ShadowDepth="2" Color="#000000" Opacity="0.15" />
+                        </Border.Effect>
+                        <Image Source="{Binding QrCodeImage}" Width="160" Height="160" Stretch="Uniform" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                    </Border>
+                    <TextBlock Text="Mở app Authenticator trên điện thoại &gt; Quét mã QR" 
+                               FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Secret Key Mode -->
+                <StackPanel Visibility="{Binding IsSecretMode, Converter={StaticResource BoolToVis}}" VerticalAlignment="Center">
+                    <TextBlock Text="Khóa thiết lập bảo mật (Secret Key):" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,8" />
+                    
+                    <Border Background="{DynamicResource ControlFillColorSecondaryBrush}" CornerRadius="10" Padding="14,10" Margin="0,0,0,12">
+                        <TextBlock Text="{Binding SecretKey}" FontSize="16" FontWeight="Bold" FontFamily="Consolas, monospace"
+                                   Foreground="{DynamicResource AccentFillColorDefaultBrush}" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                    </Border>
+
+                    <ui:Button Command="{Binding CopySecretKeyCommand}"
+                               Content="📋 Sao Chép Khóa"
+                               HorizontalAlignment="Center"
+                               Padding="16,8"
+                               CornerRadius="8"
+                               Margin="0,0,0,12" />
+
+                    <TextBlock Text="Trong app Google Authenticator &gt; Chọn (+) &gt; 'Nhập khóa thiết lập' và dán chuỗi trên."
+                               FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" TextAlignment="Center" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 3. Verify & Action -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,12">
+            <TextBlock Text="Nhập mã 6 chữ số từ điện thoại để xác nhận:" FontSize="12" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,6" />
+
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <ui:TextBox Grid.Column="0"
+                            Text="{Binding VerificationCode, UpdateSourceTrigger=PropertyChanged}"
+                            PlaceholderText="123456"
+                            FontSize="18" FontWeight="Bold"
+                            HorizontalContentAlignment="Center"
+                            Height="42" MaxLength="6"
+                            Margin="0,0,8,0" />
+
+                <ui:Button Grid.Column="1"
+                           Command="{Binding VerifyAndEnableCommand}"
+                           Appearance="Primary"
+                           Height="42" Padding="20,0"
+                           CornerRadius="8">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Kích hoạt 2FA 🚀" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <ui:ProgressRing Width="16" Height="16" Margin="8,0,0,0"
+                                         Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" IsIndeterminate="True" />
+                    </StackPanel>
+                </ui:Button>
+            </Grid>
+
+            <!-- Disable Option if already enabled -->
+            <ui:Button Command="{Binding DisableMfaCommand}"
+                       Content="Tắt tính năng bảo mật 2 lớp"
+                       Visibility="{Binding IsMfaEnabled, Converter={StaticResource BoolToVis}}"
+                       HorizontalAlignment="Center"
+                       Background="Transparent" BorderThickness="0"
+                       Foreground="#EF4444" FontSize="12" Padding="0,4" />
+        </StackPanel>
+
+        <!-- 4. Messages -->
+        <StackPanel Grid.Row="4">
+            <Border Background="#22EF4444" BorderBrush="#EF4444" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,0,0,8"
+                    Visibility="{Binding HasError, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="#EF4444" FontSize="12" TextWrapping="Wrap" />
+            </Border>
+
+            <Border Background="#2210B981" BorderBrush="#10B981" BorderThickness="1" CornerRadius="8" Padding="10"
+                    Visibility="{Binding HasSuccess, Converter={StaticResource BoolToVis}}">
+                <TextBlock Text="{Binding SuccessMessage}" Foreground="#10B981" FontSize="12" TextWrapping="Wrap" />
+            </Border>
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow>

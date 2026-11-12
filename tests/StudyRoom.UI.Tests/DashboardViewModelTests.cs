@@ -1,4 +1,6 @@
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using StudyRoom.Application.Messages;
 using StudyRoom.Application.Services;
 using StudyRoom.Core.Enums;
 using StudyRoom.Core.Models;
@@ -9,10 +11,10 @@ namespace StudyRoom.UI.Tests;
 
 public class DashboardViewModelTests
 {
-    private static DashboardViewModel CreateViewModel(IEnumerable<StudyRoomSummary>? initialRooms = null)
+    private static DashboardViewModel CreateViewModel(IEnumerable<StudyRoomSummary>? initialRooms = null, IMessenger? messenger = null)
     {
         var service = new MockDashboardService(initialRooms);
-        return new DashboardViewModel(service);
+        return new DashboardViewModel(service, messenger: messenger);
     }
 
     [Fact]
@@ -358,6 +360,33 @@ public class DashboardViewModelTests
         Assert.False(vm.HasError);
         Assert.NotNull(vm.SuccessMessage);
         Assert.Equal("102938", vm.SelectedRoom?.RoomId);
+        Assert.Equal(1, vm.SelectedNavIndex);
+        Assert.Equal("102938", vm.PomodoroRoomVm.RoomId);
+    }
+
+    [Fact]
+    public void DashboardViewModel_NavigateTo_ChangesSelectedNavIndex()
+    {
+        var vm = CreateViewModel();
+
+        Assert.Equal(0, vm.SelectedNavIndex);
+
+        vm.NavigateTo(1);
+        Assert.Equal(1, vm.SelectedNavIndex);
+
+        vm.NavigateTo(0);
+        Assert.Equal(0, vm.SelectedNavIndex);
+    }
+
+    [Fact]
+    public void DashboardViewModel_PomodoroRoomVm_RequestBack_RestoresOverview()
+    {
+        var vm = CreateViewModel();
+        vm.NavigateTo(1);
+        Assert.Equal(1, vm.SelectedNavIndex);
+
+        vm.PomodoroRoomVm.BackToDashboard();
+        Assert.Equal(0, vm.SelectedNavIndex);
     }
 
     [Fact]
@@ -404,6 +433,84 @@ public class DashboardViewModelTests
         thread.Join();
 
         Assert.Null(threadEx);
+    }
+
+    [Fact]
+    public void DashboardViewModel_InitialZenMode_IsFalse()
+    {
+        var vm = CreateViewModel();
+        Assert.False(vm.IsZenMode);
+    }
+
+    [Fact]
+    public void DashboardViewModel_ZenModeChangedMessage_SyncsIsZenMode()
+    {
+        var messenger = new WeakReferenceMessenger();
+        var vm = CreateViewModel(messenger: messenger);
+
+        Assert.False(vm.IsZenMode);
+
+        messenger.Send(new ZenModeChangedMessage(true));
+        Assert.True(vm.IsZenMode);
+
+        messenger.Send(new ZenModeChangedMessage(false));
+        Assert.False(vm.IsZenMode);
+    }
+
+    [Fact]
+    public void DashboardViewModel_TabSwitchAwayFromPomodoro_AutoResetsZenMode()
+    {
+        var messenger = new WeakReferenceMessenger();
+        var vm = CreateViewModel(messenger: messenger);
+
+        // Navigate to Pomodoro Room (Tab 1)
+        vm.SelectedNavIndex = 1;
+
+        // Enter Zen Mode
+        vm.PomodoroRoomVm.EnterZenMode();
+        Assert.True(vm.IsZenMode);
+        Assert.True(vm.PomodoroRoomVm.IsZenMode);
+
+        // Switch to Overview (Tab 0)
+        vm.SelectedNavIndex = 0;
+
+        // Assert Zen Mode is automatically reset
+        Assert.False(vm.IsZenMode);
+        Assert.False(vm.PomodoroRoomVm.IsZenMode);
+    }
+
+    [Fact]
+    public void DashboardViewModel_NavigateToCommand_AutoResetsZenModeWhenLeavingPomodoro()
+    {
+        var messenger = new WeakReferenceMessenger();
+        var vm = CreateViewModel(messenger: messenger);
+
+        vm.NavigateTo(1);
+        vm.PomodoroRoomVm.EnterZenMode();
+        Assert.True(vm.IsZenMode);
+
+        // Navigate to Kanban (Tab 2)
+        vm.NavigateTo(2);
+
+        Assert.False(vm.IsZenMode);
+        Assert.False(vm.PomodoroRoomVm.IsZenMode);
+    }
+
+    [Fact]
+    public async Task DashboardViewModel_LogoutAsync_AutoResetsZenMode()
+    {
+        var messenger = new WeakReferenceMessenger();
+        var vm = CreateViewModel(messenger: messenger);
+
+        vm.SelectedNavIndex = 1;
+        vm.PomodoroRoomVm.EnterZenMode();
+        Assert.True(vm.IsZenMode);
+        Assert.True(vm.PomodoroRoomVm.IsZenMode);
+
+        await vm.LogoutAsync();
+
+        Assert.False(vm.IsZenMode);
+        Assert.False(vm.PomodoroRoomVm.IsZenMode);
     }
 
     private sealed class ThrowingDashboardService : StudyRoom.Application.Interfaces.IDashboardService

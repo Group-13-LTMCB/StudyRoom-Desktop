@@ -1,16 +1,59 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using StudyRoom.Application.Interfaces;
+using StudyRoom.Application.Messages;
 using StudyRoom.Core.Enums;
+using StudyRoom.Core.Interfaces;
 using StudyRoom.Core.Models;
 using Wpf.Ui.Appearance;
 
 namespace StudyRoom.UI.ViewModels;
 
-public partial class DashboardViewModel : ObservableObject
+public partial class DashboardViewModel : ObservableObject, IDisposable
 {
     private readonly IDashboardService _dashboardService;
+    private readonly IMessenger _messenger;
+    private readonly ISecureStorageService? _secureStorageService;
+    private readonly IAuthService? _authService;
+    private readonly IWebSocketRelayService? _webSocketRelayService;
+    private AuthSession? _currentSession;
+
+    public event Action? RequestLogout;
+
+    [ObservableProperty]
+    private int _selectedNavIndex = 0; // 0 = Overview, 1 = Pomodoro, 2 = Kanban
+
+    [ObservableProperty]
+    private bool _isZenMode;
+
+    partial void OnSelectedNavIndexChanged(int value)
+    {
+        if (value != 1 && IsZenMode)
+        {
+            IsZenMode = false;
+            PomodoroRoomVm.ExitZenMode();
+        }
+    }
+
+    [ObservableProperty]
+    private PomodoroRoomViewModel _pomodoroRoomVm;
+
+    [ObservableProperty]
+    private KanbanBoardViewModel _kanbanVm;
+
+    [ObservableProperty]
+    private GroupRailViewModel _groupRailVm;
+
+    [ObservableProperty]
+    private string _currentGroupName = "Không gian cá nhân";
+
+    [ObservableProperty]
+    private string _currentGroupSubject = "Tự học độc lập";
+
+    [ObservableProperty]
+    private bool _isPersonalWorkspace = true;
 
     [ObservableProperty]
     private string _greeting = "Chào mừng trở lại, Sally!";
@@ -20,6 +63,12 @@ public partial class DashboardViewModel : ObservableObject
 
     [ObservableProperty]
     private string _userMajor = "Khoa học máy tính";
+
+    [ObservableProperty]
+    private bool _isMfaEnabled;
+
+    [ObservableProperty]
+    private string _mfaStatusLabel = "Chưa kích hoạt";
 
     [ObservableProperty]
     private string _totalStudyTime = "128 giờ";
@@ -120,9 +169,141 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty]
     private string _themeIcon = "🌙";
 
-    public DashboardViewModel(IDashboardService dashboardService)
+    public DashboardViewModel(
+        IDashboardService dashboardService,
+        IPomodoroEngine? pomodoroEngine = null,
+        KanbanBoardViewModel? kanbanVm = null,
+        IKanbanService? kanbanService = null,
+        IFractionalIndexingHelper? indexingHelper = null,
+        IMessenger? messenger = null,
+        ISecureStorageService? secureStorageService = null,
+        IGroupManagementService? groupManagementService = null,
+        GroupRailViewModel? groupRailVm = null,
+        IAuthService? authService = null,
+        IWebSocketRelayService? webSocketRelayService = null,
+        PomodoroRoomViewModel? pomodoroRoomVm = null)
     {
         _dashboardService = dashboardService;
+        _messenger = messenger ?? WeakReferenceMessenger.Default;
+        _secureStorageService = secureStorageService;
+        _authService = authService;
+        _webSocketRelayService = webSocketRelayService;
+
+        _groupRailVm = groupRailVm ?? (groupManagementService != null
+            ? new GroupRailViewModel(groupManagementService, _messenger)
+            : new GroupRailViewModel(new Infrastructure.Services.GroupManagementService(new Infrastructure.Storage.SqliteLocalCacheRepository()), _messenger));
+
+        _pomodoroRoomVm = pomodoroRoomVm ?? new PomodoroRoomViewModel(pomodoroEngine, _messenger, webSocketRelayService: _webSocketRelayService);
+        _pomodoroRoomVm.RequestBackToDashboard += () => SelectedNavIndex = 0;
+
+        _kanbanVm = kanbanVm ?? new KanbanBoardViewModel(kanbanService, indexingHelper, _messenger, _webSocketRelayService);
+        _kanbanVm.RequestBackToDashboard += () => SelectedNavIndex = 0;
+
+        _messenger.Register<CardMovedMessage>(this, (r, m) => ((DashboardViewModel)r).HandleCardMoved(m));
+        _messenger.Register<PhaseChangedMessage>(this, (r, m) => ((DashboardViewModel)r).HandlePhaseChanged(m));
+        _messenger.Register<GroupSwitchedMessage>(this, (r, m) => ((DashboardViewModel)r).HandleGroupSwitched(m));
+        _messenger.Register<ZenModeChangedMessage>(this, (r, m) => ((DashboardViewModel)r).HandleZenModeChanged(m));
+    }
+
+    public void SetUserSession(AuthSession session)
+    {
+        _currentSession = session;
+        UserName = !string.IsNullOrWhiteSpace(session.DisplayName) ? session.DisplayName : session.Email.Split('@')[0];
+        Greeting = $"Chào mừng trở lại, {UserName}!";
+        _ = RefreshMfaStatusAsync();
+        _ = _webSocketRelayService?.ConnectAsync(session.AccessToken, session.UserId, UserName, CurrentGroupName);
+    }
+
+    public async Task RefreshMfaStatusAsync()
+    {
+        if (_authService != null && _currentSession != null && !string.IsNullOrWhiteSpace(_currentSession.AccessToken))
+        {
+            try
+            {
+                var result = await _authService.GetMfaStatusAsync(_currentSession.AccessToken);
+                if (result.IsSuccess)
+                {
+                    IsMfaEnabled = result.Value;
+                    MfaStatusLabel = IsMfaEnabled ? "Đã kích hoạt 🛡️" : "Chưa kích hoạt";
+                }
+            }
+            catch
+            {
+                // Bỏ qua lỗi kết nối nền
+            }
+        }
+    }
+
+    [RelayCommand]
+    public async Task OpenMfaSettingsAsync()
+    {
+        if (_authService == null || _currentSession == null || string.IsNullOrWhiteSpace(_currentSession.AccessToken))
+        {
+            return;
+        }
+
+        var dialogVm = new MfaSetupViewModel(_authService);
+        dialogVm.MfaStatusChanged += enabled =>
+        {
+            IsMfaEnabled = enabled;
+            MfaStatusLabel = enabled ? "Đã kích hoạt 🛡️" : "Chưa kích hoạt";
+        };
+
+        var dialog = new Views.Components.MfaSetupDialog(dialogVm);
+        await dialogVm.InitializeAsync(_currentSession.AccessToken, _currentSession.Email, IsMfaEnabled);
+        dialog.ShowDialog();
+    }
+
+    [RelayCommand]
+    public void OpenChangePassword()
+    {
+        if (_authService == null || _currentSession == null || string.IsNullOrWhiteSpace(_currentSession.AccessToken))
+        {
+            return;
+        }
+
+        var dialogVm = new ChangePasswordViewModel(_authService);
+        dialogVm.Initialize(_currentSession.AccessToken);
+        var dialog = new Views.Components.ChangePasswordDialog(dialogVm);
+        dialog.ShowDialog();
+    }
+
+    [RelayCommand]
+    public async Task LogoutAsync()
+    {
+        if (IsZenMode)
+        {
+            IsZenMode = false;
+            PomodoroRoomVm.ExitZenMode();
+        }
+
+        if (_webSocketRelayService != null)
+        {
+            await _webSocketRelayService.DisconnectAsync();
+        }
+
+        if (_secureStorageService != null)
+        {
+            await _secureStorageService.ClearSessionAsync();
+        }
+
+        UserName = string.Empty;
+        Greeting = string.Empty;
+
+        RequestLogout?.Invoke();
+    }
+
+    [RelayCommand]
+    public void NavigateTo(object? indexParam)
+    {
+        if (indexParam is int intVal)
+        {
+            SelectedNavIndex = intVal;
+        }
+        else if (indexParam is string str && int.TryParse(str, out var parsed))
+        {
+            SelectedNavIndex = parsed;
+        }
     }
 
     [RelayCommand]
@@ -131,6 +312,8 @@ public partial class DashboardViewModel : ObservableObject
         IsBusy = true;
         try
         {
+            await GroupRailVm.LoadGroupsAsync();
+
             var metrics = await _dashboardService.GetMetricsAsync();
             FocusTimeToday = $"{metrics.FocusHoursToday:F1} giờ";
             FocusTimeTrend = metrics.FocusTimeTrend;
@@ -164,6 +347,28 @@ public partial class DashboardViewModel : ObservableObject
         {
             IsBusy = false;
         }
+    }
+
+    public void HandleGroupSwitched(GroupSwitchedMessage message)
+    {
+        CurrentGroupName = message.GroupName;
+        IsPersonalWorkspace = message.IsPersonal;
+        CurrentGroupSubject = message.IsPersonal ? "Tự học độc lập" : "Nhóm học tập";
+
+        if (message.IsPersonal)
+        {
+            Greeting = $"Chào mừng trở lại, {UserName}!";
+        }
+        else
+        {
+            Greeting = $"Đang học tại: {message.GroupName}";
+            if (!string.IsNullOrWhiteSpace(message.JoinCode))
+            {
+                JoinRoomCode = message.JoinCode;
+            }
+        }
+
+        _ = _webSocketRelayService?.SwitchRoomAsync(message.GroupName);
     }
 
     [RelayCommand]
@@ -244,6 +449,8 @@ public partial class DashboardViewModel : ObservableObject
                     ActiveRooms[index] = room;
                 }
                 SelectedRoom = room;
+                PomodoroRoomVm.SetRoom(room);
+                SelectedNavIndex = 1;
             }
         }
         finally
@@ -303,6 +510,8 @@ public partial class DashboardViewModel : ObservableObject
 
                 ActiveRooms.Insert(0, newRoom);
                 SelectedRoom = newRoom;
+                PomodoroRoomVm.SetRoom(newRoom);
+                SelectedNavIndex = 1;
                 SelectedHubTabIndex = 0;
             }
         }
@@ -337,5 +546,80 @@ public partial class DashboardViewModel : ObservableObject
     public void SelectCreateTab()
     {
         SelectedHubTabIndex = 1;
+    }
+
+    public void HandleCardMoved(CardMovedMessage message)
+    {
+        void UpdateTaskMetrics()
+        {
+            if (message.NewColumn == KanbanColumnType.Done)
+            {
+                if (!string.IsNullOrEmpty(CompletedTasks) && CompletedTasks.Contains('/'))
+                {
+                    var parts = CompletedTasks.Split('/');
+                    if (parts.Length == 2 && int.TryParse(parts[0], out int done) && int.TryParse(parts[1], out int total))
+                    {
+                        done++;
+                        if (done > total) total = done;
+                        CompletedTasks = $"{done}/{total}";
+                        CompletedTasksTrend = "Nhiệm vụ vừa hoàn thành 🎉";
+                    }
+                }
+            }
+        }
+
+        if (System.Windows.Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            dispatcher.Invoke(UpdateTaskMetrics);
+        }
+        else
+        {
+            UpdateTaskMetrics();
+        }
+    }
+
+    public void HandlePhaseChanged(PhaseChangedMessage message)
+    {
+        void UpdatePomodoroMetrics()
+        {
+            if (message.NewPhase == PomodoroPhase.ShortBreak || message.NewPhase == PomodoroPhase.LongBreak)
+            {
+                FocusTimeTrend = "Phiên tập trung vừa hoàn tất! 🔥";
+            }
+        }
+
+        if (System.Windows.Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            dispatcher.Invoke(UpdatePomodoroMetrics);
+        }
+        else
+        {
+            UpdatePomodoroMetrics();
+        }
+    }
+
+    public void HandleZenModeChanged(ZenModeChangedMessage message)
+    {
+        void UpdateState()
+        {
+            IsZenMode = message.IsZenMode;
+        }
+
+        if (System.Windows.Application.Current?.Dispatcher is { } dispatcher && !dispatcher.CheckAccess())
+        {
+            dispatcher.Invoke(UpdateState);
+        }
+        else
+        {
+            UpdateState();
+        }
+    }
+
+    public void Dispose()
+    {
+        _messenger.UnregisterAll(this);
+        PomodoroRoomVm.Dispose();
+        KanbanVm.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

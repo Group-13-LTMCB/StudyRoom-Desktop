@@ -1,10 +1,12 @@
 using Microsoft.Data.Sqlite;
+using StudyRoom.Application.Interfaces;
 using StudyRoom.Core.Entities;
 using StudyRoom.Core.Enums;
+using StudyRoom.Core.Models;
 
 namespace StudyRoom.Infrastructure.Storage;
 
-public class SqliteLocalCacheRepository
+public class SqliteLocalCacheRepository : ILocalCacheRepository
 {
     private readonly string _connectionString;
 
@@ -67,6 +69,21 @@ public class SqliteLocalCacheRepository
                 Question TEXT NOT NULL,
                 Answer TEXT NOT NULL,
                 LastReviewedUtc TEXT
+            );
+
+            CREATE TABLE IF NOT EXISTS UserGroupMemberships (
+                GroupId TEXT PRIMARY KEY NOT NULL,
+                GroupName TEXT NOT NULL,
+                Subject TEXT NOT NULL,
+                JoinCode TEXT NOT NULL,
+                AccentColor TEXT NOT NULL,
+                IsPersonal INTEGER NOT NULL,
+                IsHost INTEGER NOT NULL,
+                HostName TEXT,
+                IsPinned INTEGER NOT NULL,
+                IsMuted INTEGER NOT NULL,
+                MemberCount INTEGER NOT NULL,
+                LastAccessedUtc TEXT NOT NULL
             );
             """;
 
@@ -286,5 +303,110 @@ public class SqliteLocalCacheRepository
         }
 
         return list;
+    }
+
+    public async Task CacheUserGroupsAsync(IEnumerable<GroupNavigationItem> groups, CancellationToken cancellationToken = default)
+    {
+        await using var connection = CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+        await using var transaction = connection.BeginTransaction();
+
+        const string sql = """
+            INSERT INTO UserGroupMemberships (
+                GroupId, GroupName, Subject, JoinCode, AccentColor,
+                IsPersonal, IsHost, HostName, IsPinned, IsMuted, MemberCount, LastAccessedUtc
+            )
+            VALUES (
+                @groupId, @groupName, @subject, @joinCode, @accentColor,
+                @isPersonal, @isHost, @hostName, @isPinned, @isMuted, @memberCount, @lastAccessedUtc
+            )
+            ON CONFLICT(GroupId) DO UPDATE SET
+                GroupName = excluded.GroupName,
+                Subject = excluded.Subject,
+                JoinCode = excluded.JoinCode,
+                AccentColor = excluded.AccentColor,
+                IsPersonal = excluded.IsPersonal,
+                IsHost = excluded.IsHost,
+                HostName = excluded.HostName,
+                IsPinned = excluded.IsPinned,
+                IsMuted = excluded.IsMuted,
+                MemberCount = excluded.MemberCount,
+                LastAccessedUtc = excluded.LastAccessedUtc;
+            """;
+
+        foreach (var group in groups)
+        {
+            await using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = sql;
+            command.Parameters.AddWithValue("@groupId", group.Id.ToString());
+            command.Parameters.AddWithValue("@groupName", group.Name);
+            command.Parameters.AddWithValue("@subject", group.Subject);
+            command.Parameters.AddWithValue("@joinCode", group.JoinCode);
+            command.Parameters.AddWithValue("@accentColor", group.AccentColor);
+            command.Parameters.AddWithValue("@isPersonal", group.IsPersonal ? 1 : 0);
+            command.Parameters.AddWithValue("@isHost", group.IsHost ? 1 : 0);
+            command.Parameters.AddWithValue("@hostName", (object?)group.HostName ?? DBNull.Value);
+            command.Parameters.AddWithValue("@isPinned", group.IsPinned ? 1 : 0);
+            command.Parameters.AddWithValue("@isMuted", group.IsMuted ? 1 : 0);
+            command.Parameters.AddWithValue("@memberCount", group.MemberCount);
+            command.Parameters.AddWithValue("@lastAccessedUtc", DateTimeOffset.UtcNow.ToString("O"));
+            await command.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        await transaction.CommitAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<GroupNavigationItem>> GetCachedUserGroupsAsync(CancellationToken cancellationToken = default)
+    {
+        await using var connection = CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+
+        const string sql = """
+            SELECT GroupId, GroupName, Subject, JoinCode, AccentColor,
+                   IsPersonal, IsHost, HostName, IsPinned, IsMuted, MemberCount
+            FROM UserGroupMemberships
+            ORDER BY IsPinned DESC, LastAccessedUtc DESC;
+            """;
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = sql;
+
+        var list = new List<GroupNavigationItem>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            string idStr = reader.GetString(0);
+            var id = Guid.TryParse(idStr, out var parsedId) ? parsedId : Guid.NewGuid();
+
+            list.Add(new GroupNavigationItem
+            {
+                Id = id,
+                Name = reader.GetString(1),
+                Subject = reader.GetString(2),
+                JoinCode = reader.GetString(3),
+                AccentColor = reader.GetString(4),
+                IsPersonal = reader.GetInt32(5) == 1,
+                IsHost = reader.GetInt32(6) == 1,
+                HostName = reader.IsDBNull(7) ? string.Empty : reader.GetString(7),
+                IsPinned = reader.GetInt32(8) == 1,
+                IsMuted = reader.GetInt32(9) == 1,
+                MemberCount = reader.GetInt32(10)
+            });
+        }
+
+        return list;
+    }
+
+    public async Task RemoveCachedUserGroupAsync(Guid groupId, CancellationToken cancellationToken = default)
+    {
+        await using var connection = CreateConnection();
+        await connection.OpenAsync(cancellationToken);
+
+        const string sql = "DELETE FROM UserGroupMemberships WHERE GroupId = @groupId;";
+        await using var command = connection.CreateCommand();
+        command.CommandText = sql;
+        command.Parameters.AddWithValue("@groupId", groupId.ToString());
+        await command.ExecuteNonQueryAsync(cancellationToken);
     }
 }
