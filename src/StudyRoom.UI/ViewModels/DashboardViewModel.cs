@@ -312,7 +312,17 @@ public partial class DashboardViewModel : ObservableObject, IDisposable
         IsBusy = true;
         try
         {
-            await GroupRailVm.LoadGroupsAsync();
+            if (GroupRailVm != null)
+            {
+                try
+                {
+                    await GroupRailVm.LoadGroupsAsync();
+                }
+                catch
+                {
+                    // Fallback gracefully if groups fail to load (e.g. offline or SQLite file lock)
+                }
+            }
 
             var metrics = await _dashboardService.GetMetricsAsync();
             FocusTimeToday = $"{metrics.FocusHoursToday:F1} giờ";

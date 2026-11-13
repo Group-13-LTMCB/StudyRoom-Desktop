@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
+using StudyRoom.Application.Interfaces;
 using StudyRoom.Application.Messages;
 using StudyRoom.Application.Services;
+using StudyRoom.Core.Common;
 using StudyRoom.Core.Enums;
 using StudyRoom.Core.Models;
 using StudyRoom.UI.ViewModels;
@@ -11,10 +13,30 @@ namespace StudyRoom.UI.Tests;
 
 public class DashboardViewModelTests
 {
+    private sealed class FakeDashboardGroupService : IGroupManagementService
+    {
+        public Task<IReadOnlyList<GroupNavigationItem>> GetUserGroupsAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<GroupNavigationItem>>([
+                new() { Id = Guid.NewGuid(), Name = "Nhóm 1", JoinCode = "123456", IsPinned = false }
+            ]);
+
+        public Task<Result<GroupNavigationItem>> JoinGroupByCodeAsync(string joinCode, CancellationToken cancellationToken = default)
+            => Task.FromResult(Result<GroupNavigationItem>.Success(new GroupNavigationItem { Id = Guid.NewGuid(), Name = $"Nhóm {joinCode}", JoinCode = joinCode }));
+
+        public Task<Result<GroupNavigationItem>> CreateGroupAsync(string name, string subject, int maxMembers, CancellationToken cancellationToken = default)
+            => Task.FromResult(Result<GroupNavigationItem>.Success(new GroupNavigationItem { Id = Guid.NewGuid(), Name = name, Subject = subject, JoinCode = "999888" }));
+
+        public Task<Result> LeaveGroupAsync(Guid groupId, CancellationToken cancellationToken = default) => Task.FromResult(Result.Success());
+        public Task<Result> DisbandGroupAsync(Guid groupId, CancellationToken cancellationToken = default) => Task.FromResult(Result.Success());
+        public Task<IReadOnlyList<GroupNavigationItem>> GetExploreGroupsAsync(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<GroupNavigationItem>>([]);
+        public Task PinGroupAsync(Guid groupId, bool isPinned, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task MuteGroupAsync(Guid groupId, bool isMuted, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+
     private static DashboardViewModel CreateViewModel(IEnumerable<StudyRoomSummary>? initialRooms = null, IMessenger? messenger = null)
     {
         var service = new MockDashboardService(initialRooms);
-        return new DashboardViewModel(service, messenger: messenger);
+        return new DashboardViewModel(service, messenger: messenger, groupManagementService: new FakeDashboardGroupService());
     }
 
     [Fact]
