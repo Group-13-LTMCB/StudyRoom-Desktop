@@ -1,0 +1,2254 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Supabase.Postgrest</name>
+    </assembly>
+    <members>
+        <member name="T:Supabase.Postgrest.Attributes.ColumnAttribute">
+            <summary>
+            Used to map a C# property to a Postgrest Column.
+            </summary>
+            <example>
+            <code>
+            class User : BaseModel {
+                [ColumnName("firstName")]
+                public string FirstName {get; set;}
+            }
+            </code>
+            </example>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ColumnAttribute.ColumnName">
+            <summary>
+            The name in postgres of this column.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ColumnAttribute.NullValueHandling">
+            <summary>
+            Specifies what should be serialized in the event this column's value is NULL. Defaults to
+            <see cref="F:System.Text.Json.Serialization.JsonIgnoreCondition.Never"/> (the column is always written, matching the previous
+            <c>NullValueHandling.Include</c>); use <see cref="F:System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull"/> to omit it.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ColumnAttribute.IgnoreOnInsert">
+            <summary>
+            If the performed query is an Insert or Upsert, should this value be ignored?
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ColumnAttribute.IgnoreOnUpdate">
+            <summary>
+            If the performed query is an Update, should this value be ignored?
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Attributes.ColumnAttribute.#ctor(System.String,System.Text.Json.Serialization.JsonIgnoreCondition,System.Boolean,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="T:Supabase.Postgrest.Attributes.PrimaryKeyAttribute">
+            <summary>
+            Used to map a C# property to a Postgrest PrimaryKey.
+            </summary>
+            <example>
+            <code>
+            class User : BaseModel {
+                [PrimaryKey("id")]
+                public string Id {get; set;}
+            }
+            </code>
+            </example>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.PrimaryKeyAttribute.ShouldInsert">
+            <summary>
+            Would be set to false in the event that the database handles the generation of this property.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Attributes.ReferenceAttribute">
+            <summary>
+            Used to specify that a foreign key relationship exists in PostgreSQL
+            
+            See: https://postgrest.org/en/stable/api.html#resource-embedding
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Attributes.ReferenceAttribute.JoinType">
+            <summary>
+            Specifies the Join type on this reference. PostgREST only allows for a LEFT join and an INNER join.
+            </summary>
+        </member>
+        <member name="F:Supabase.Postgrest.Attributes.ReferenceAttribute.JoinType.Inner">
+            <summary>
+            INNER JOIN: returns rows when there is a match on both the source and the referenced tables.
+            </summary>
+        </member>
+        <member name="F:Supabase.Postgrest.Attributes.ReferenceAttribute.JoinType.Left">
+            <summary>
+            LEFT JOIN: returns all rows from the source table, even if there are no matches in the referenced table
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ReferenceAttribute.Model">
+            <summary>
+            Type of the model referenced
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ReferenceAttribute.ColumnName">
+            <summary>
+            Column this attribute references as specified in Postgres, DOES NOT need to be set if <see cref="P:Supabase.Postgrest.Attributes.ReferenceAttribute.ForeignKey"/> is set.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ReferenceAttribute.ForeignKey">
+            <summary>
+            The explicit SQL defined foreign key that this references.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ReferenceAttribute.TableName">
+            <summary>
+            Table name of model
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ReferenceAttribute.Columns">
+            <summary>
+            Columns that exist on the model we will select from.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ReferenceAttribute.IgnoreOnInsert">
+            <summary>
+            If the performed query is an Insert or Upsert, should this value be ignored? (DEFAULT TRUE)
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ReferenceAttribute.IgnoreOnUpdate">
+            <summary>
+            If the performed query is an Update, should this value be ignored? (DEFAULT TRUE)
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ReferenceAttribute.IncludeInQuery">
+            <summary>
+            If Reference should automatically be included in queries on this reference. (DEFAULT TRUE)
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Attributes.ReferenceAttribute.UseInnerJoin">
+            <summary>
+            As to whether the query will filter top-level rows.
+            
+            See: https://postgrest.org/en/stable/api.html#resource-embedding
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Attributes.ReferenceAttribute.#ctor(System.Type,Supabase.Postgrest.Attributes.ReferenceAttribute.JoinType,System.Boolean,System.String,System.String)">
+            <summary>Establishes a reference between two tables</summary>
+            <param name="model">Model referenced</param>
+            <param name="includeInQuery">Should referenced be included in queries?</param>
+            <param name="joinType">Specifies the join type for this relationship</param>
+            <param name="columnName">Column this attribute references as specified in Postgres, DOES NOT need to be set if &lt;see cref="ForeignKey"/&gt; is set.</param>
+            <param name="foreignKey">Foreign Key this attribute references as specified in Postgres (only required if the model references the same table multiple times)</param>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Attributes.ReferenceAttribute.#ctor(System.Type,System.Boolean,System.Boolean,System.String,System.String)">
+            <summary>Establishes a reference between two tables</summary>
+            <param name="model">Model referenced</param>
+            <param name="includeInQuery">Should referenced be included in queries?</param>
+            <param name="useInnerJoin">As to whether the query will filter top-level rows.</param>
+            <param name="columnName">Column this attribute references as specified in Postgres, DOES NOT need to be set if <see cref="P:Supabase.Postgrest.Attributes.ReferenceAttribute.ForeignKey"/> is set.</param>
+            <param name="foreignKey">Foreign Key this attribute references as specified in Postgres (only required if the model references the same table multiple times)</param>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Attributes.ReferenceAttribute.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Attributes.ReferenceAttribute.ParseRelationships(System.Collections.Generic.List{Supabase.Postgrest.Attributes.ReferenceAttribute})">
+            <summary>
+            Parses relationships that exist on this model. Called by <see cref="M:Supabase.Postgrest.Attributes.ReferenceAttribute.ParseProperties(System.Collections.Generic.List{Supabase.Postgrest.Attributes.ReferenceAttribute})"/>
+            </summary>
+            <param name="seenRefs"></param>
+        </member>
+        <member name="T:Supabase.Postgrest.Attributes.TableAttribute">
+            <summary>
+            Used to map a C# Model to a Postgres Table.
+            </summary>
+            <example>
+            <code>
+            [Table("user")]
+            class User : BaseModel {
+                [ColumnName("firstName")]
+                public string FirstName {get; set;}
+            }
+            </code>
+            </example>
+        </member>
+        <member name="T:Supabase.Postgrest.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Client.SerializerSettings(Supabase.Postgrest.ClientOptions)">
+            <summary>
+            Custom serializer options (column-name mapping, per-column null handling and the Postgrest
+            range/date/array converters) used for encoding and decoding Postgrest JSON responses.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Client.BaseUrl">
+            <inheritdoc />
+        </member>
+        <member name="P:Supabase.Postgrest.Client.Options">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Client.AddRequestPreparedHandler(Supabase.Postgrest.OnRequestPreparedEventHandler)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Client.RemoveRequestPreparedHandler(Supabase.Postgrest.OnRequestPreparedEventHandler)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Client.ClearRequestPreparedHandlers">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Client.AddDebugHandler(Supabase.Postgrest.Interfaces.IPostgrestDebugger.DebugEventHandler)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Client.RemoveDebugHandler(Supabase.Postgrest.Interfaces.IPostgrestDebugger.DebugEventHandler)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Client.ClearDebugHandlers">
+            <inheritdoc />
+        </member>
+        <member name="P:Supabase.Postgrest.Client.GetHeaders">
+            <summary>
+            Function that can be set to return dynamic headers.
+            
+            Headers specified in the constructor options will ALWAYS take precedence over headers returned by this function.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Client.#ctor(System.String,Supabase.Postgrest.ClientOptions)">
+            <summary>
+            Should be the first call to this class to initialize a connection with a Postgrest API Server
+            </summary>
+            <param name="baseUrl">Api Endpoint (ex: "http://localhost:8000"), no trailing slash required.</param>
+            <param name="options">Optional client configuration.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Client.Table``1">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Client.Table``1(Supabase.Postgrest.Interfaces.IPostgrestCacheProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Client.Attach``1(``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Client.Rpc``1(System.String,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Client.Rpc(System.String,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="T:Supabase.Postgrest.ClientOptions">
+            <summary>
+            Options that can be passed to the Client configuration
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.ClientOptions.SerializeEnumsAsStrings">
+            <summary>
+            When true, enum properties without their own `[JsonConverter]` attribute are serialized by
+            name (e.g. "OffDisplay") instead of their underlying integer value. Enable this if your enum
+            properties map to native PostgreSQL `enum` columns. Leave disabled (default) if any of your
+            enum properties map to `integer`/`smallint` columns, since enabling this would send a string
+            to a numeric column and PostgREST would reject the request.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.ClientOptions.Retry">
+            <summary>Retry policy applied to each request. Default (<see cref="P:Supabase.Core.Http.RetryOptions.MaxRetries"/> 0) sends once, unretried.</summary>
+        </member>
+        <member name="P:Supabase.Postgrest.ClientOptions.Timeout">
+            <summary>
+            Fails a request that runs longer than this, retries included, with a TaskCanceledException.
+            The HttpClient timeout, 100 seconds by default, still applies.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.ClientOptions.HttpClient">
+            <summary>An HttpClient to send requests through. When null, the client builds and owns its own.</summary>
+        </member>
+        <member name="P:Supabase.Postgrest.ClientOptions.Proxy">
+            <summary>A proxy to route requests through. Only used when <see cref="P:Supabase.Postgrest.ClientOptions.HttpClient"/> is not supplied.</summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Constants.Operator">
+            <summary>
+            See: https://postgrest.org/en/v7.0.0/api.html?highlight=operators#operators
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Constants.NullPosition">
+            <summary>
+            See: https://postgrest.org/en/v7.0.0/api.html?highlight=nulls%20first#ordering
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Constants.CountType">
+            <summary>
+            See: https://postgrest.org/en/v7.0.0/api.html?highlight=count#estimated-count
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Converters.DateTimeFormats">
+            <summary>
+            ISO 8601 format Postgrest emits and accepts, matching the previous Newtonsoft output
+            (<c>yyyy-MM-ddTHH:mm:ss.FFFFFFFK</c>): fractional seconds only when non-zero, and an offset
+            suffix only for a non-<see cref="F:System.DateTimeKind.Unspecified"/> value.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Converters.DateTimeConverter">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Converters.DateTimeConverter.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Converters.DateTimeConverter.Write(System.Text.Json.Utf8JsonWriter,System.DateTime,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Converters.DateTimeConverter.ReadDateTime(System.String)">
+            <summary>
+            Returns the parsed value, keeping its <see cref="T:System.DateTimeKind"/> and sub-second precision intact
+            rather than round-tripping it through a culture-formatted string (which dropped the offset and
+            fractional seconds). The `infinity` sentinels are still mapped to <see cref="F:System.DateTime.MaxValue"/> /
+            <see cref="F:System.DateTime.MinValue"/>.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Converters.DateTimeConverter.WriteDateTime(System.Text.Json.Utf8JsonWriter,System.DateTime)">
+            <summary>
+            Writes a single value with its wall-clock intact, mapping <see cref="F:System.DateTime.MaxValue"/> back to
+            the `infinity` sentinel the read path maps it from: Postgres rounds `MaxValue` up to year 10000
+            when stored as a literal timestamp, which then cannot be read back. <see cref="F:System.DateTime.MinValue"/>
+            is left as a literal (it round-trips cleanly and doubles as the default for an unset value, so it
+            is not `-infinity`). Mirroring the read path keeps an <see cref="F:System.DateTimeKind.Unspecified"/> `date`
+            from being shifted to the previous day in timezones ahead of UTC.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Converters.DateTimeListConverter">
+            <summary>
+            Applies <see cref="T:Supabase.Postgrest.Converters.DateTimeConverter" />'s single-value handling across a list, matching the previous
+            Newtonsoft converter which handled both <see cref="T:System.DateTime" /> and <c>List&lt;DateTime&gt;</c>.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Converters.DateTimeListConverter.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Converters.DateTimeListConverter.Write(System.Text.Json.Utf8JsonWriter,System.Collections.Generic.List{System.DateTime},System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc />
+        </member>
+        <member name="T:Supabase.Postgrest.Converters.IntArrayConverter">
+            <summary>
+            Reads a <c>List&lt;int&gt;</c> from a JSON array (<c>[1,2,3]</c>) or a Postgres array literal
+            (<c>"{1,2,3}"</c>), and writes a JSON array.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Converters.IntArrayConverter.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Converters.IntArrayConverter.Write(System.Text.Json.Utf8JsonWriter,System.Collections.Generic.List{System.Int32},System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc />
+        </member>
+        <member name="T:Supabase.Postgrest.Converters.ObjectToInferredTypesConverter">
+            <summary>
+            Deserializes JSON values typed as <see cref="T:System.Object"/> — for example the values of the
+            <c>Dictionary&lt;string, object&gt;</c> the request body is re-parsed into before it is sent — into
+            their natural CLR types (string, long, double, bool, nested dictionary, or list) instead of leaving
+            them as <see cref="T:System.Text.Json.JsonElement"/>. Date/time values are deliberately left as strings (matching the
+            previous <c>DateParseHandling.None</c>), so the column converters' formatting passes through verbatim.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Converters.PostgrestEnumConverter">
+            <summary>
+            The enum converter Postgrest registers for every enum. On read it accepts both the string form
+            (honoring <see cref="T:System.Runtime.Serialization.EnumMemberAttribute" />, as Postgres returns enum columns as text) and the
+            numeric underlying value, matching Newtonsoft's lenient enum reading — System.Text.Json's built-in
+            converter reads only numbers and would throw on the string. On write it emits the numeric value, or
+            the string when <see cref="P:Supabase.Postgrest.ClientOptions.SerializeEnumsAsStrings" /> is enabled.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Converters.PostgrestStringEnumConverter">
+            <summary>
+            Serializes an enum as a string, honoring <see cref="T:System.Runtime.Serialization.EnumMemberAttribute" /> the way Newtonsoft's
+            <c>StringEnumConverter</c> did — System.Text.Json's built-in <see cref="T:System.Text.Json.Serialization.JsonStringEnumConverter" />
+            ignores it and would emit the member name. Apply it per-enum with
+            <c>[JsonConverter(typeof(PostgrestStringEnumConverter))]</c> to force the string form regardless of
+            <see cref="P:Supabase.Postgrest.ClientOptions.SerializeEnumsAsStrings" />.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Converters.PostgrestStringEnumConverter.CanConvert(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Converters.PostgrestStringEnumConverter.CreateConverter(System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc />
+        </member>
+        <member name="T:Supabase.Postgrest.Converters.RangeConverter">
+            <summary>
+            Used by System.Text.Json to convert a C# range into a Postgrest range.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Debugger">
+            <summary>
+            A Singleton used for debug notifications
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Debugger.Instance">
+            <summary>
+            Returns the Singleton Instance.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Debugger.AddDebugHandler(Supabase.Postgrest.Interfaces.IPostgrestDebugger.DebugEventHandler)">
+            <summary>
+            Adds a debug listener
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Debugger.RemoveDebugHandler(Supabase.Postgrest.Interfaces.IPostgrestDebugger.DebugEventHandler)">
+            <summary>
+            Removes a debug handler.
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Debugger.ClearDebugHandlers">
+            <summary>
+            Clears debug handlers.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Debugger.Log(System.Object,System.String,Supabase.Postgrest.Exceptions.PostgrestException)">
+            <summary>
+            Notifies debug listeners.
+            </summary>
+            <param name="sender"></param>
+            <param name="message"></param>
+            <param name="exception"></param>
+        </member>
+        <member name="T:Supabase.Postgrest.Exceptions.FailureHint">
+            <summary>
+            https://postgrest.org/en/v10.2/errors.html?highlight=exception#http-status-codes
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Exceptions.PostgrestException">
+            <summary>
+            Errors from Postgrest are wrapped by this exception
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Exceptions.PostgrestException.#ctor(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Exceptions.PostgrestException.#ctor(System.String,System.Exception)">
+            <inheritdoc />
+        </member>
+        <member name="P:Supabase.Postgrest.Exceptions.PostgrestException.Response">
+            <summary>
+            The response object from Postgrest
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Exceptions.PostgrestException.Content">
+            <summary>
+            The content of the response object from Postgrest
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Exceptions.PostgrestException.StatusCode">
+            <summary>
+            The HTTP status code of the response object from Postgrest
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Exceptions.PostgrestException.Reason">
+            <summary>
+            Postgres client's best effort at decoding the error from the GoTrue server.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Exceptions.PostgrestException.AddReason">
+            <summary>
+            Attempts to decode the error from the GoTrue server.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Extensions.EnumExtensions">
+            <summary>
+            Adds functionality to get a typed Attribute attached to an enum value.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Extensions.EnumExtensions.GetAttribute``1(System.Enum)">
+            <summary>
+            Gets a typed Attribute attached to an enum value.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Postgrest.Extensions.RangeExtensions">
+            <summary>
+            Adds functionality to transform a C# Range to a Postgrest String.
+            
+            <see>
+                <cref>https://www.postgresql.org/docs/14/rangetypes.html</cref>
+            </see>
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Extensions.RangeExtensions.ToPostgresString(Supabase.Postgrest.IntRange)">
+            <summary>
+            Transforms a C# Range to a Postgrest String.
+            </summary>
+            <param name="range"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Postgrest.Extensions.UriExtensions">
+            <summary>
+            Pull the instance info out of the Uri
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Extensions.UriExtensions.GetInstanceUrl(System.Uri)">
+            <summary>
+            Pull the instance info out of the Uri
+            </summary>
+            <param name="uri"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Helpers.ResolveHttpClient(Supabase.Postgrest.ClientOptions)">
+            <summary>
+            Resolves the client a request should be sent through, once per <see cref="T:Supabase.Postgrest.Client"/>/<see cref="T:Supabase.Postgrest.Table`1"/>
+            construction: the caller-injected <see cref="P:Supabase.Postgrest.ClientOptions.HttpClient"/>, else the client for
+            <see cref="P:Supabase.Postgrest.ClientOptions.Proxy"/> when it is set, else null (callers fall back to the shared default <see cref="F:Supabase.Postgrest.Helpers.Client"/>).
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Helpers.HasValues(System.String)">
+            <summary>
+            Mirrors Newtonsoft's <c>JToken.HasValues</c>: true only when the serialized payload is a non-empty
+            object or array. An empty body (e.g. an update whose columns were all dropped) is not sent.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Helpers.MakeRequestAsync``1(Supabase.Postgrest.ClientOptions,System.Net.Http.HttpClient,System.Net.Http.HttpMethod,System.String,System.Text.Json.JsonSerializerOptions,System.Object,System.Collections.Generic.Dictionary{System.String,System.String},System.Func{System.Collections.Generic.Dictionary{System.String,System.String}},System.Threading.CancellationToken,System.String)">
+            <summary>
+            Helper to make a request using the defined parameters to an API Endpoint and coerce into a model.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="clientOptions"></param>
+            <param name="httpClient">The resolved client to send through. Defaults to a shared client when null.</param>
+            <param name="method"></param>
+            <param name="url"></param>
+            <param name="data"></param>
+            <param name="headers"></param>
+            <param name="serializerSettings"></param>
+            <param name="getHeaders"></param>
+            <param name="cancellationToken"></param>
+            <param name="operation">Logical operation name recorded on telemetry (select/insert/update/…).</param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Helpers.MakeRequestAsync(Supabase.Postgrest.ClientOptions,System.Net.Http.HttpClient,System.Net.Http.HttpMethod,System.String,System.Text.Json.JsonSerializerOptions,System.Object,System.Collections.Generic.Dictionary{System.String,System.String},System.Threading.CancellationToken,System.String)">
+            <summary>
+            Helper to make a request using the defined parameters to an API Endpoint.
+            </summary>
+            <param name="clientOptions"></param>
+            <param name="httpClient">The resolved client to send through. Defaults to a shared client when null.</param>
+            <param name="method"></param>
+            <param name="url"></param>
+            <param name="data"></param>
+            <param name="headers"></param>
+            <param name="serializerSettings"></param>
+            <param name="cancellationToken"></param>
+            <param name="operation">Logical operation name recorded on telemetry (select/insert/update/…).</param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Helpers.DeserializeBody``1(Supabase.Postgrest.Responses.BaseResponse,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Deserializes a 2xx body and throws a PostgrestException when it can't be read, e.g. a proxy's HTML page.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Helpers.PrepareRequestHeaders(System.Net.Http.HttpMethod,System.Collections.Generic.Dictionary{System.String,System.String},Supabase.Postgrest.ClientOptions,System.Int32,System.Int32)">
+            <summary>
+            Prepares the request with appropriate HTTP headers expected by Postgrest.
+            </summary>
+            <param name="method"></param>
+            <param name="headers"></param>
+            <param name="options"></param>
+            <param name="rangeFrom"></param>
+            <param name="rangeTo"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Postgrest.OnRequestPreparedEventHandler">
+            <summary>
+            Delegate representing the request to be sent to the remote server.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Hooks">
+            <summary>
+            A internal singleton used for hooks applied to <see cref="T:Supabase.Postgrest.Client"/> and <see cref="T:Supabase.Postgrest.Table`1"/>
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Hooks.Instance">
+            <summary>
+            Returns the Singleton Instance.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Hooks.AddRequestPreparedHandler(Supabase.Postgrest.OnRequestPreparedEventHandler)">
+            <summary>
+            Adds a handler that is called prior to a request being sent.
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Hooks.RemoveRequestPreparedHandler(Supabase.Postgrest.OnRequestPreparedEventHandler)">
+            <summary>
+            Removes an <see cref="T:Supabase.Postgrest.OnRequestPreparedEventHandler"/> handler.
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Hooks.ClearRequestPreparedHandlers">
+            <summary>
+            Clears all <see cref="T:Supabase.Postgrest.OnRequestPreparedEventHandler"/> handlers.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Hooks.NotifyOnRequestPreparedHandlers(System.Object,Supabase.Postgrest.ClientOptions,System.Net.Http.HttpMethod,System.String,System.Text.Json.JsonSerializerOptions,System.Object,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Notifies all listeners.
+            </summary>
+            <param name="sender"></param>
+            <param name="clientOptions"></param>
+            <param name="method"></param>
+            <param name="url"></param>
+            <param name="serializerSettings"></param>
+            <param name="data"></param>
+            <param name="headers"></param>
+        </member>
+        <member name="T:Supabase.Postgrest.Interfaces.IPostgrestCacheProvider">
+            <summary>
+            A caching provider than can be used by postgrest to store requests.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestCacheProvider.GetItem``1(System.String)">
+             <summary>
+             Gets an item from a caching solution, should coerce into a datatype.
+            
+             This will most likely be a JSON deserialization approach.
+             </summary>
+             <param name="key">A reproducible key for a defined query.</param>
+             <typeparam name="T"></typeparam>
+             <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestCacheProvider.SetItem(System.String,System.Object)">
+             <summary>
+             Sets an item within a caching solution, should store in a way that the data can be retrieved and coerced into a generic type by <see cref="M:Supabase.Postgrest.Interfaces.IPostgrestCacheProvider.GetItem``1(System.String)"/>
+            
+             This will most likely be a JSON serialization approach.
+             </summary>
+             <param name="key">A reproducible key for a defined query.</param>
+             <param name="value">An object of serializable data.</param>
+             <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestCacheProvider.ClearItem(System.String)">
+            <summary>
+            Clear an item within a caching solution by a key.
+            </summary>
+            <param name="key">A reproducible key for a defined query.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestCacheProvider.Empty">
+            <summary>
+            An empty/clear cache implementation.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Postgrest.Interfaces.IPostgrestClient">
+            <summary>
+            Client interface for Postgrest
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Interfaces.IPostgrestClient.BaseUrl">
+            <summary>
+            API Base Url for subsequent calls.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Interfaces.IPostgrestClient.Options">
+            <summary>
+            The Options <see cref="T:Supabase.Postgrest.Client"/> was initialized with.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestClient.AddRequestPreparedHandler(Supabase.Postgrest.OnRequestPreparedEventHandler)">
+            <summary>
+            Adds a handler that is called prior to a request being sent.
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestClient.RemoveRequestPreparedHandler(Supabase.Postgrest.OnRequestPreparedEventHandler)">
+            <summary>
+            Removes an <see cref="T:Supabase.Postgrest.OnRequestPreparedEventHandler"/> handler.
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestClient.ClearRequestPreparedHandlers">
+            <summary>
+            Clears all <see cref="T:Supabase.Postgrest.OnRequestPreparedEventHandler"/> handlers.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestClient.AddDebugHandler(Supabase.Postgrest.Interfaces.IPostgrestDebugger.DebugEventHandler)">
+            <summary>
+            Adds a debug handler
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestClient.RemoveDebugHandler(Supabase.Postgrest.Interfaces.IPostgrestDebugger.DebugEventHandler)">
+            <summary>
+            Removes a debug handler
+            </summary>
+            /// <param name="handler"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestClient.ClearDebugHandlers">
+            <summary>
+            Clears debug handlers
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestClient.Rpc(System.String,System.Object)">
+            <summary>
+            Perform a stored procedure call.
+            </summary>
+            <param name="procedureName">The function name to call</param>
+            <param name="parameters">The parameters to pass to the function call</param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestClient.Rpc``1(System.String,System.Object)">
+            <summary>
+            Perform a stored procedure call.
+            </summary>
+            <param name="procedureName">The function name to call</param>
+            <param name="parameters">The parameters to pass to the function call</param>
+            <typeparam name="TModeledResponse">A type used for hydrating the HTTP response content (hydration through JSON.NET)</typeparam>
+            <returns>A hydrated model</returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestClient.Table``1">
+            <summary>
+            Returns a Table Query Builder instance for a defined model - representative of `USE $TABLE`
+            </summary>
+            <typeparam name="T">Custom Model derived from `BaseModel`</typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestClient.Table``1(Supabase.Postgrest.Interfaces.IPostgrestCacheProvider)">
+            <summary>
+            Returns a Table Query Builder instance with a Cache Provider for a defined model - representative of `USE #$TABLE`
+            </summary>
+            <param name="cacheProvider"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestClient.Attach``1(``0)">
+             <summary>
+             Attaches this client's context (<see cref="P:Supabase.Postgrest.Models.BaseModel.BaseUrl"/>, <see cref="P:Supabase.Postgrest.Models.BaseModel.RequestClientOptions"/>,
+             and its headers callback) to a model, so that <c>Update</c>/<c>Delete</c> can be called directly on the
+             model afterward.
+            
+             Intended for models that were deserialized by something other than this client's own <c>Table&lt;T&gt;</c>
+             responses (which already attach this context automatically) - for example, a model deserialized from a
+             Realtime event.
+             </summary>
+             <param name="model">The model to attach context to. Mutated in place and also returned for chaining.</param>
+             <typeparam name="T">Custom Model derived from `BaseModel`</typeparam>
+             <returns>The same model instance, for convenience.</returns>
+        </member>
+        <member name="T:Supabase.Postgrest.Interfaces.IPostgrestDebugger">
+            <summary>
+            Interface for getting debug info from Postgrest
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Interfaces.IPostgrestDebugger.DebugEventHandler">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestDebugger.AddDebugHandler(Supabase.Postgrest.Interfaces.IPostgrestDebugger.DebugEventHandler)">
+            <summary>
+            Adds a debug handler
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestDebugger.RemoveDebugHandler(Supabase.Postgrest.Interfaces.IPostgrestDebugger.DebugEventHandler)">
+            <summary>
+            Removes a debug handler
+            </summary>
+            <param name="handler"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestDebugger.ClearDebugHandlers">
+            <summary>
+            Clears debug handlers
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestDebugger.Log(System.Object,System.String,Supabase.Postgrest.Exceptions.PostgrestException)">
+            <summary>
+            Logs a message
+            </summary>
+            <param name="sender"></param>
+            <param name="message"></param>
+            <param name="exception"></param>
+        </member>
+        <member name="T:Supabase.Postgrest.Interfaces.IPostgrestTable`1">
+            <summary>
+            Client interface for Postgrest
+            </summary>
+            <typeparam name="TModel"></typeparam>
+        </member>
+        <member name="P:Supabase.Postgrest.Interfaces.IPostgrestTable`1.BaseUrl">
+            <summary>
+            API Base Url for subsequent calls.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Interfaces.IPostgrestTable`1.TableName">
+            <summary>
+            Name of the Table parsed by the Model.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.GenerateUrl">
+            <summary>
+            Generates the encoded URL with defined query parameters that will be sent to the Postgrest API.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.And(System.Collections.Generic.List{Supabase.Postgrest.Interfaces.IPostgrestQueryFilter})">
+            <summary>
+            Adds an AND Filter to the current query args.
+            </summary>
+            <param name="filters"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Clear">
+            <summary>
+            Clears currently defined query values.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Columns(System.String[])">
+            <summary>
+            By using the columns query parameter it’s possible to specify the payload keys that will be inserted and ignore the rest of the payload.
+            
+            The rest of the JSON keys will be ignored.
+            Using this also has the side-effect of being more efficient for Bulk Insert since PostgREST will not process the JSON and it’ll send it directly to PostgreSQL.
+            
+            See: https://postgrest.org/en/stable/api.html#specifying-columns
+            </summary>
+            <param name="columns"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Columns(System.Linq.Expressions.Expression{System.Func{`0,System.Object[]}})">
+            <summary>
+            By using the columns query parameter it’s possible to specify the payload keys that will be inserted and ignore the rest of the payload.
+            
+            The rest of the JSON keys will be ignored.
+            Using this also has the side-effect of being more efficient for Bulk Insert since PostgREST will not process the JSON and it’ll send it directly to PostgreSQL.
+            
+            See: https://postgrest.org/en/stable/api.html#specifying-columns
+            </summary>
+            <param name="predicate"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Count(Supabase.Postgrest.Constants.CountType,System.Threading.CancellationToken)">
+             <summary>
+             Returns ONLY a count from the specified query.
+            
+             See: https://postgrest.org/en/v7.0.0/api.html?highlight=count
+             </summary>
+             <param name="type">The kind of count.</param>
+             <param name="cancellationToken"></param>
+             <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Delete(Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+             <summary>
+             Executes a delete request using the defined query params on the current instance.
+            
+             The deleted rows are returned in <see cref="P:Supabase.Postgrest.Responses.ModeledResponse`1.Models"/> (subject to
+             <see cref="P:Supabase.Postgrest.QueryOptions.Returning"/>). A row-level-security policy that hides a row, or a filter that
+             matches nothing, is not an error in PostgREST: the request succeeds and returns an empty representation.
+             Inspect <see cref="P:Supabase.Postgrest.Responses.ModeledResponse`1.Models"/> to tell "nothing was deleted" apart from "deleted" —
+             the SDK does not decide that for you.
+             </summary>
+             <returns>The response, whose <see cref="P:Supabase.Postgrest.Responses.ModeledResponse`1.Models"/> holds the rows that were deleted.</returns>
+             <example>
+             <code>
+             var response = await client.Table&lt;Todo&gt;().Filter("id", Operator.Equals, "1").Delete();
+             if (response.Models.Count == 0)
+             {
+                 // Nothing was deleted: the row did not exist, or an RLS policy hid it. Decide how to react.
+             }
+             </code>
+             </example>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Delete(`0,Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <summary>
+            Executes a delete request using the model's primary key as the filter for the request.
+            </summary>
+            <param name="model"></param>
+            <param name="options"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Filter``1(System.String,Supabase.Postgrest.Constants.Operator,``0)">
+            <summary>
+            Add a Filter to a query request
+            </summary>
+            <param name="columnName">Column Name in Table.</param>
+            <param name="op">Operation to perform.</param>
+            <param name="criterion">Value to filter with, must be a `string`, `List&lt;object&gt;`, `Dictionary&lt;string, object&gt;`, `FullTextSearchConfig`, or `Range`</param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Filter``1(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},Supabase.Postgrest.Constants.Operator,``0)">
+            <summary>
+            Add a filter to a query request using a predicate to select column.
+            </summary>
+            <param name="predicate">Expects a columns from the Model to be returned</param>
+            <param name="op">Operation to perform.</param>
+            <param name="criterion">Value to filter with, must be a `string`, `List&lt;object&gt;`, `Dictionary&lt;string, object&gt;`, `FullTextSearchConfig`, or `Range`</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Get(System.Threading.CancellationToken,Supabase.Postgrest.Constants.CountType)">
+            <summary>
+            Executes the query using the defined filters on the current instance.
+            </summary>
+            <param name="cancellationToken"></param>
+            <param name="countType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Insert(System.Collections.Generic.ICollection{`0},Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <summary>
+            Executes a BULK INSERT query using the defined query params on the current instance.
+            </summary>
+            <param name="models"></param>
+            <param name="options"></param>
+            <param name="cancellationToken"></param>
+            <returns>A typed model response from the database.</returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Insert(`0,Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <summary>
+            Executes an INSERT query using the defined query params on the current instance.
+            </summary>
+            <param name="model"></param>
+            <param name="options"></param>
+            <param name="cancellationToken"></param>
+            <returns>A typed model response from the database.</returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Limit(System.Int32,System.String)">
+            <summary>
+            Sets a limit with an optional foreign table reference. 
+            </summary>
+            <param name="limit"></param>
+            <param name="foreignTableName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Match(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Finds all rows whose columns match the specified `query` object.
+            </summary>
+            <param name="query">The object to filter with, with column names as keys mapped to their filter values.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Match(`0)">
+            <summary>
+            Fills in query parameters based on a given model's primary key(s).
+            </summary>
+            <param name="model">A model with a primary key column</param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Not(Supabase.Postgrest.Interfaces.IPostgrestQueryFilter)">
+            <summary>
+            Adds a NOT filter to the current query args.
+            </summary>
+            <param name="filter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Not(System.String,Supabase.Postgrest.Constants.Operator,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Adds a NOT filter to the current query args.
+            </summary>
+            <param name="columnName"></param>
+            <param name="op"></param>
+            <param name="criteria"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Not(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},Supabase.Postgrest.Constants.Operator,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Adds a NOT filter to the current query args.
+            </summary>
+            <param name="predicate">Expects a column from the model to be returned.</param>
+            <param name="op"></param>
+            <param name="criteria"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Not``1(System.String,Supabase.Postgrest.Constants.Operator,System.Collections.Generic.List{``0})">
+            <summary>
+            Adds a NOT filter to the current query args.
+            Allows queries like:
+            <code>
+            await client.Table&lt;User&gt;().Not("status", Operators.In, new List&lt;string&gt; {"AWAY", "OFFLINE"}).Get();
+            </code>
+            </summary>
+            <param name="columnName"></param>
+            <param name="op"></param>
+            <param name="criteria"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Not``1(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},Supabase.Postgrest.Constants.Operator,System.Collections.Generic.List{``0})">
+            <summary>
+            Adds a NOT filter to the current query args.
+            Allows queries like:
+            <code>
+            await client.Table&lt;User&gt;().Not("status", Operators.In, new List&lt;string&gt; {"AWAY", "OFFLINE"}).Get();
+            </code>
+            </summary>
+            <param name="predicate">Expects a column from the model to be returned.</param>
+            <param name="op"></param>
+            <param name="criteria"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Not``1(System.String,Supabase.Postgrest.Constants.Operator,``0)">
+             <summary>
+             Adds a NOT filter to the current query args.
+            
+             Allows queries like:
+             <code>
+             await client.Table&lt;User&gt;().Not("status", Operators.Equal, "OFFLINE").Get();
+             </code>
+             </summary>
+             <param name="columnName"></param>
+             <param name="op"></param>
+             <param name="criterion"></param>
+             <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Not``1(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},Supabase.Postgrest.Constants.Operator,``0)">
+            <summary>
+            Adds a NOT filter to the current query args.
+            
+            Allows queries like:
+            <code>
+            await client.Table&lt;User&gt;().Not("status", Operators.Equal, "OFFLINE").Get();
+            </code>
+            </summary>
+            <param name="predicate">Expects a column from the model to be returned.</param>
+            <param name="op"></param>
+            <param name="criterion"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Offset(System.Int32,System.String)">
+            <summary>
+            Sets an offset with an optional foreign table reference.
+            </summary>
+            <param name="offset"></param>
+            <param name="foreignTableName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.OnConflict(System.String)">
+            <summary>
+            By specifying the onConflict query parameter, you can make UPSERT work on a column(s) that has a UNIQUE constraint.
+            </summary>
+            <param name="columnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.OnConflict(System.Linq.Expressions.Expression{System.Func{`0,System.Object}})">
+            <summary>
+            Set an onConflict query parameter for UPSERTing on a column that has a UNIQUE constraint using a linq predicate.
+            </summary>
+            <param name="predicate">Expects a column from the model to be returned.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Or(System.Collections.Generic.List{Supabase.Postgrest.Interfaces.IPostgrestQueryFilter})">
+            <summary>
+            Adds a OR Filter to the current query args.
+            </summary>
+            <param name="filters"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Order(System.String,Supabase.Postgrest.Constants.Ordering,Supabase.Postgrest.Constants.NullPosition)">
+            <summary>
+            Adds an ordering to the current query args.
+            
+            NOTE: If multiple orderings are required, chain this function with another call to <see>
+                <cref>Order(Expression{Func{T,object}},Ordering,NullPosition)</cref>
+            </see>
+            .
+            </summary>
+            <param name="column">Column Name</param>
+            <param name="ordering"></param>
+            <param name="nullPosition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Order(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},Supabase.Postgrest.Constants.Ordering,Supabase.Postgrest.Constants.NullPosition)">
+            <summary>
+            Adds an ordering to the current query args using a predicate function.
+            
+            NOTE: If multiple orderings are required, chain this function with another call to <see>
+                <cref>Order(Expression{Func{T,object}},Ordering,NullPosition)</cref>
+            </see>
+            .
+            </summary>
+            <param name="predicate"></param>
+            <param name="ordering">>Expects a columns from the Model to be returned</param>
+            <param name="nullPosition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Order(System.String,System.String,Supabase.Postgrest.Constants.Ordering,Supabase.Postgrest.Constants.NullPosition)">
+            <summary>
+            Adds an ordering to the current query args.
+            
+            NOTE: If multiple orderings are required, chain this function with another call to <see>
+                <cref>Order(Expression{Func{T,object}},Ordering,NullPosition)</cref>
+            </see>
+            .
+            </summary>
+            <param name="foreignTable"></param>
+            <param name="column"></param>
+            <param name="ordering"></param>
+            <param name="nullPosition"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Range(System.Int32)">
+            <summary>
+            Sets a FROM range, similar to a `StartAt` query.
+            </summary>
+            <param name="from"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Range(System.Int32,System.Int32)">
+            <summary>
+            Sets a bounded range to the current query.
+            </summary>
+            <param name="from"></param>
+            <param name="to"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Select(System.String)">
+            <summary>
+            Select columns for query. 
+            </summary>
+            <param name="columnQuery"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Select(System.Linq.Expressions.Expression{System.Func{`0,System.Object[]}})">
+            <summary>
+            Select columns using a predicate function.
+            
+            For example: 
+            	`Table&lt;Movie&gt;().Select(x => new[] { x.Id, x.Name, x.CreatedAt }).Get();`
+            </summary>
+            <param name="predicate">Expects an array of columns from the Model to be returned.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Where(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+             <summary>
+             Filter a query based on a predicate expression. The expression is translated into a
+             Postgrest filter and evaluated server-side - it is never executed as C# code.
+            
+             Note: Chaining multiple <see cref="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Where(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})"/> calls will
+             be parsed as an "AND" query.
+            
+             Examples:
+            		`Table&lt;Movie&gt;().Where(x =&gt; x.Name == "Top Gun").Get();`
+            		`Table&lt;Movie&gt;().Where(x =&gt; x.Name == "Top Gun" || x.Name == "Mad Max").Get();`
+            		`Table&lt;Movie&gt;().Where(x =&gt; x.Name.Contains("Gun")).Get();`
+            		`Table&lt;Movie&gt;().Where(x =&gt; x.CreatedAt &lt;= new DateTime(2022, 08, 21)).Get();`
+            		`Table&lt;Movie&gt;().Where(x =&gt; x.Id > 5 &amp;&amp; x.Name.Contains("Max")).Get();`
+             </summary>
+             <remarks>
+             Supported predicate shapes:
+             <list type="bullet">
+             <item><description>The left side of a comparison must be a Model property (with a `Column` or `PrimaryKey` attribute); the right side a constant, captured variable, or instantiation (`new DateTime(...)`).</description></item>
+             <item><description>Comparisons (`==`, `!=`, `&gt;`, `&gt;=`, `&lt;`, `&lt;=`) can be combined with `&amp;&amp;` and `||`, and `String`/collection `Contains` is supported.</description></item>
+             <item><description>`Contains` translates by which side is the Model: a column containing a constant (`x =&gt; x.Tags.Contains("a")`) becomes a `cs`/`like` filter, while a captured collection containing a column (`x =&gt; ids.Contains(x.Id)`) becomes an `in` filter.</description></item>
+             <item><description>A boolean column can be used as a predicate on its own: `x =&gt; x.IsActive` becomes an `eq` filter and `x =&gt; !x.IsActive` a `not.eq` filter.</description></item>
+             <item><description>Negation (`!`) is translated to a Postgrest `not.` filter: `x =&gt; !(x.Name == "Top Gun")` becomes `not.eq`, and a negated group `x =&gt; !(x.Name == "Top Gun" || x.Id &gt; 5)` becomes `not.or=(...)`.</description></item>
+             <item><description>Null checks translate to Postgrest `is null` filters: `x =&gt; x.Name == null` and `x =&gt; x.Name == null || x.Name == "Top Gun"` both work.</description></item>
+             <item><description>Conditions that never reference the Model (i.e. `x =&gt; localVariable == null`) are evaluated locally: an always-true predicate applies no filter, an always-false one throws.</description></item>
+             </list>
+            
+             Comparing two Model columns to each other (`x =&gt; x.StartDate &lt; x.EndDate`) is not supported:
+             Postgrest has no column-to-column filter syntax, so it throws an <see cref="T:System.ArgumentException"/> —
+             use a database computed/generated column or an RPC instead.
+            
+             Invoking a delegate (`Func&lt;TModel, bool&gt;`) inside the predicate is not supported: a compiled
+             delegate cannot be translated into a Postgrest filter and throws an <see cref="T:System.ArgumentException"/>.
+             To apply an optional filter, declare it as an `Expression&lt;Func&lt;TModel, bool&gt;&gt;` and pass it
+             conditionally:
+             <code>
+            	var query = client.Table&lt;Movie&gt;();
+            	if (optionalFilter != null)
+            		query = query.Where(optionalFilter);
+             </code>
+             </remarks>
+             <param name="predicate"></param>
+             <returns></returns>
+             <exception cref="T:System.ArgumentException">The predicate contains an expression that cannot be translated into a Postgrest filter, or never matches any row.</exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Single(System.Threading.CancellationToken)">
+            <summary>
+            Executes a query that expects to have a single object returned, rather than returning list of models
+            it will return a single model. Returns null when the query matches no rows.
+            </summary>
+            <param name="cancellationToken"></param>
+            <exception cref="T:Supabase.Postgrest.Exceptions.PostgrestException">The query matches more than one row.</exception>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Set(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},System.Object)">
+            <summary>
+            Specifies a key and value to be updated. Should be combined with filters/where clauses.
+            
+            Can be called multiple times to set multiple values.
+            </summary>
+            <param name="keySelector"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Set(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.KeyValuePair{System.Object,System.Object}}})">
+            <summary>
+            Specifies a KeyValuePair to be updated. Should be combined with filters/where clauses.
+            
+            Can be called multiple times to set multiple values.
+            </summary>
+            <param name="keyValuePairExpression"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.StripNulls">
+            <summary>
+            Leaves null values out of the returned rows. Needs PostgREST 11.2 or later.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Update(Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <summary>
+            Calls an Update function after `Set` has been called.
+            </summary>
+            <param name="options"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Update(`0,Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <summary>
+            Executes an UPDATE query using the defined query params on the current instance.
+            </summary>
+            <param name="model"></param>
+            <param name="options"></param>
+            <param name="cancellationToken"></param>
+            <returns>A typed response from the database.</returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Upsert(System.Collections.Generic.ICollection{`0},Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+             <summary>
+             Executes an UPSERT query using the defined query params on the current instance.
+            
+             By default the new record is returned. Set QueryOptions.ReturnType to Minimal if you don't need this value.
+             By specifying the QueryOptions.OnConflict parameter, you can make UPSERT work on a column(s) that has a UNIQUE constraint.
+             QueryOptions.DuplicateResolution.IgnoreDuplicates Specifies if duplicate rows should be ignored and not inserted.
+             </summary>
+             <param name="model"></param>
+             <param name="options"></param>
+             <param name="cancellationToken"></param>
+             <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTable`1.Upsert(`0,Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <summary>
+            Executes an UPSERT query using the defined query params on the current instance.
+            
+            By default the new record is returned. Set QueryOptions.ReturnType to Minimal if you don't need this value.
+            By specifying the QueryOptions.OnConflict parameter, you can make UPSERT work on a column(s) that has a UNIQUE constraint.
+            QueryOptions.DuplicateResolution.IgnoreDuplicates Specifies if duplicate rows should be ignored and not inserted.
+            </summary>
+            <param name="model"></param>
+            <param name="options"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Postgrest.Interfaces.IPostgrestTableWithCache`1">
+            <summary>
+            Client interface for Postgrest
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Supabase.Postgrest.Interfaces.IPostgrestTableWithCache`1.Get(System.Threading.CancellationToken)">
+            <summary>
+            Performs a Get request, returning a <see cref="T:Supabase.Postgrest.Requests.CacheBackedRequest`1"/> which populates from the cache, if applicable.
+            </summary>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Postgrest.Index">
+            <summary>Represent a type can be used to index a collection either from the start or the end.</summary>
+            <remarks>
+            Index is used by the C# compiler to support the new index syntax
+            <code>
+            int[] someArray = new int[5] { 1, 2, 3, 4, 5 } ;
+            int lastElement = someArray[^1]; // lastElement = 5
+            </code>
+            </remarks>
+        </member>
+        <member name="M:Supabase.Postgrest.Index.#ctor(System.Int32,System.Boolean)">
+            <summary>Construct an Index using a value and indicating if the index is from the start or from the end.</summary>
+            <param name="value">The index value. it has to be zero or positive number.</param>
+            <param name="fromEnd">Indicating if the index is from the start or from the end.</param>
+            <remarks>
+            If the Index constructed from the end, index value 1 means pointing at the last element and index value 0 means pointing at beyond last element.
+            </remarks>
+        </member>
+        <member name="P:Supabase.Postgrest.Index.Start">
+            <summary>Create an Index pointing at first element.</summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Index.End">
+            <summary>Create an Index pointing at beyond last element.</summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Index.FromStart(System.Int32)">
+            <summary>Create an Index from the start at the position indicated by the value.</summary>
+            <param name="value">The index value from the start.</param>
+        </member>
+        <member name="M:Supabase.Postgrest.Index.FromEnd(System.Int32)">
+            <summary>Create an Index from the end at the position indicated by the value.</summary>
+            <param name="value">The index value from the end.</param>
+        </member>
+        <member name="P:Supabase.Postgrest.Index.Value">
+            <summary>Returns the index value.</summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Index.IsFromEnd">
+            <summary>Indicates whether the index is from the start or the end.</summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Index.GetOffset(System.Int32)">
+            <summary>Calculate the offset from the start using the giving collection length.</summary>
+            <param name="length">The length of the collection that the Index will be used with. length has to be a positive value</param>
+            <remarks>
+            For performance reason, we don't validate the input length parameter and the returned offset value against negative values.
+            we don't validate either the returned offset is greater than the input length.
+            It is expected Index will be used with collections which always have non negative length/count. If the returned offset is negative and
+            then used to index a collection will get out of range exception which will be same affect as the validation.
+            </remarks>
+        </member>
+        <member name="M:Supabase.Postgrest.Index.Equals(System.Object)">
+            <summary>Indicates whether the current Index object is equal to another object of the same type.</summary>
+            <param name="value">An object to compare with this object</param>
+        </member>
+        <member name="M:Supabase.Postgrest.Index.Equals(Supabase.Postgrest.Index)">
+            <summary>Indicates whether the current Index object is equal to another Index object.</summary>
+            <param name="other">An object to compare with this object</param>
+        </member>
+        <member name="M:Supabase.Postgrest.Index.GetHashCode">
+            <summary>Returns the hash code for this instance.</summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Index.op_Implicit(System.Int32)~Supabase.Postgrest.Index">
+            <summary>Converts integer number to an Index.</summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Index.ToString">
+            <summary>Converts the value of the current Index object to its equivalent string representation.</summary>
+        </member>
+        <member name="T:Supabase.Postgrest.IntRange">
+            <summary>Represent a range has start and end indexes.</summary>
+            <remarks>
+            Range is used by the C# compiler to support the range syntax.
+            <code>
+            int[] someArray = new int[5] { 1, 2, 3, 4, 5 };
+            int[] subArray1 = someArray[0..2]; // { 1, 2 }
+            int[] subArray2 = someArray[1..^0]; // { 2, 3, 4, 5 }
+            </code>
+            </remarks>
+        </member>
+        <member name="P:Supabase.Postgrest.IntRange.Start">
+            <summary>Represent the inclusive start index of the Range.</summary>
+        </member>
+        <member name="P:Supabase.Postgrest.IntRange.End">
+            <summary>Represent the exclusive end index of the Range.</summary>
+        </member>
+        <member name="M:Supabase.Postgrest.IntRange.#ctor(Supabase.Postgrest.Index,Supabase.Postgrest.Index)">
+            <summary>Construct a Range object using the start and end indexes.</summary>
+            <param name="start">Represent the inclusive start index of the range.</param>
+            <param name="end">Represent the exclusive end index of the range.</param>
+        </member>
+        <member name="M:Supabase.Postgrest.IntRange.Equals(System.Object)">
+            <summary>Indicates whether the current Range object is equal to another object of the same type.</summary>
+            <param name="value">An object to compare with this object</param>
+        </member>
+        <member name="M:Supabase.Postgrest.IntRange.Equals(Supabase.Postgrest.IntRange)">
+            <summary>Indicates whether the current Range object is equal to another Range object.</summary>
+            <param name="other">An object to compare with this object</param>
+        </member>
+        <member name="M:Supabase.Postgrest.IntRange.GetHashCode">
+            <summary>Returns the hash code for this instance.</summary>
+        </member>
+        <member name="M:Supabase.Postgrest.IntRange.ToString">
+            <summary>Converts the value of the current Range object to its equivalent string representation.</summary>
+        </member>
+        <member name="M:Supabase.Postgrest.IntRange.StartAt(Supabase.Postgrest.Index)">
+            <summary>Create a Range object starting from start index to the end of the collection.</summary>
+        </member>
+        <member name="M:Supabase.Postgrest.IntRange.EndAt(Supabase.Postgrest.Index)">
+            <summary>Create a Range object starting from first element in the collection to the end Index.</summary>
+        </member>
+        <member name="P:Supabase.Postgrest.IntRange.All">
+            <summary>Create a Range object starting from first element to the end.</summary>
+        </member>
+        <member name="M:Supabase.Postgrest.IntRange.GetOffsetAndLength(System.Int32)">
+            <summary>Calculate the start offset and length of range object using a collection length.</summary>
+            <param name="length">The length of the collection that the range will be used with. length has to be a positive value.</param>
+            <remarks>
+            For performance reason, we don't validate the input length parameter against negative values.
+            It is expected Range will be used with collections which always have non negative length/count.
+            We validate the range is inside the length scope though.
+            </remarks>
+        </member>
+        <member name="T:Supabase.Postgrest.Linq.SelectExpressionVisitor">
+            <summary>
+            Helper class for parsing Select linq queries.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Linq.SelectExpressionVisitor.Columns">
+            <summary>
+            The columns that have been selected from this linq expression.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.SelectExpressionVisitor.VisitNewArray(System.Linq.Expressions.NewArrayExpression)">
+            <summary>
+            The root call that will be looped through to populate <see cref="P:Supabase.Postgrest.Linq.SelectExpressionVisitor.Columns"/>.
+            
+            Called like: `Table&lt;Movies&gt;().Select(x => new[] { x.Id, x.Name, x.CreatedAt }).Get()`
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.SelectExpressionVisitor.VisitMember(System.Linq.Expressions.MemberExpression)">
+            <summary>
+            A Member Node, representing a property on a BaseModel.
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.SelectExpressionVisitor.VisitUnary(System.Linq.Expressions.UnaryExpression)">
+            <summary>
+            A Unary Node, delved into to represent a property on a BaseModel.
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.SelectExpressionVisitor.GetColumnFromMemberExpression(System.Linq.Expressions.MemberExpression)">
+            <summary>
+            Gets a column name from property based on it's supplied attributes.
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Postgrest.Linq.SetExpressionVisitor">
+            <summary>
+            Helper class for parsing Set linq queries.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Linq.SetExpressionVisitor.Column">
+            <summary>
+            The column that have been selected from this linq expression.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Linq.SetExpressionVisitor.ExpectedType">
+            <summary>
+            The Column's type that value should be checked against.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Linq.SetExpressionVisitor.Value">
+            <summary>
+            Value to be updated.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.SetExpressionVisitor.VisitUnary(System.Linq.Expressions.UnaryExpression)">
+            <summary>
+            A Unary Node, delved into to represent a property on a BaseModel.
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.SetExpressionVisitor.VisitMember(System.Linq.Expressions.MemberExpression)">
+            <summary>
+            A Member Node, representing a property on a BaseModel.
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.SetExpressionVisitor.VisitNew(System.Linq.Expressions.NewExpression)">
+            <summary>
+            Called when visiting a the expected new KeyValuePair().
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.SetExpressionVisitor.GetColumnFromMemberExpression(System.Linq.Expressions.MemberExpression)">
+            <summary>
+            Gets a column name from property based on it's supplied attributes.
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Postgrest.Linq.WhereExpressionVisitor">
+            <summary>
+            Helper class for parsing Where linq queries. Supports comparisons, `&amp;&amp;`/`||` groups,
+            `String`/collection `Contains` (including a captured collection containing a column, which becomes
+            an `in` filter), bare boolean columns (`x =&gt; x.IsActive`), null checks (`is null`), and negation
+            (`!`), translating each into the equivalent Postgrest filter; negation wraps its operand in a `not.`
+            filter.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Linq.WhereExpressionVisitor.Filter">
+            <summary>
+            The filter resulting from this Visitor, capable of producing nested filters.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Linq.WhereExpressionVisitor.ConstantValue">
+            <summary>
+            Set instead of <see cref="P:Supabase.Postgrest.Linq.WhereExpressionVisitor.Filter"/> when the predicate (or the visited branch of it) never
+            references the model and was instead evaluated locally to a boolean
+            (i.e. `x => filterPredicate == null || filterPredicate(x)` where `filterPredicate` is null).
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.VisitLambda``1(System.Linq.Expressions.Expression{``0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.VisitBinary(System.Linq.Expressions.BinaryExpression)">
+             <summary>
+             An entry point that will be used to populate <see cref="P:Supabase.Postgrest.Linq.WhereExpressionVisitor.Filter"/>.
+            
+             Invoked like:
+            		`Table&lt;Movies&gt;().Where(x => x.Name == "Top Gun").Get();`
+             </summary>
+             <param name="node"></param>
+             <returns></returns>
+             <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.VisitUnary(System.Linq.Expressions.UnaryExpression)">
+            <summary>
+            Handles a logical negation (i.e. `x => !(x.Name == "foo")`). The operand is visited as its own
+            branch and the resulting filter is wrapped in a `not.` filter; a locally evaluated operand
+            (i.e. `x => !someLocalBool`) simply flips its boolean value. A negation of an already-negated
+            filter (i.e. `x => !x.IsActive.HasValue`, whose operand is the `not.is.null` filter) cancels the
+            two `not.`s rather than emitting an invalid `not.not.` value.
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.VisitConditional(System.Linq.Expressions.ConditionalExpression)">
+            <summary>
+            Handles a ternary (i.e. `x => x.IsProtected ? false : x.IsExpired`), visited as
+            `(test &amp;&amp; a) || (!test &amp;&amp; b)` so the test is kept.
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.VisitMember(System.Linq.Expressions.MemberExpression)">
+            <summary>
+            Handles a boolean column used directly as a predicate (i.e. `x => x.IsActive`, its nullable
+            `x => x.IsActive!.Value` form, or negated via <see cref="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.VisitUnary(System.Linq.Expressions.UnaryExpression)"/> `x => !x.IsActive`),
+            translating it into a `column.eq.true` filter. A `Nullable&lt;T&gt;.HasValue` access
+            (i.e. `x => x.IsActive.HasValue`) instead becomes a `column IS NOT NULL` check.
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.VisitBranch(System.Linq.Expressions.Expression)">
+            <summary>
+            Visits one side of an `AND`/`OR` expression, producing either a <see cref="T:Supabase.Postgrest.QueryFilter"/> or,
+            when the branch never references the model, its locally evaluated boolean value.
+            </summary>
+            <param name="expression"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.VisitMethodCall(System.Linq.Expressions.MethodCallExpression)">
+            <summary>
+            Translates a `Contains` call. Two shapes are supported, distinguished by which side references
+            the model: a model column containing a constant (`x =&gt; x.Tags.Contains("a")` → `cs`/`like`) and
+            a captured collection containing a model column (`x =&gt; ids.Contains(x.Id)` → `in`). The latter
+            works for both instance (`List.Contains`) and static (`Enumerable.Contains`) calls.
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.DeconstructContains(System.Linq.Expressions.MethodCallExpression)">
+            <summary>
+            Splits a `Contains` call into its collection and item, whether it is an instance call
+            (`collection.Contains(item)`) or a static `Enumerable.Contains(collection, item)`.
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.VisitColumnContains(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
+            <summary>
+            Translates `x =&gt; x.Column.Contains(value)`: a `cs` filter for a collection column, or a `like`
+            filter for a string column.
+            </summary>
+            <param name="collection"></param>
+            <param name="item"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.VisitCapturedContains(System.Linq.Expressions.Expression,System.Linq.Expressions.Expression)">
+            <summary>
+            Translates `x =&gt; capturedCollection.Contains(x.Column)` into an `in` filter, resolving the column
+            from the argument and evaluating the collection locally.
+            </summary>
+            <param name="collection"></param>
+            <param name="item"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.ResolveColumn(System.Linq.Expressions.Expression)">
+            <summary>
+            Resolves the column name from an expression that references the model parameter, unwrapping a
+            `Convert` (nullable coercion) or a `Nullable&lt;T&gt;.Value` access along the way.
+            </summary>
+            <param name="expression"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.IsNullableValueAccess(System.Linq.Expressions.MemberExpression)">
+            <summary>
+            True for the `Nullable&lt;T&gt;.Value` access the compiler inserts around a nullable column (i.e.
+            the `.Value` in `x.IntValue!.Value`); its inner expression is the column itself.
+            </summary>
+            <param name="member"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.IsNullableHasValueAccess(System.Linq.Expressions.MemberExpression)">
+            <summary>
+            True for the `Nullable&lt;T&gt;.HasValue` access on a nullable column (i.e. the `.HasValue` in
+            `x.IsActive.HasValue`); its inner expression is the column being null-checked.
+            </summary>
+            <param name="member"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.EvaluateCollection(System.Linq.Expressions.Expression)">
+            <summary>
+            Evaluates a parameter-free collection expression locally into the list of values expected by an
+            `in` filter. Conversion wrappers are stripped first so a `T[]` compiled against the span-based
+            `MemoryExtensions.Contains` (i.e. `op_Implicit(array)` to `ReadOnlySpan&lt;T&gt;`) is evaluated as
+            the underlying array rather than an un-invokable ref struct.
+            </summary>
+            <param name="expression"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.UnwrapConversion(System.Linq.Expressions.Expression)">
+            <summary>
+            Strips `Convert` and implicit/explicit conversion-operator wrappers to reach the underlying value.
+            </summary>
+            <param name="expression"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.IsEnum(System.Type)">
+            <summary>
+            True for an enum type, including a nullable enum.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.BuildFilter(System.String,Supabase.Postgrest.Constants.Operator,System.Object)">
+            <summary>
+            Builds a filter from a column, operator and (possibly null) criterion, translating null
+            equality checks (i.e. `x => x.Name == null`) into the `IS NULL`/`IS NOT NULL` filters
+            Postgrest expects — at any nesting depth.
+            </summary>
+            <param name="column"></param>
+            <param name="op"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.GetColumnFromMemberExpression(System.Linq.Expressions.MemberExpression)">
+            <summary>
+            Gets a column name (postgrest) from a Member Expression (used on BaseModel)
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.GetMappedOperator(System.Linq.Expressions.Expression)">
+            <summary>
+            Creates map between linq <see cref="T:System.Linq.Expressions.ExpressionType"/> and <see cref="T:Supabase.Postgrest.Constants.Operator"/>
+            </summary>
+            <param name="node"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.ContainsParameter(System.Linq.Expressions.Expression)">
+            <summary>
+            Checks if an expression references the model parameter of the `Where` predicate.
+            Expressions that don't (i.e. `filterPredicate == null`) can be evaluated locally
+            instead of being translated into a filter.
+            </summary>
+            <param name="expression"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Linq.WhereExpressionVisitor.EvaluateExpression(System.Linq.Expressions.Expression)">
+            <summary>
+            Evaluates an expression that doesn't reference the model locally.
+            </summary>
+            <param name="expression"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Postgrest.Models.BaseModel">
+            <summary>
+            Abstract class that must be implemented by C# Postgrest Models.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Models.BaseModel.PrimaryKey">
+            <summary>
+            Gets the values of the PrimaryKey columns (there can be multiple) on a model's instance as defined by the [PrimaryKey] attributes on a property on the model.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Models.CachedModel`1">
+            <summary>
+            Represents a cacheable model
+            </summary>
+            <typeparam name="TModel"></typeparam>
+        </member>
+        <member name="P:Supabase.Postgrest.Models.CachedModel`1.Models">
+            <summary>
+            The stored Models
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Models.CachedModel`1.CachedAt">
+            <summary>
+            Cache time in UTC.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.PostgrestDiagnostics">
+            <summary>
+            Names of the diagnostic sources the Postgrest client emits to. Pass these when wiring up
+            OpenTelemetry so you don't have to hardcode (case-sensitive) source names:
+            <c>TracerProviderBuilder.AddSource(PostgrestDiagnostics.SourceName)</c> and
+            <c>MeterProviderBuilder.AddMeter(PostgrestDiagnostics.SourceName)</c>.
+            </summary>
+        </member>
+        <member name="F:Supabase.Postgrest.PostgrestDiagnostics.SourceName">
+            <summary>
+            The name shared by the Postgrest client's <see cref="T:System.Diagnostics.ActivitySource"/>
+            and <see cref="T:System.Diagnostics.Metrics.Meter"/>.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.PostgrestInstrumentation">
+             <summary>
+             Diagnostics for the Postgrest client, exposed through <see cref="N:System.Diagnostics"/> so
+             consumers can subscribe with the OpenTelemetry SDK using <see cref="F:Supabase.Postgrest.PostgrestDiagnostics.SourceName"/>
+             (<c>AddSource(...)</c> / <c>AddMeter(...)</c>). Emission is zero-cost when nothing is listening.
+            
+             Telemetry must never carry secrets or PII: URLs are recorded without their query string
+             (Postgrest puts column filters and their values there) and no tag may contain row data,
+             a credential, or other sensitive value.
+             </summary>
+        </member>
+        <member name="F:Supabase.Postgrest.PostgrestInstrumentation.OperationTag">
+            <summary>Tag key carrying the logical database operation (select/insert/update/…).</summary>
+        </member>
+        <member name="M:Supabase.Postgrest.PostgrestInstrumentation.ResolveOperation(System.Net.Http.HttpMethod,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Maps an HTTP method and the request flags to the logical Postgrest operation name.
+            </summary>
+            <param name="method">The HTTP method of the request.</param>
+            <param name="isInsert">Whether the request is an insert.</param>
+            <param name="isUpdate">Whether the request is an update.</param>
+            <param name="isUpsert">Whether the request is an upsert.</param>
+        </member>
+        <member name="M:Supabase.Postgrest.PostgrestInstrumentation.StartHttpActivity(System.Net.Http.HttpMethod,System.Uri,System.String)">
+            <summary>
+            Starts the client span for an outgoing HTTP request, tagged per OpenTelemetry HTTP
+            conventions with the sanitized (query-less) URL. Returns null when nothing is listening.
+            </summary>
+            <param name="method">The HTTP method of the request.</param>
+            <param name="uri">The request URI, sanitized before tagging.</param>
+            <param name="operation">The logical operation name, or null when not known.</param>
+        </member>
+        <member name="M:Supabase.Postgrest.PostgrestInstrumentation.RecordRequest(System.Net.Http.HttpMethod,System.Uri,System.String,System.Nullable{System.Int32},System.String,System.Int64)">
+            <summary>
+            Records the request duration histogram for an HTTP request outcome.
+            </summary>
+            <param name="method">The HTTP method of the request.</param>
+            <param name="uri">The request URI; only its host and path are recorded.</param>
+            <param name="operation">The logical operation name, or null when not known.</param>
+            <param name="statusCode">The HTTP response status code, or null if the request never got one.</param>
+            <param name="errorType">The error classification, or null on success.</param>
+            <param name="startTimestamp">The <see cref="M:System.Diagnostics.Stopwatch.GetTimestamp"/> value captured before the request.</param>
+        </member>
+        <member name="T:Supabase.Postgrest.PostgrestOperation">
+            <summary>
+            The write operation a model is being serialized for. Mirrors the state the previous
+            <c>PostgrestContractResolver</c> toggled, but is baked into a dedicated
+            <see cref="T:System.Text.Json.JsonSerializerOptions" /> per operation because System.Text.Json freezes options (and
+            caches the per-type contract) on first use, so a single mutable resolver cannot be reused.
+            </summary>
+        </member>
+        <member name="F:Supabase.Postgrest.PostgrestOperation.None">
+            <summary>Read, RPC, and any serialization that drops no columns (the default).</summary>
+        </member>
+        <member name="T:Supabase.Postgrest.PostgrestSerializerOptions">
+            <summary>
+            Builds the <see cref="T:System.Text.Json.JsonSerializerOptions" /> that replace the Newtonsoft
+            <c>JsonSerializerSettings</c> + <c>PostgrestContractResolver</c>. The custom column converters are
+            registered globally (System.Text.Json auto-wraps them for nullable members), and a
+            <see cref="T:System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver" /> modifier applies the column-name mapping, per-column null
+            handling and per-operation column dropping the resolver used to do in <c>CreateProperty</c>.
+            </summary>
+        </member>
+        <member name="F:Supabase.Postgrest.PostgrestSerializerOptions.Passthrough">
+            <summary>
+            Re-parses an already-serialized payload into the loose object graph sent on the wire, keeping
+            date/time values as their serialized strings (the previous <c>DateParseHandling.None</c>) so the
+            column converters' formatting passes through verbatim.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.QueryFilter`2">
+            <summary>
+            Allow for the expression of a query filter with linq expressions.
+            </summary>
+            <typeparam name="TModel"></typeparam>
+            <typeparam name="TCriterion"></typeparam>
+        </member>
+        <member name="P:Supabase.Postgrest.QueryFilter`2.Criteria">
+            <inheritdoc />
+        </member>
+        <member name="P:Supabase.Postgrest.QueryFilter`2.Op">
+            <inheritdoc />
+        </member>
+        <member name="P:Supabase.Postgrest.QueryFilter`2.Property">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.QueryFilter`2.#ctor(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},Supabase.Postgrest.Constants.Operator,`1)">
+            <summary>
+            Allows the creation of a Query Filter using a LINQ expression.
+            </summary>
+            <param name="predicate"></param>
+            <param name="op"></param>
+            <param name="criterion"></param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="T:Supabase.Postgrest.QueryFilter">
+            <inheritdoc />
+        </member>
+        <member name="F:Supabase.Postgrest.QueryFilter.NullVal">
+            <summary>
+            String value to be substituted for a null criterion
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.QueryFilter.Property">
+            <inheritdoc />
+        </member>
+        <member name="P:Supabase.Postgrest.QueryFilter.Op">
+            <inheritdoc />
+        </member>
+        <member name="P:Supabase.Postgrest.QueryFilter.Criteria">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.QueryFilter.#ctor(System.String,Supabase.Postgrest.Constants.Operator,System.Object)">
+            <summary>
+            Contractor to use single value filtering.
+            </summary>
+            <param name="property">Column name</param>
+            <param name="op">Operation: And, Equals, GreaterThan, LessThan, GreaterThanOrEqual, LessThanOrEqual, NotEqual, Is, Adjacent, Not, Like, ILike</param>
+            <param name="criteria"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.QueryFilter.#ctor(System.String,Supabase.Postgrest.Constants.Operator,Supabase.Postgrest.FullTextSearchConfig)">
+            <summary>
+            Constructor for Full Text Search.
+            </summary>
+            <param name="property">Column Name</param>
+            <param name="op">Operation: FTS, PHFTS, PLFTS, WFTS</param>
+            <param name="fullTextSearchConfig"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.QueryFilter.#ctor(System.String,Supabase.Postgrest.Constants.Operator,Supabase.Postgrest.IntRange)">
+            <summary>
+            Constructor for Range Queries.
+            </summary>
+            <param name="property"></param>
+            <param name="op">Operator: Overlap, StrictlyLeft, StrictlyRight, NotRightOf, NotLeftOf, Adjacent</param>
+            <param name="range"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.QueryFilter.#ctor(Supabase.Postgrest.Constants.Operator,System.Collections.Generic.List{Supabase.Postgrest.Interfaces.IPostgrestQueryFilter})">
+            <summary>
+            Constructor to enable `AND` and `OR` Queries by allowing nested QueryFilters.
+            </summary>
+            <param name="op">Operation: And, Or</param>
+            <param name="filters"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.QueryFilter.#ctor(Supabase.Postgrest.Constants.Operator,Supabase.Postgrest.Interfaces.IPostgrestQueryFilter)">
+            <summary>
+            Constructor to enable `NOT` functionality
+            </summary>
+            <param name="op">Operation: Not.</param>
+            <param name="filter"></param>
+        </member>
+        <member name="T:Supabase.Postgrest.FullTextSearchConfig">
+            <summary>
+            Configuration Object for Full Text Search.
+            API Reference: http://postgrest.org/en/v7.0.0/api.html?highlight=full%20text%20search#full-text-search
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.FullTextSearchConfig.QueryText">
+            <summary>
+            Query Text
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.FullTextSearchConfig.Config">
+            <summary>
+            Defaults to english
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.FullTextSearchConfig.#ctor(System.String,System.String)">
+            <summary>
+            Constructor for Full Text Search.
+            </summary>
+            <param name="queryText"></param>
+            <param name="config"></param>
+        </member>
+        <member name="P:Supabase.Postgrest.QueryOptions.Returning">
+            <summary>
+            By default the new record is returned. Set this to 'Minimal' if you don't need this value.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.QueryOptions.DuplicateResolution">
+            <summary>
+            Specifies if duplicate rows should be ignored and not inserted.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.QueryOptions.Count">
+            <summary>
+            Count algorithm to use to count rows in a table.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.QueryOptions.Upsert">
+            <summary>
+            If the record should be upserted
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.QueryOptions.OnConflict">
+            <summary>
+            /// By specifying the onConflict query parameter, you can make UPSERT work on a column(s) that has a UNIQUE constraint.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Requests.CacheBackedRequest`1">
+            <summary>
+            Represents a Request that is backed by a caching strategy.
+            </summary>
+            <typeparam name="TModel"></typeparam>
+        </member>
+        <member name="T:Supabase.Postgrest.Requests.CacheBackedRequest`1.RemoteModelsPopulatedEventHandler">
+            <summary>
+            Handler for when Remote Models have been populated
+            </summary>
+        </member>
+        <member name="F:Supabase.Postgrest.Requests.CacheBackedRequest`1._remoteRequestAction">
+            <summary>
+            The Async action that represents the Remote Request
+            </summary>
+        </member>
+        <member name="F:Supabase.Postgrest.Requests.CacheBackedRequest`1._instance">
+            <summary>
+            The Postgrest Table Instance
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Requests.CacheBackedRequest`1.CacheKey">
+            <summary>
+            The Cache lookup key - a Base64 encoded reproducible URL for this request configuration.
+            </summary>
+        </member>
+        <member name="F:Supabase.Postgrest.Requests.CacheBackedRequest`1._cacheProvider">
+            <summary>
+            The Caching provider.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Requests.CacheBackedRequest`1.Models">
+            <summary>
+            The Models returned either by Cache Hit or Remote Response
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Requests.CacheBackedRequest`1.Response">
+            <summary>
+            The response (if applicable) from <see cref="F:Supabase.Postgrest.Requests.CacheBackedRequest`1._remoteRequestAction"/>
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Requests.CacheBackedRequest`1.WasCacheHit">
+            <summary>
+            If the cache was hit for this request.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Requests.CacheBackedRequest`1.WasResponseCached">
+            <summary>
+            If the response was stored in cache.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Requests.CacheBackedRequest`1.CacheTime">
+            <summary>
+            The stored cache time in UTC.
+            </summary>
+        </member>
+        <member name="E:Supabase.Postgrest.Requests.CacheBackedRequest`1.PropertyChanged">
+            <inheritdoc />
+        </member>
+        <member name="E:Supabase.Postgrest.Requests.CacheBackedRequest`1.RemoteModelsPopulated">
+            <summary>
+            Invoked when Remote Models have been populated on this object.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Requests.CacheBackedRequest`1.#ctor(Supabase.Postgrest.Interfaces.IPostgrestTableWithCache{`0},Supabase.Postgrest.Interfaces.IPostgrestCacheProvider,System.Func{System.Threading.Tasks.Task{Supabase.Postgrest.Responses.ModeledResponse{`0}}})">
+            <summary>
+            Constructs a Cache Backed Request that automatically populates itself using the Cache provider (if possible).
+            </summary>
+            <param name="instance"></param>
+            <param name="cacheProvider"></param>
+            <param name="remoteRequestAction"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Requests.CacheBackedRequest`1.TryLoadFromCache">
+            <summary>
+            Attempts to load a model from the cache. 
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Requests.CacheBackedRequest`1.InvokeAsync">
+            <summary>
+            Loads the remote models in the background. Nothing awaits this, so a failure is logged instead of thrown.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Requests.CacheBackedRequest`1.LoadRemoteAsync">
+            <summary>
+            Invokes the stored <see cref="F:Supabase.Postgrest.Requests.CacheBackedRequest`1._remoteRequestAction"/>
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Requests.CacheBackedRequest`1.Cache(Supabase.Postgrest.Responses.ModeledResponse{`0})">
+            <summary>
+            Caches a modeled response using the <see cref="F:Supabase.Postgrest.Requests.CacheBackedRequest`1._cacheProvider"/>
+            </summary>
+            <param name="response"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Requests.CacheBackedRequest`1.OnPropertyChanged(System.String)">
+            <summary>
+            Raises a property change event.
+            </summary>
+            <param name="propertyName"></param>
+        </member>
+        <member name="M:Supabase.Postgrest.Requests.CacheBackedRequest`1.SetField``1(``0@,``0,System.String)">
+            <summary>
+            Sets a field within this instance and raises <see cref="M:Supabase.Postgrest.Requests.CacheBackedRequest`1.OnPropertyChanged(System.String)"/>
+            </summary>
+            <param name="field"></param>
+            <param name="value"></param>
+            <param name="propertyName"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Postgrest.Responses.BaseResponse">
+            <summary>
+            A wrapper class from which all Responses derive.
+            </summary>
+        </member>
+        <member name="T:Supabase.Postgrest.Responses.ModeledResponse`1">
+            <summary>
+            A representation of a successful Postgrest response that transforms the string response into a C# Modelled response.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:Supabase.Postgrest.Responses.ModeledResponse`1.Model">
+            <summary>
+            The first model in the response.
+            </summary>
+        </member>
+        <member name="P:Supabase.Postgrest.Responses.ModeledResponse`1.Models">
+            <summary>
+            A list of models in the response.
+            </summary>
+        </member>
+        <member name="F:Supabase.Postgrest.Responses.ModeledResponse`1.Count">
+            <summary>
+            The number of results matching the specified filters
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Responses.ModeledResponse`1.#ctor(Supabase.Postgrest.Responses.BaseResponse,System.Text.Json.JsonSerializerOptions,System.Func{System.Collections.Generic.Dictionary{System.String,System.String}},System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="T:Supabase.Postgrest.Table`1">
+             <summary>
+             Class created from a model derived from `BaseModel` that can generate query requests to a Postgrest Endpoint.
+            
+             Representative of a `USE $TABLE` command.
+             </summary>
+             <typeparam name="TModel">Model derived from `BaseModel`.</typeparam>
+        </member>
+        <member name="P:Supabase.Postgrest.Table`1.BaseUrl">
+            <inheritdoc />
+        </member>
+        <member name="P:Supabase.Postgrest.Table`1.TableName">
+            <inheritdoc />
+        </member>
+        <member name="P:Supabase.Postgrest.Table`1.GetHeaders">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.#ctor(System.String,System.Text.Json.JsonSerializerOptions,Supabase.Postgrest.ClientOptions)">
+            <summary>
+            Typically called from the Client `new Client.Table&lt;ModelType&gt;`
+            </summary>
+            <param name="baseUrl">Api Endpoint (ex: "http://localhost:8000"), no trailing slash required.</param>
+            <param name="serializerSettings"></param>
+            <param name="options">Optional client configuration.</param>
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Filter``1(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},Supabase.Postgrest.Constants.Operator,``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Filter``1(System.String,Supabase.Postgrest.Constants.Operator,``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Not(Supabase.Postgrest.Interfaces.IPostgrestQueryFilter)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Not``1(System.String,Supabase.Postgrest.Constants.Operator,``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Not``1(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},Supabase.Postgrest.Constants.Operator,``0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Not``1(System.String,Supabase.Postgrest.Constants.Operator,System.Collections.Generic.List{``0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Not``1(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},Supabase.Postgrest.Constants.Operator,System.Collections.Generic.List{``0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Not(System.String,Supabase.Postgrest.Constants.Operator,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Not(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},Supabase.Postgrest.Constants.Operator,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.And(System.Collections.Generic.List{Supabase.Postgrest.Interfaces.IPostgrestQueryFilter})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Or(System.Collections.Generic.List{Supabase.Postgrest.Interfaces.IPostgrestQueryFilter})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Match(`0)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Match(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Order(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},Supabase.Postgrest.Constants.Ordering,Supabase.Postgrest.Constants.NullPosition)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Order(System.String,Supabase.Postgrest.Constants.Ordering,Supabase.Postgrest.Constants.NullPosition)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Order(System.String,System.String,Supabase.Postgrest.Constants.Ordering,Supabase.Postgrest.Constants.NullPosition)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Range(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Range(System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Select(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Select(System.Linq.Expressions.Expression{System.Func{`0,System.Object[]}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Where(System.Linq.Expressions.Expression{System.Func{`0,System.Boolean}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Limit(System.Int32,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.OnConflict(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.OnConflict(System.Linq.Expressions.Expression{System.Func{`0,System.Object}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Columns(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Columns(System.Linq.Expressions.Expression{System.Func{`0,System.Object[]}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Offset(System.Int32,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.StripNulls">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Insert(`0,Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Insert(System.Collections.Generic.ICollection{`0},Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Upsert(`0,Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Upsert(System.Collections.Generic.ICollection{`0},Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Set(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Set(System.Linq.Expressions.Expression{System.Func{`0,System.Collections.Generic.KeyValuePair{System.Object,System.Object}}})">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Update(Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Update(`0,Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Delete(Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Delete(`0,Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Count(Supabase.Postgrest.Constants.CountType,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Single(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Get(System.Threading.CancellationToken,Supabase.Postgrest.Constants.CountType)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.GenerateUrl">
+            <summary>
+            Generates the encoded URL with defined query parameters that will be sent to the Postgrest API.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.PrepareRequestData(System.Object,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Transforms an object into a string mapped list/dictionary using the per-operation
+            <see cref="T:System.Text.Json.JsonSerializerOptions"/>. The serialized payload is re-parsed into the loose object
+            graph sent on the wire; <see cref="F:Supabase.Postgrest.PostgrestSerializerOptions.Passthrough"/> keeps date/time values
+            as their serialized strings so the column converters' formatting passes through verbatim (parsing
+            them back into <see cref="T:System.DateTime"/> would let the default handling shift an unspecified-kind
+            `date` to the previous day in timezones ahead of UTC).
+            </summary>
+            <param name="data"></param>
+            <param name="isInsert"></param>
+            <param name="isUpdate"></param>
+            <param name="isUpsert"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.PrepareFilter(Supabase.Postgrest.Interfaces.IPostgrestQueryFilter)">
+             <summary>
+             Transforms the defined filters into the expected Postgrest format.
+            
+             See: http://postgrest.org/en/v7.0.0/api.html#operators
+             </summary>
+             <param name="filter"></param>
+             <returns></returns>
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.NegatePreparedFilter(Supabase.Postgrest.QueryFilter,System.Collections.Generic.KeyValuePair{System.String,System.String})">
+            <summary>
+            Applies a `not.` negation to an already-prepared filter. A negated logical group is expressed as
+            `not.and=(...)` / `not.or=(...)`, with the `not.` prefixing the key; a negated column filter keeps
+            the `not.` on the value (`not.eq.foo`).
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.Clear">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.Table`1.PerformInsert(System.Object,Supabase.Postgrest.QueryOptions,System.Threading.CancellationToken)">
+            <summary>
+            Performs an INSERT Request.
+            </summary>
+            <param name="data"></param>
+            <param name="options"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Postgrest.TableWithCache`1">
+            <summary>
+            Represents a table constructed with a <see cref="T:Supabase.Postgrest.Interfaces.IPostgrestCacheProvider"/>
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:Supabase.Postgrest.TableWithCache`1.CacheProvider">
+            <summary>
+            Represents a caching provider to be used with Get Requests.
+            </summary>
+        </member>
+        <member name="M:Supabase.Postgrest.TableWithCache`1.#ctor(System.String,Supabase.Postgrest.Interfaces.IPostgrestCacheProvider,System.Text.Json.JsonSerializerOptions,Supabase.Postgrest.ClientOptions)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Postgrest.TableWithCache`1.Get(System.Threading.CancellationToken)">
+            <summary>
+            
+            </summary>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.RuntimeHelpers.GetSubArray``1(``0[],Supabase.Postgrest.IntRange)">
+            <summary>
+            Slices the specified array using the specified range.
+            </summary>
+        </member>
+    </members>
+</doc>

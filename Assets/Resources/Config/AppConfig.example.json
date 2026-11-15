@@ -1,0 +1,4 @@
+{
+  "supabaseUrl": "YOUR_URL",
+  "supabaseAnonKey": "YOUR_PUBLISH_KEY"
+}

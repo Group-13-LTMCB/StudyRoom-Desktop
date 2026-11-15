@@ -1,0 +1,479 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Supabase</name>
+    </assembly>
+    <members>
+        <member name="T:Supabase.ApiKey">
+             <summary>
+             Helpers for reasoning about the format of a Supabase API key.
+            
+             Supabase is migrating away from the legacy JWT-based <c>anon</c> / <c>service_role</c> keys
+             toward opaque, non-JWT keys: publishable (<c>sb_publishable_…</c>, client-side) and secret
+             (<c>sb_secret_…</c>, server-side). Because the new keys are not JWTs, they must travel on the
+             <c>apikey</c> header only — the platform rejects them on <c>Authorization: Bearer</c> (except
+             when the Bearer value exactly equals the <c>apikey</c> value).
+             </summary>
+        </member>
+        <member name="F:Supabase.ApiKey.WarnedSubtypes">
+            <summary>
+            Subtypes we've already warned about, so <see cref="M:Supabase.ApiKey.CheckFormat(System.String)"/> stays quiet after the
+            first occurrence (mirrors supabase-js <c>checkApiKeyFormat</c>).
+            </summary>
+        </member>
+        <member name="M:Supabase.ApiKey.IsNewApiKey(System.String)">
+            <summary>
+            True when the key is a new-format opaque key (publishable or secret). These are not JWTs
+            and must never be sent as an <c>Authorization: Bearer</c> token.
+            </summary>
+        </member>
+        <member name="M:Supabase.ApiKey.CheckFormat(System.String)">
+            <summary>
+            Warns (once per unrecognized subtype) when the key uses an <c>sb_…_</c> prefix the SDK
+            does not recognize. Legacy JWT keys (no <c>sb_</c> prefix), the recognized new-format keys,
+            and temporary <c>sb_temp_</c> keys are all considered fine and produce no warning.
+            </summary>
+        </member>
+        <member name="T:Supabase.Client">
+            <summary>
+            A class representing the Supabase Client, coordinating between all child APIs
+            </summary>
+        </member>
+        <member name="P:Supabase.Client.Auth">
+            <summary>
+            Supabase Auth allows you to create and manage user sessions for access to data that is secured by access policies.
+            </summary>
+        </member>
+        <member name="M:Supabase.Client.AdminAuth(System.String)">
+            <summary>
+            Returns a Stateless Gotrue Admin client given a service_key JWT. This should really only be accessed from a
+            server environment where a private service_key would remain secure.
+            </summary>
+            <param name="serviceKey">
+            A secret key (<c>sb_secret_…</c>) or the legacy <c>service_role</c> key. It grants elevated,
+            RLS-bypassing access, so only supply it from a secure server environment.
+            </param>
+            <returns>An admin client scoped to the supplied service key.</returns>
+        </member>
+        <member name="P:Supabase.Client.Realtime">
+            <summary>
+            Supabase Realtime allows for realtime feedback on database changes.
+            </summary>
+        </member>
+        <member name="P:Supabase.Client.Functions">
+            <summary>
+            Supabase Edge functions allow you to deploy and invoke edge functions.
+            </summary>
+        </member>
+        <member name="P:Supabase.Client.Postgrest">
+            <summary>
+            Supabase Postgrest allows for strongly typed REST interactions with your database.
+            </summary>
+        </member>
+        <member name="P:Supabase.Client.Storage">
+            <summary>
+            Supabase Storage allows you to manage user-generated content, such as photos or videos.
+            </summary>
+        </member>
+        <member name="M:Supabase.Client.#ctor(Supabase.Gotrue.Interfaces.IGotrueClient{Supabase.Gotrue.User,Supabase.Gotrue.Session},Supabase.Realtime.Interfaces.IRealtimeClient{Supabase.Realtime.RealtimeSocket,Supabase.Realtime.RealtimeChannel},Supabase.Functions.Interfaces.IFunctionsClient,Supabase.Postgrest.Interfaces.IPostgrestClient,Supabase.Storage.Interfaces.IStorageClient{Supabase.Storage.Bucket,Supabase.Storage.FileObject},Supabase.SupabaseOptions)">
+            <summary>
+            Constructor supplied for dependency injection support. The children are used as provided; the
+            caller is responsible for wiring their auth headers (unlike the url/key constructor, which
+            builds and wires them itself).
+            </summary>
+            <param name="auth">The Gotrue (auth) client.</param>
+            <param name="realtime">The Realtime client; its <c>Options.PostgrestClient</c> is set to <paramref name="postgrest"/>.</param>
+            <param name="functions">The Edge Functions client.</param>
+            <param name="postgrest">The Postgrest (database) client.</param>
+            <param name="storage">The Storage client.</param>
+            <param name="options">Client configuration.</param>
+        </member>
+        <member name="M:Supabase.Client.#ctor(System.String,System.String,Supabase.SupabaseOptions)">
+            <summary>
+            Creates a new Supabase Client.
+            </summary>
+            <param name="supabaseUrl">
+            The project URL from <b>Settings → API</b>, e.g. <c>https://xyzcompany.supabase.co</c>. The
+            service URLs (auth, rest, realtime, storage, functions) are derived from it.
+            </param>
+            <param name="supabaseKey">
+            The project API key. Use a publishable key (<c>sb_publishable_…</c>) or the legacy public
+            (anon) key for client-side apps; a secret key (<c>sb_secret_…</c>) or the legacy
+            <c>service_role</c> key only in trusted server-side contexts, as it bypasses RLS. New-format
+            (<c>sb_…</c>) keys are opaque, not JWTs, and are sent on the <c>apikey</c> header.
+            </param>
+            <param name="options">Client configuration; a default <see cref="T:Supabase.SupabaseOptions"/> is used when null.</param>
+        </member>
+        <member name="M:Supabase.Client.InitializeAsync">
+            <summary>
+            Restores the session persisted by <see cref="P:Supabase.SupabaseOptions.SessionHandler"/>, refreshes it, and connects to realtime (if `options.AutoConnectRealtime` is set)
+            </summary>
+        </member>
+        <member name="M:Supabase.Client.From``1">
+            <summary>
+            Gets the Postgrest client to prepare for a query.
+            </summary>
+            <typeparam name="TModel"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Client.Rpc(System.String,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Client.Rpc``1(System.String,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Supabase.Client.GetAuthHeaders(System.Boolean)">
+            <summary>
+            Produces a dictionary of Headers that will be supplied to child clients.
+            </summary>
+            <param name="omitApiKeyAsBearer">
+            When true, a new-format (opaque) API key is not used as the <c>Authorization: Bearer</c>
+            stand-in for an absent session — only the <c>apikey</c> header carries it. Used by the Edge
+            Functions path, whose gateway rejects opaque keys parsed as a JWT.
+            </param>
+        </member>
+        <member name="T:Supabase.DefaultSupabaseSessionHandler">
+            <summary>
+            Represents the default session handler for Gotrue - it does nothing by default.
+            </summary>
+        </member>
+        <member name="M:Supabase.DefaultSupabaseSessionHandler.SaveSession(Supabase.Gotrue.Session)">
+            <summary>
+            Default Session Save (does nothing by default)
+            </summary>
+            <param name="session"></param>
+        </member>
+        <member name="M:Supabase.DefaultSupabaseSessionHandler.DestroySession">
+            <summary>
+            Default Session Destroyer (does nothing by default)
+            </summary>
+        </member>
+        <member name="M:Supabase.DefaultSupabaseSessionHandler.LoadSession">
+            <summary>
+            Default Session Loader (does nothing by default)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Interfaces.ISupabaseClient`6">
+            <summary>
+            Contract for what a SupabaseClient should implement
+            </summary>
+            <typeparam name="TUser">Model representing User</typeparam>
+            <typeparam name="TSession">Model representing Session</typeparam>
+            <typeparam name="TSocket">Class that conforms to <see cref="T:Supabase.Realtime.Interfaces.IRealtimeSocket"/></typeparam>
+            <typeparam name="TChannel">Class that conforms to <see cref="T:Supabase.Realtime.Interfaces.IRealtimeChannel"/></typeparam>
+            <typeparam name="TBucket">Model representing <see cref="T:Supabase.Storage.Bucket"/></typeparam>
+            <typeparam name="TFileObject">Model representing <see cref="T:Supabase.Storage.FileObject"/></typeparam>
+        </member>
+        <member name="P:Supabase.Interfaces.ISupabaseClient`6.Auth">
+            <summary>
+            The Gotrue Auth Instance
+            </summary>
+        </member>
+        <member name="M:Supabase.Interfaces.ISupabaseClient`6.AdminAuth(System.String)">
+            <summary>
+            Creates a Gotrue Admin Auth Client
+            </summary>
+            <param name="serviceKey"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Supabase.Interfaces.ISupabaseClient`6.Functions">
+            <summary>
+            The Supabase Functions Client
+            </summary>
+        </member>
+        <member name="P:Supabase.Interfaces.ISupabaseClient`6.Postgrest">
+            <summary>
+            The Postgrest Client
+            </summary>
+        </member>
+        <member name="P:Supabase.Interfaces.ISupabaseClient`6.Realtime">
+            <summary>
+            The Realtime Client
+            </summary>
+        </member>
+        <member name="P:Supabase.Interfaces.ISupabaseClient`6.Storage">
+            <summary>
+            The Storage Client
+            </summary>
+        </member>
+        <member name="M:Supabase.Interfaces.ISupabaseClient`6.From``1">
+            <summary>
+            Used for interacting with a Postgrest Table + Model. Provides helpers
+            to be able to add realtime listeners and queries. 
+            </summary>
+            <typeparam name="TModel"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Interfaces.ISupabaseClient`6.InitializeAsync">
+            <summary>
+            Initializes a supabase client according to the provided <see cref="T:Supabase.SupabaseOptions"/>.
+            If option is enabled:
+            - Will connect to realtime instance <see cref="P:Supabase.SupabaseOptions.AutoConnectRealtime"/>
+            - Will restore session using a <see cref="T:Supabase.Gotrue.Interfaces.IGotrueSessionPersistence`1"/> specified in <see cref="P:Supabase.SupabaseOptions.SessionHandler"/>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Interfaces.ISupabaseClient`6.Rpc(System.String,System.Object)">
+            <summary>
+            Perform a stored procedure call.
+            </summary>
+            <param name="procedureName">The function name to call</param>
+            <param name="parameters">The parameters to pass to the function call</param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Interfaces.ISupabaseClient`6.Rpc``1(System.String,System.Object)">
+            <summary>
+            Perform a stored procedure call.
+            </summary>
+            <param name="procedureName">The function name to call</param>
+            <param name="parameters">The parameters to pass to the function call</param>
+            <typeparam name="TModeledResponse">A type used for hydrating the HTTP response content (hydration through System.Text.Json)</typeparam>
+            <returns>A hydrated model</returns>
+        </member>
+        <member name="T:Supabase.Interfaces.ISupabaseFunctions">
+            <summary>
+            Contract representing a wrapper <see cref="N:Supabase.Functions"/> client.
+            </summary>
+        </member>
+        <member name="M:Supabase.Interfaces.ISupabaseFunctions.Invoke(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Invoke a supabase function
+            </summary>
+            <param name="functionName"></param>
+            <param name="body"></param>
+            <returns>String content from invoke</returns>
+        </member>
+        <member name="M:Supabase.Interfaces.ISupabaseFunctions.Invoke``1(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Invoke a supabase function and deserialize data to a provided model.
+            </summary>
+            <param name="functionName"></param>
+            <param name="body"></param>
+            <typeparam name="T">Model representing data to deserialize the response into</typeparam>
+            <returns>The deserialized Model</returns>
+        </member>
+        <member name="M:Supabase.Interfaces.ISupabaseFunctions.RawInvoke(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Invoke a supabase function and return the <see cref="T:System.Net.Http.HttpContent"/> for the developer to parse.
+            </summary>
+            <param name="functionName"></param>
+            <param name="body"></param>
+            <returns>The HTTP Content</returns>
+        </member>
+        <member name="T:Supabase.Interfaces.ISupabaseTable`2">
+            <summary>
+            Contract representing a supabase wrapped postgrest <see cref="T:Supabase.Postgrest.Interfaces.IPostgrestTable`1"/>
+            </summary>
+            <typeparam name="TModel">Model that inherits from <see cref="T:Supabase.Postgrest.Models.BaseModel"/> that represents this Table</typeparam>
+            <typeparam name="TChannel">Class that implements <see cref="T:Supabase.Realtime.Interfaces.IRealtimeChannel"/></typeparam>
+        </member>
+        <member name="M:Supabase.Interfaces.ISupabaseTable`2.On(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType,Supabase.Realtime.Interfaces.IRealtimeChannel.PostgresChangesHandler)">
+            <summary>
+            Add a realtime listener to this table.
+            </summary>
+            <param name="listenType"></param>
+            <param name="handler"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.StatelessClient">
+            <summary>
+            A Static class representing a Supabase Client.
+            </summary>
+        </member>
+        <member name="M:Supabase.StatelessClient.GetAuthOptions(System.String,System.String,Supabase.SupabaseOptions)">
+            <summary>
+            Returns an instance of <see cref="T:Supabase.Gotrue.ClientOptions"/> given a provided url and key.
+            </summary>
+            <param name="supabaseUrl"></param>
+            <param name="supabaseKey"></param>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.StatelessClient.GetRestOptions(System.String,Supabase.SupabaseOptions)">
+            <summary>
+            Returns an instance of <see cref="T:Supabase.Postgrest.ClientOptions"/> for a given supabase key.
+            </summary>
+            <param name="supabaseKey"></param>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.StatelessClient.Storage(System.String,System.String,Supabase.SupabaseOptions)">
+            <summary>
+            Supabase Storage allows you to manage user-generated content, such as photos or videos.
+            </summary>
+            <param name="supabaseUrl"></param>
+            <param name="supabaseKey"></param>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.StatelessClient.Functions(System.String,System.String,Supabase.SupabaseOptions)">
+            <summary>
+            Supabase Edge functions allow you to deploy and invoke edge functions.
+            </summary>
+            <param name="supabaseUrl"></param>
+            <param name="supabaseKey"></param>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.StatelessClient.From``1(System.String,System.String,Supabase.SupabaseOptions)">
+            <summary>
+            Gets the Postgrest client to prepare for a query.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.StatelessClient.Rpc(System.String,System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object},Supabase.SupabaseOptions)">
+            <summary>
+            Runs a remote procedure.
+            </summary>
+            <param name="supabaseUrl"></param>
+            <param name="supabaseKey"></param>
+            <param name="procedureName"></param>
+            <param name="parameters"></param>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.SupabaseDiagnostics">
+             <summary>
+             Aggregates the diagnostic source names emitted by the Supabase clients so consumers of the
+             meta-package can register them all with OpenTelemetry in one place, without importing each
+             sub-package's namespace or hardcoding (case-sensitive) source names.
+            
+             Each client uses the same name for its <see cref="T:System.Diagnostics.ActivitySource"/> and
+             its <see cref="T:System.Diagnostics.Metrics.Meter"/>, so <see cref="P:Supabase.SupabaseDiagnostics.SourceNames"/> works for
+             both <c>TracerProviderBuilder.AddSource(...)</c> and <c>MeterProviderBuilder.AddMeter(...)</c>.
+             Realtime is not yet instrumented and is therefore not included.
+             </summary>
+        </member>
+        <member name="P:Supabase.SupabaseDiagnostics.SourceNames">
+            <summary>
+            The names of every <see cref="T:System.Diagnostics.ActivitySource"/> and
+            <see cref="T:System.Diagnostics.Metrics.Meter"/> emitted by the Supabase clients.
+            </summary>
+        </member>
+        <member name="T:Supabase.SupabaseModel">
+            <summary>
+            Depreciated
+            </summary>
+        </member>
+        <member name="T:Supabase.SupabaseOptions">
+            <summary>
+            Options available for Supabase Client Configuration
+            </summary>
+        </member>
+        <member name="F:Supabase.SupabaseOptions.Schema">
+            <summary>
+            Schema to be used in Postgres / Realtime
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.AutoRefreshToken">
+            <summary>
+            Should the Client automatically handle refreshing the User's Token?
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.AutoConnectRealtime">
+            <summary>
+            Should the Client automatically connect to Realtime?
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.SessionHandler">
+            <summary>
+            Functions passed to Gotrue that handle sessions. 
+            
+            **By default these do nothing for persistence.**
+            </summary>
+        </member>
+        <member name="F:Supabase.SupabaseOptions.Headers">
+            <summary>
+            Allows developer to specify options that will be passed to all child Supabase clients.
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.StorageClientOptions">
+            <summary>
+            Specifies Options passed to the StorageClient.
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.PostgrestRetry">
+            <summary>
+            Retry policy passed to the Postgrest client. Defaults to no retries.
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.PostgrestTimeout">
+            <summary>
+            Timeout passed to the Postgrest client. Defaults to none.
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.GotrueRetry">
+            <summary>
+            Retry policy passed to the Auth client. Defaults to no retries.
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.FunctionsRetry">
+            <summary>
+            Retry policy passed to the Functions client. Defaults to no retries.
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.HttpClient">
+            <summary>
+            An HttpClient shared by the Auth, Postgrest, and Functions clients. Storage configures its own set
+            of clients via <see cref="P:Supabase.SupabaseOptions.StorageClientOptions"/>; Realtime has no HTTP transport (see
+            <see cref="P:Supabase.SupabaseOptions.WebSocketFactory"/>). When null, each client builds and owns its own.
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.Proxy">
+            <summary>
+            A proxy shared by the Auth, Postgrest, and Functions clients. Only used when <see cref="P:Supabase.SupabaseOptions.HttpClient"/>
+            is not supplied.
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.WebSocketFactory">
+            <summary>
+            Builds the WebSocket transport the Realtime client connects through. Left null, the default
+            <see cref="T:System.Net.WebSockets.ClientWebSocket"/>-backed transport is used.
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.AuthUrlFormat">
+            <summary>
+            The Supabase Auth Url Format
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.RestUrlFormat">
+            <summary>
+            The Supabase Postgrest Url Format
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.RealtimeUrlFormat">
+            <summary>
+            The Supabase Realtime Url Format
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.StorageUrlFormat">
+            <summary>
+            The Supabase Storage Url Format
+            </summary>
+        </member>
+        <member name="P:Supabase.SupabaseOptions.FunctionsUrlFormat">
+            <summary>
+            The Supabase Functions Url Format
+            </summary>
+        </member>
+        <member name="T:Supabase.SupabaseTable`1">
+            <summary>
+            A Supabase wrapper for a Postgrest Table.
+            </summary>
+            <typeparam name="TModel">Model that implements <see cref="T:Supabase.Postgrest.Models.BaseModel"/></typeparam>
+        </member>
+        <member name="M:Supabase.SupabaseTable`1.#ctor(Supabase.Postgrest.Interfaces.IPostgrestClient,Supabase.Realtime.Interfaces.IRealtimeClient{Supabase.Realtime.RealtimeSocket,Supabase.Realtime.RealtimeChannel},System.String)">
+            <summary>
+            A Supabase wrapper for a Postgrest table.
+            </summary>
+            <param name="postgrestClient"></param>
+            <param name="realtimeClient"></param>
+            <param name="schema"></param>
+        </member>
+        <member name="M:Supabase.SupabaseTable`1.On(Supabase.Realtime.PostgresChanges.PostgresChangesOptions.ListenType,Supabase.Realtime.Interfaces.IRealtimeChannel.PostgresChangesHandler)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

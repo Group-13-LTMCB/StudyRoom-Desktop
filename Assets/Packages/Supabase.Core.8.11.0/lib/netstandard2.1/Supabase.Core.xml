@@ -1,0 +1,802 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Supabase.Core</name>
+    </assembly>
+    <members>
+        <member name="T:Supabase.Core.Attributes.CapabilityAttribute">
+            <summary>
+            Marks a public member as the implementation of a Supabase capability-matrix
+            feature. The capability-matrix tooling reads these annotations to generate
+            <c>sdk-compliance.yaml</c>, so the mapping lives next to the code it describes
+            and survives renames instead of drifting in a hand-maintained file.
+            </summary>
+            <remarks>
+            The status reported to the matrix is the concrete attribute type:
+            <see cref="T:Supabase.Core.Attributes.ImplementedCapabilityAttribute" /> or
+            <see cref="T:Supabase.Core.Attributes.PartialCapabilityAttribute" />.
+            </remarks>
+        </member>
+        <member name="P:Supabase.Core.Attributes.CapabilityAttribute.Key">
+            <summary>
+            The capability-matrix feature id this member implements, in
+            <c>area.group.feature</c> form (for example
+            <c>auth.sign_in.sign_in_with_password</c>).
+            </summary>
+        </member>
+        <member name="P:Supabase.Core.Attributes.CapabilityAttribute.Note">
+            <summary>
+            An optional human-readable note surfaced in <c>sdk-compliance.yaml</c>,
+            typically explaining how this SDK diverges from the canonical behaviour.
+            </summary>
+        </member>
+        <member name="M:Supabase.Core.Attributes.CapabilityAttribute.#ctor(System.String,System.String)">
+            <param name="key">The capability-matrix feature id this member implements.</param>
+            <param name="note">An optional note surfaced in the generated compliance file.</param>
+        </member>
+        <member name="T:Supabase.Core.Attributes.ImplementedCapabilityAttribute">
+            <summary>
+            Marks a public member as a fully implemented Supabase capability-matrix feature.
+            </summary>
+        </member>
+        <member name="M:Supabase.Core.Attributes.ImplementedCapabilityAttribute.#ctor(System.String,System.String)">
+            <param name="key">The capability-matrix feature id this member implements.</param>
+            <param name="note">
+            An optional note surfaced in the generated compliance file, for an
+            implemented feature whose behaviour still warrants a caveat.
+            </param>
+        </member>
+        <member name="T:Supabase.Core.Attributes.PartialCapabilityAttribute">
+            <summary>
+            Marks a public member as a partially implemented Supabase capability-matrix
+            feature. The note is required: the matrix rejects a <c>partially_implemented</c>
+            entry that does not explain what is missing, so the constructor demands it.
+            </summary>
+        </member>
+        <member name="M:Supabase.Core.Attributes.PartialCapabilityAttribute.#ctor(System.String,System.String)">
+            <param name="key">The capability-matrix feature id this member partially implements.</param>
+            <param name="note">A required note explaining what is missing relative to the canonical behaviour.</param>
+        </member>
+        <member name="T:Supabase.Core.Attributes.MapToAttribute">
+            <summary>
+            Used internally to add a string value to a C# field.
+            </summary>
+        </member>
+        <member name="P:Supabase.Core.Attributes.MapToAttribute.Mapping">
+            <summary>
+            The externally specified target value.
+            </summary>
+        </member>
+        <member name="P:Supabase.Core.Attributes.MapToAttribute.Formatter">
+            <summary>
+            A formatter to be passed into the <see cref="M:System.String.ToString" /> method.
+            </summary>
+        </member>
+        <member name="M:Supabase.Core.Attributes.MapToAttribute.#ctor(System.String,System.String)">
+             <summary>
+             Creates a Mapping to be used internally.
+            
+             For example, specifying an Enum that has a different string value elsewhere.
+             </summary>
+             <param name="mapping"></param>
+             <param name="formatter"></param>
+        </member>
+        <member name="T:Supabase.Core.Diagnostics.ActivityExtensions">
+             <summary>
+             Null-safe helpers for tagging activities with OpenTelemetry HTTP semantic conventions.
+            
+             All members accept a null <see cref="T:System.Diagnostics.Activity"/> (the result of
+             <see cref="M:System.Diagnostics.ActivitySource.StartActivity(System.String,System.Diagnostics.ActivityKind)"/> when nothing is listening)
+             and no-op, so call sites need no listener checks. URLs are recorded through
+             <see cref="T:Supabase.Core.Diagnostics.UrlSanitizer"/> only — never record a raw URL, query string, token, or other
+             credential as a tag value.
+             </summary>
+        </member>
+        <member name="M:Supabase.Core.Diagnostics.ActivityExtensions.SetHttpRequestTags(System.Diagnostics.Activity,System.String,System.Uri)">
+            <inheritdoc cref="M:Supabase.Core.Diagnostics.ActivityExtensions.&lt;G&gt;$19D36366BF4635E5DC9A9530CC6414C4.SetHttpRequestTags(System.String,System.Uri)"/>
+        </member>
+        <member name="M:Supabase.Core.Diagnostics.ActivityExtensions.SetHttpResponseTags(System.Diagnostics.Activity,System.Int32)">
+            <inheritdoc cref="M:Supabase.Core.Diagnostics.ActivityExtensions.&lt;G&gt;$19D36366BF4635E5DC9A9530CC6414C4.SetHttpResponseTags(System.Int32)"/>
+        </member>
+        <member name="M:Supabase.Core.Diagnostics.ActivityExtensions.SetFailure(System.Diagnostics.Activity,System.Exception)">
+            <inheritdoc cref="M:Supabase.Core.Diagnostics.ActivityExtensions.&lt;G&gt;$19D36366BF4635E5DC9A9530CC6414C4.SetFailure(System.Exception)"/>
+        </member>
+        <member name="T:Supabase.Core.Diagnostics.ActivityExtensions.&lt;G&gt;$19D36366BF4635E5DC9A9530CC6414C4.&lt;M&gt;$C0F8E6C0F4C219D175DB84CEBCB8E59D">
+            <param name="activity">The activity to tag, or null when nothing is listening.</param>
+        </member>
+        <member name="M:Supabase.Core.Diagnostics.ActivityExtensions.&lt;G&gt;$19D36366BF4635E5DC9A9530CC6414C4.SetHttpRequestTags(System.String,System.Uri)">
+            <summary>
+            Tags an outgoing HTTP request following OpenTelemetry HTTP client conventions.
+            The URL is sanitized to scheme/host/port/path; the query string is never recorded.
+            </summary>
+            <param name="method">The HTTP method, e.g. <c>POST</c>.</param>
+            <param name="uri">The request URI, sanitized before tagging.</param>
+        </member>
+        <member name="M:Supabase.Core.Diagnostics.ActivityExtensions.&lt;G&gt;$19D36366BF4635E5DC9A9530CC6414C4.SetHttpResponseTags(System.Int32)">
+            <summary>
+            Tags the response status code, marking the activity as failed for 4xx/5xx responses.
+            </summary>
+            <param name="statusCode">The HTTP response status code.</param>
+        </member>
+        <member name="M:Supabase.Core.Diagnostics.ActivityExtensions.&lt;G&gt;$19D36366BF4635E5DC9A9530CC6414C4.SetFailure(System.Exception)">
+            <summary>
+            Marks the activity as failed with the exception type as <c>error.type</c>.
+            </summary>
+            <param name="exception">The exception whose type and message describe the failure.</param>
+        </member>
+        <member name="T:Supabase.Core.Diagnostics.Instrumentation">
+             <summary>
+             Factory methods for the <see cref="T:System.Diagnostics.ActivitySource"/> and <see cref="T:System.Diagnostics.Metrics.Meter"/> instances used
+             by the Supabase client libraries.
+            
+             Emission is zero-cost unless a consumer subscribes a listener (e.g. via the OpenTelemetry
+             SDK with <c>AddSource("Supabase.*")</c> / <c>AddMeter("Supabase.*")</c>), so instrumentation
+             built on these sources is always on and requires no configuration to stay silent.
+             </summary>
+        </member>
+        <member name="M:Supabase.Core.Diagnostics.Instrumentation.CreateActivitySource(System.Reflection.Assembly,System.String)">
+            <summary>
+            Creates the <see cref="T:System.Diagnostics.ActivitySource"/> for a Supabase client library, versioned from
+            the library's assembly rather than a hardcoded literal.
+            </summary>
+            <param name="assembly">The assembly whose version identifies the emitting library.</param>
+            <param name="name">The source name, e.g. <c>Supabase.Gotrue</c>.</param>
+        </member>
+        <member name="M:Supabase.Core.Diagnostics.Instrumentation.CreateMeter(System.Reflection.Assembly,System.String)">
+            <summary>
+            Creates the <see cref="T:System.Diagnostics.Metrics.Meter"/> for a Supabase client library, versioned from the
+            library's assembly rather than a hardcoded literal.
+            </summary>
+            <param name="assembly">The assembly whose version identifies the emitting library.</param>
+            <param name="name">The meter name, e.g. <c>Supabase.Gotrue</c>.</param>
+        </member>
+        <member name="M:Supabase.Core.Diagnostics.Instrumentation.GetVersion(System.Reflection.Assembly)">
+            <summary>
+            Resolves the version of an assembly, preferring the informational (package) version
+            with any build metadata (<c>+sha</c>) stripped.
+            </summary>
+            <param name="assembly">The assembly whose version identifies the emitting library.</param>
+        </member>
+        <member name="T:Supabase.Core.Diagnostics.UrlSanitizer">
+             <summary>
+             Reduces URLs to a form that is safe to record in telemetry and logs.
+            
+             Supabase URLs routinely carry secrets outside the path — access tokens in fragments,
+             API keys, PKCE verifiers and grant parameters in query strings — so telemetry must only
+             ever record scheme, host, port and path. There is no overload that keeps the query
+             string; that is deliberate.
+             </summary>
+        </member>
+        <member name="M:Supabase.Core.Diagnostics.UrlSanitizer.Sanitize(System.Uri)">
+            <summary>
+            Returns <c>scheme://host[:port]/path</c> for the given URI, dropping user info, the
+            query string, and the fragment. Default ports are omitted.
+            </summary>
+            <param name="uri">The URI to reduce to scheme, host, port and path.</param>
+        </member>
+        <member name="M:Supabase.Core.Diagnostics.UrlSanitizer.Sanitize(System.String)">
+            <summary>
+            Sanitizes a URL provided as a string; returns the input truncated at the first
+            query/fragment delimiter when it cannot be parsed as a URI.
+            </summary>
+            <param name="url">The URL to sanitize; parsed as an absolute URI when possible.</param>
+        </member>
+        <member name="T:Supabase.Core.Extensions.DictionaryExtensions">
+            <summary>
+            Extensions for the `Dictionary` Classes
+            </summary>
+        </member>
+        <member name="M:Supabase.Core.Extensions.DictionaryExtensions.MergeLeft``3(``0,System.Collections.Generic.IDictionary{``1,``2}[])">
+             <summary>
+             Merges two dictionaries, allowing overwrite priorities leftward.
+            
+             Works in C#3/VS2008:
+             Returns a new dictionary of this ... others merged leftward.
+             Keeps the type of 'this', which must be default-instantiable.
+             Example:
+               result = map.MergeLeft(other1, other2, ...)
+             From: https://stackoverflow.com/a/2679857/3629438
+             </summary>
+             <param name="me"></param>
+             <param name="others"></param>
+             <typeparam name="T"></typeparam>
+             <typeparam name="TKey"></typeparam>
+             <typeparam name="TValue"></typeparam>
+             <returns></returns>
+        </member>
+        <member name="T:Supabase.Core.Helpers">
+            <summary>
+            Shortcut Methods, mostly focused on getting attributes from class properties and enums.
+            </summary>
+        </member>
+        <member name="M:Supabase.Core.Helpers.GetPropertyValue``1(System.Object,System.String)">
+            <summary>
+            Returns the current value from a given class property
+            </summary>
+            <param name="obj"></param>
+            <param name="propName"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Core.Helpers.GetCustomAttribute``1(System.Object)">
+            <summary>
+            Returns a cast Custom Attribute from a given object.
+            </summary>
+            <param name="obj"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Core.Helpers.GetCustomAttribute``1(System.Type)">
+            <summary>
+            Returns a cast Custom Attribute from a given type.
+            </summary>
+            <param name="type"></param>
+            <typeparam name="T"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:Supabase.Core.Helpers.GetMappedToAttr(System.Enum)">
+            <summary>
+            Shortcut method for accessing a `MapTo` attribute, combined with an Enum.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Supabase.Core.HostEnvironment">
+            <summary>
+            The process-wide ambient reads behind the <c>X-Client-Info</c> header: OS, runtime, loaded
+            assemblies and, inside a Unity host, the engine's own view of version and platform.
+            </summary>
+            <remarks>
+            Testability seam: a host cannot vary these at runtime, so <see cref="T:Supabase.Core.Util"/> takes them as a value
+            and every platform/runtime/framework branch is reachable hermetically. Internal, not public API.
+            </remarks>
+        </member>
+        <member name="M:Supabase.Core.HostEnvironment.#ctor(System.String,System.Func{System.Runtime.InteropServices.OSPlatform,System.Boolean},System.Collections.Generic.IReadOnlyCollection{System.Reflection.Assembly},System.String,System.Func{System.String},System.Func{System.String})">
+            <summary>
+            The process-wide ambient reads behind the <c>X-Client-Info</c> header: OS, runtime, loaded
+            assemblies and, inside a Unity host, the engine's own view of version and platform.
+            </summary>
+            <remarks>
+            Testability seam: a host cannot vary these at runtime, so <see cref="T:Supabase.Core.Util"/> takes them as a value
+            and every platform/runtime/framework branch is reachable hermetically. Internal, not public API.
+            </remarks>
+        </member>
+        <member name="T:Supabase.Core.Http.DefaultHttpClientFactory">
+            <summary>Builds the fallback <see cref="T:System.Net.Http.HttpClient"/> a package uses when a consumer hasn't injected one.</summary>
+        </member>
+        <member name="M:Supabase.Core.Http.DefaultHttpClientFactory.Create(System.Nullable{System.TimeSpan},System.Net.IWebProxy)">
+            <summary>Creates a client with the given timeout (BCL default, 100s, when null) and optional proxy.</summary>
+        </member>
+        <member name="T:Supabase.Core.Http.JsonBodyReader">
+            <summary>Deserializes JSON response bodies.</summary>
+        </member>
+        <member name="M:Supabase.Core.Http.JsonBodyReader.Deserialize``1(System.String,System.Text.Json.JsonSerializerOptions,System.Func{System.Text.Json.JsonException,System.Exception})">
+            <summary>Deserializes the body, wrapping JSON errors with the supplied exception factory.</summary>
+        </member>
+        <member name="T:Supabase.Core.Http.RetryExecutor">
+            <summary>Sends a request, retrying with backoff per <see cref="T:Supabase.Core.Http.RetryOptions"/>. Default options send once, un-retried.</summary>
+        </member>
+        <member name="M:Supabase.Core.Http.RetryExecutor.SendAsync(System.Net.Http.HttpClient,System.Func{System.Net.Http.HttpRequestMessage},Supabase.Core.Http.RetryOptions,System.Threading.CancellationToken)">
+            <summary>Sends via <paramref name="requestFactory"/>, called fresh per attempt since a sent <see cref="T:System.Net.Http.HttpRequestMessage"/> can't be reused.</summary>
+        </member>
+        <member name="M:Supabase.Core.Http.RetryExecutor.SendAsync(System.Net.Http.HttpClient,System.Func{System.Net.Http.HttpRequestMessage},Supabase.Core.Http.RetryOptions,System.Net.Http.HttpCompletionOption,System.Threading.CancellationToken)">
+            <summary>Sends a request with the specified <paramref name="completionOption"/>.</summary>
+        </member>
+        <member name="T:Supabase.Core.Http.RetryOptions">
+            <summary>Retry policy applied by <see cref="T:Supabase.Core.Http.RetryExecutor"/> around a request.</summary>
+        </member>
+        <member name="P:Supabase.Core.Http.RetryOptions.MaxRetries">
+            <summary>Retry attempts after the initial request. Default 0 preserves today's no-retry behavior.</summary>
+        </member>
+        <member name="P:Supabase.Core.Http.RetryOptions.BaseDelay">
+            <summary>Delay before the first retry; later attempts back off exponentially, capped at <see cref="P:Supabase.Core.Http.RetryOptions.MaxDelay"/>.</summary>
+        </member>
+        <member name="P:Supabase.Core.Http.RetryOptions.MaxDelay">
+            <summary>Upper bound on the backoff delay between attempts.</summary>
+        </member>
+        <member name="P:Supabase.Core.Http.RetryOptions.UseJitter">
+            <summary>Randomizes each backoff delay between zero and its exponential value to avoid retry lockstep.</summary>
+        </member>
+        <member name="P:Supabase.Core.Http.RetryOptions.RetryableStatusCodes">
+            <summary>HTTP status codes treated as transient and worth retrying.</summary>
+        </member>
+        <member name="T:Supabase.Core.Interfaces.IGettableHeaders">
+            <summary>
+            Used for classes that need to retrieve `Headers` externally.
+            </summary>
+        </member>
+        <member name="P:Supabase.Core.Interfaces.IGettableHeaders.GetHeaders">
+            <summary>
+            An executable `Func` that returns a dictionary of headers to be appended onto a request.
+            </summary>
+        </member>
+        <member name="T:Supabase.Core.Util">
+            <summary>
+            Shared utilities for Supabase client libraries.
+            </summary>
+        </member>
+        <member name="M:Supabase.Core.Util.GetAssemblyVersion(System.Type)">
+            <summary>
+            Builds the <c>X-Client-Info</c> header value for the given client type.
+            </summary>
+            <remarks>
+            Format: <c>name-csharp/version[; key=value ...]</c><br/>
+            Appended metadata includes platform, platform version, runtime, runtime version,
+            and framework (when detectable).
+            </remarks>
+            <param name="clientType">A type belonging to the client assembly, used to resolve the assembly name and version.</param>
+            <returns>A structured header value identifying the client library and its host environment.</returns>
+        </member>
+        <member name="T:Microsoft.CodeAnalysis.EmbeddedAttribute">
+            <summary>
+            A special attribute recognized by Roslyn, that marks a type as "embedded", meaning it won't ever be visible from other assemblies.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute">
+            <summary>
+            Specifies that the method or property will ensure that the listed field and property members have not-null values.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.#ctor(System.String)">
+            <summary>
+            Initializes the attribute with a field or property member.
+            </summary>
+            <param name="member">The field or property member that is promised to be not-null.</param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.#ctor(System.String[])">
+            <summary>
+            Initializes the attribute with the list of field and property members.
+            </summary>
+            <param name="members">The list of field and property members that are promised to be not-null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.Members">
+            <summary>
+            Gets field or property member names.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.RequiresUnsafeAttribute">
+            <summary>
+            Indicates that the specified member requires the caller to be in an unsafe context.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.RequiresUnsafeAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.RequiresUnsafeAttribute"/> class.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.UnscopedRefAttribute">
+            <summary>
+            Used to indicate a byref escapes and is not scoped.
+            </summary>
+            <remarks>
+            <para>
+            There are several cases where the C# compiler treats a <see langword="ref"/> as implicitly
+            <see langword="scoped"/> - where the compiler does not allow the <see langword="ref"/> to escape the method.
+            </para>
+            <para>
+            For example:
+            <list type="number">
+                <item><see langword="this"/> for <see langword="struct"/> instance methods.</item>
+                <item><see langword="ref"/> parameters that refer to <see langword="ref"/> <see langword="struct"/> types.</item>
+                <item><see langword="out"/> parameters.</item>
+            </list>
+            </para>
+            <para>
+            This attribute is used in those instances where the <see langword="ref"/> should be allowed to escape.
+            </para>
+            <para>
+            Applying this attribute, in any form, has impact on consumers of the applicable API. It is necessary for
+            API authors to understand the lifetime implications of applying this attribute and how it may impact their users.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.ExperimentalAttribute">
+            <summary>
+            Indicates that an API is experimental and it may change in the future.
+            </summary>
+            <remarks>
+            This attribute allows call sites to be flagged with a diagnostic that indicates that an experimental
+            feature is used. Authors can use this attribute to ship preview features in their assemblies.
+            </remarks>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.ExperimentalAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.ExperimentalAttribute"/> class,
+            specifying the ID that the compiler will use when reporting a use of the API the attribute applies to.
+            </summary>
+            <param name="diagnosticId">The ID that the compiler will use when reporting a use of the API the attribute applies to.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.ExperimentalAttribute.DiagnosticId">
+            <summary>
+            Gets the ID that the compiler will use when reporting a use of the API the attribute applies to.
+            </summary>
+            <value>The unique diagnostic ID.</value>
+            <remarks>
+            The diagnostic ID is shown in build output for warnings and errors.
+            <para>This property represents the unique ID that can be used to suppress the warnings or errors, if needed.</para>
+            </remarks>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.ExperimentalAttribute.UrlFormat">
+            <summary>
+            Gets or sets the URL for corresponding documentation.
+            The API accepts a format string instead of an actual URL, creating a generic URL that includes the diagnostic ID.
+            </summary>
+            <value>The format string that represents a URL to corresponding documentation.</value>
+            <remarks>An example format string is <c>https://contoso.com/obsoletion-warnings/{0}</c>.</remarks>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.ConstantExpectedAttribute">
+            <summary>
+            Indicates that the specified method parameter expects a constant.
+            </summary>
+            <remarks>
+            This can be used to inform tooling that a constant should be used as an argument for the annotated parameter.
+            </remarks>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.ConstantExpectedAttribute.Min">
+            <summary>
+            Indicates the minimum bound of the expected constant, inclusive.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.ConstantExpectedAttribute.Max">
+            <summary>
+            Indicates the maximum bound of the expected constant, inclusive.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute">
+            <summary>
+            Specifies that the method or property will ensure that the listed field and property
+            members have not-null values when returning with the specified return value condition.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.#ctor(System.Boolean,System.String)">
+            <summary>
+            Initializes the attribute with the specified return value condition and a field or property member.
+            </summary>
+            <param name="returnValue">The return value condition. If the method returns this value, the associated parameter will not be null.</param>
+            <param name="member">The field or property member that is promised to be not-null.</param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.#ctor(System.Boolean,System.String[])">
+            <summary>
+            Initializes the attribute with the specified return value condition and list of field and property members.
+            </summary>
+            <param name="returnValue">The return value condition. If the method returns this value, the associated parameter will not be null.</param>
+            <param name="members">The list of field and property members that are promised to be not-null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.ReturnValue">
+            <summary>
+            Gets the return value condition.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.Members">
+            <summary>
+            Gets field or property member names.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute">
+            <summary>
+            Specifies the syntax used in a string.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.#ctor(System.String)">
+            <summary>
+            Initializes the <see cref="T:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute"/> with the identifier of the syntax used.
+            </summary>
+            <param name="syntax">The syntax identifier.</param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.#ctor(System.String,System.Object[])">
+            <summary>Initializes the <see cref="T:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute"/> with the identifier of the syntax used.</summary>
+            <param name="syntax">The syntax identifier.</param>
+            <param name="arguments">Optional arguments associated with the specific syntax employed.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Syntax">
+            <summary>Gets the identifier of the syntax used.</summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Arguments">
+            <summary>Optional arguments associated with the specific syntax employed.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.CompositeFormat">
+            <summary>The syntax identifier for strings containing composite formats for string formatting.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.DateOnlyFormat">
+            <summary>The syntax identifier for strings containing date format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.DateTimeFormat">
+            <summary>The syntax identifier for strings containing date and time format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.EnumFormat">
+            <summary>The syntax identifier for strings containing <see cref="T:System.Enum"/> format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.GuidFormat">
+            <summary>The syntax identifier for strings containing <see cref="T:System.Guid"/> format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Json">
+            <summary>The syntax identifier for strings containing JavaScript Object Notation (JSON).</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.NumericFormat">
+            <summary>The syntax identifier for strings containing numeric format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Regex">
+            <summary>The syntax identifier for strings containing regular expressions.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.TimeOnlyFormat">
+            <summary>The syntax identifier for strings containing time format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.TimeSpanFormat">
+            <summary>The syntax identifier for strings containing <see cref="T:System.TimeSpan"/> format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Uri">
+            <summary>The syntax identifier for strings containing URIs.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Xml">
+            <summary>The syntax identifier for strings containing XML.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute">
+            <summary>
+            Specifies that this constructor sets all required members for the current type,
+            and callers do not need to set any required members themselves.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.SkipLocalsInitAttribute">
+            <summary>
+            Used to indicate to the compiler that the <c>.locals init</c> flag should not be set in method headers.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.CompilerLoweringPreserveAttribute">
+            <summary>
+            When applied to an attribute class, instructs the compiler to flow applications of that attribute,
+            from source code down to compiler-generated symbols. This can help IL-based analysis tools.
+            </summary>
+            <remarks>
+            One example where this attribute applies is in C# primary constructor parameters. If an attribute
+            marked with <see cref="T:System.Runtime.CompilerServices.CompilerLoweringPreserveAttribute"/> gets applied to a primary constructor
+            parameter, the attribute will also be applied to any compiler-generated fields storing that parameter.
+            </remarks>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.CompilerLoweringPreserveAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.CompilerLoweringPreserveAttribute"/> class.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.CollectionBuilderAttribute.#ctor(System.Type,System.String)">
+            <summary>
+            Initialize the attribute to refer to the <paramref name="methodName"/> method on the <paramref name="builderType"/> type.
+            </summary>
+            <param name="builderType">The type of the builder to use to construct the collection.</param>
+            <param name="methodName">The name of the method on the builder to use to construct the collection.</param>
+            <remarks>
+            <paramref name="methodName"/> must refer to a static method that accepts a single parameter of
+            type <see cref="T:System.ReadOnlySpan`1"/> and returns an instance of the collection being built containing
+            a copy of the data from that span.  In future releases of .NET, additional patterns may be supported.
+            </remarks>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CollectionBuilderAttribute.BuilderType">
+            <summary>
+            Gets the type of the builder to use to construct the collection.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CollectionBuilderAttribute.MethodName">
+            <summary>
+            Gets the name of the method on the builder to use to construct the collection.
+            </summary>
+            <remarks>
+            This should match the metadata name of the target method.
+            For example, this might be ".ctor" if targeting the type's constructor.
+            </remarks>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.InterpolatedStringHandlerAttribute">
+            <summary>
+            Indicates the attributed type is to be used as an interpolated string handler.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute">
+            <summary>
+            Indicates that compiler support for a particular feature is required for the location where this attribute is applied.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.#ctor(System.String)">
+            <summary>
+            Creates a new instance of the <see cref="T:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute"/> type.
+            </summary>
+            <param name="featureName">The name of the feature to indicate.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName">
+            <summary>
+            The name of the compiler feature.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.IsOptional">
+            <summary>
+            If true, the compiler can choose to allow access to the location where this attribute is applied if it does not understand <see cref="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName"/>.
+            </summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.RefStructs">
+            <summary>
+            The <see cref="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName"/> used for the ref structs C# feature.
+            </summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.RequiredMembers">
+            <summary>
+            The <see cref="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName"/> used for the required members C# feature.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ModuleInitializerAttribute">
+             <summary>
+             Used to indicate to the compiler that a method should be called
+             in its containing module's initializer.
+             </summary>
+             <remarks>
+             When one or more valid methods
+             with this attribute are found in a compilation, the compiler will
+             emit a module initializer which calls each of the attributed methods.
+            
+             Certain requirements are imposed on any method targeted with this attribute:
+             - The method must be `static`.
+             - The method must be an ordinary member method, as opposed to a property accessor, constructor, local function, etc.
+             - The method must be parameterless.
+             - The method must return `void`.
+             - The method must not be generic or be contained in a generic type.
+             - The method's effective accessibility must be `internal` or `public`.
+            
+             The specification for module initializers in the .NET runtime can be found here:
+             https://github.com/dotnet/runtime/blob/main/docs/design/specs/Ecma-335-Augments.md#module-initializer
+             </remarks>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute">
+            <summary>
+            Specifies the priority of a member in overload resolution. When unspecified, the default priority is 0.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute"/> class.
+            </summary>
+            <param name="priority">The priority of the attributed member. Higher numbers are prioritized, lower numbers are deprioritized. 0 is the default if no attribute is present.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute.Priority">
+            <summary>
+            The priority of the member.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.UnionAttribute">
+            <summary>
+            Indicates that a class or struct is a union type, enabling compiler support for union behaviors.
+            </summary>
+            <remarks>
+            Any class or struct annotated with this attribute is recognized by the C# compiler as a union type.
+            Union types may support behaviors such as implicit conversions from case types, pattern matching
+            that unwraps the union's contents, and switch exhaustiveness checking.
+            </remarks>
+            <seealso cref="T:System.Runtime.CompilerServices.IUnion"/>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute">
+            <summary>
+            An attribute that allows parameters to receive the expression of other parameters.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute"/> class.
+            </summary>
+            <param name="parameterName">The condition parameter value.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute.ParameterName">
+            <summary>
+            Gets the parameter name the expression is retrieved from.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute">
+            <summary>
+            Indicates which arguments to a method involving an interpolated string handler should be passed to that handler.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute"/> class.
+            </summary>
+            <param name="argument">The name of the argument that should be passed to the handler.</param>
+            <remarks><see langword="null"/> may be used as the name of the receiver in an instance method.</remarks>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute.#ctor(System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute"/> class.
+            </summary>
+            <param name="arguments">The names of the arguments that should be passed to the handler.</param>
+            <remarks><see langword="null"/> may be used as the name of the receiver in an instance method.</remarks>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute.Arguments">
+            <summary>
+            Gets the names of the arguments that should be passed to the handler.
+            </summary>
+            <remarks><see langword="null"/> may be used as the name of the receiver in an instance method.</remarks>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.RequiredMemberAttribute">
+            <summary>
+            Specifies that a type has required members or that a member is required.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ParamCollectionAttribute">
+            <summary>
+            Indicates that a method will allow a variable number of arguments in its invocation.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.IUnion">
+            <summary>
+            Provides a common interface for accessing the contents of a union type at runtime.
+            </summary>
+            <remarks>
+            The C# compiler automatically implements this interface on types generated by union declarations.
+            User-defined types annotated with <see cref="T:System.Runtime.CompilerServices.UnionAttribute"/> may also implement this interface
+            to provide runtime access to the union's value. Implementing this interface is not required
+            for union behaviors provided by the compiler.
+            </remarks>
+            <seealso cref="T:System.Runtime.CompilerServices.UnionAttribute"/>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.IUnion.Value">
+            <summary>
+            Gets the value contained in the union, or <see langword="null"/> if the union has no value.
+            </summary>
+            <value>
+            The current value of the union as one of its case types, or <see langword="null"/>.
+            </value>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.IsExternalInit">
+            <summary>
+            Reserved to be used by the compiler for tracking metadata.
+            This class should not be used by developers in source code.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.RequiresLocationAttribute">
+            <summary>
+            Reserved for use by a compiler for tracking metadata.
+            This attribute should not be used by developers in source code.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ExtensionMarkerAttribute">
+            <summary>
+            This attribute is used to mark extension members and associate them with a specific marker type (which provides detailed information about an extension block and its receiver parameter).
+            This attribute should not be used by developers in source code.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.ExtensionMarkerAttribute.#ctor(System.String)">
+            <summary>Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.ExtensionMarkerAttribute"/> class.</summary>
+            <param name="name">The name of the marker type this extension member is associated with.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.ExtensionMarkerAttribute.Name">
+            <summary>The name of the marker type this extension member is associated with.</summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.IsClosedTypeAttribute">
+            <summary>
+            Reserved for use by a compiler for tracking metadata.
+            This attribute should not be used by developers in source code.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.IsClosedTypeAttribute.#ctor">
+            <summary>Initializes the attribute.</summary>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.IsClosedTypeAttribute.DerivedTypes">
+            <summary>Gets or sets the derived types of the closed type.</summary>
+            <value>An array of the derived types of the closed type. A <see langword="null" /> value is normalized to an empty array.</value>
+        </member>
+        <member name="M:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute"/> class.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute"/> class with the specified message.
+            </summary>
+            <param name="message">An optional message associated with this attribute instance.</param>
+        </member>
+        <member name="P:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.Message">
+            <summary>
+            Returns the optional message associated with this attribute instance.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.Url">
+            <summary>
+            Returns the optional URL associated with this attribute instance.
+            </summary>
+        </member>
+    </members>
+</doc>
