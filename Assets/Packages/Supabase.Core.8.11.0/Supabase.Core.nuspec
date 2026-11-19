@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Supabase.Core</id>
+    <version>8.11.0</version>
+    <authors>Supabase</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>icon.png</icon>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/supabase/supabase-csharp/tree/master/packages/Core</projectUrl>
+    <description>Supabase .NET shared HTTP, retry and telemetry pieces used by the Supabase packages.</description>
+    <copyright>MIT</copyright>
+    <tags>supabase core</tags>
+    <repository type="git" url="https://github.com/supabase/supabase-csharp" commit="d0e65db75ea69574b9acbcd3f609975aa8de0d77" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="System.Diagnostics.DiagnosticSource" version="8.0.1" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="8.0.6" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
